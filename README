@@ -1,0 +1,13 @@
+-------------------------
+WORLD IN THE WINE CELLAR
+-------------------------
+
+This program is a world creator for the exploration puzzle game "Enigma in
+the Wine Cellar".  This version for Linux OS is still under development, so
+it has limited functionality and stability.
+
+AUTOTOOLS BUILD PACKAGE
+
+The shell command './configure && make' should configure the build system
+and then build this package.  No installation is done.  The resulting binary
+file can be run with the shell command 'src/world-in-the-wine-celler'.
