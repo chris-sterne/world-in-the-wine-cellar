@@ -1,109 +1,121 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 4.0 for Linux OS                    *
- * File:    ControllerView.cpp                  *
- * Date:    September 7, 2016                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * This class displays a list of controllers.   *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the ControllerView class implementation.  The ControllerView
+// class displays and allows editing code for logic controllers.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
 #include "ControllerView.h"
+#include "World.h"
 
-//*----------------------*
-//* Default constructor. *
-//*----------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CControllerView::CControllerView()
+Enigma::ControllerView::ControllerView()
 {
-  //add_events( Gdk::KEY_PRESS_MASK );
-	
-  set_show_tabs( FALSE );
-  set_show_border( FALSE );
-	
+	//add_events(Gdk::KEY_PRESS_MASK);
+
+	set_show_tabs(false);
+	set_show_border(false);
+
 	// Prepare a scrolled window containing a list of map controllers.
-	
-	iControllerWindow
+
+	m_controller_window
 	  = std::unique_ptr<Gtk::ScrolledWindow>( new Gtk::ScrolledWindow );
 
-  iControllerList = std::unique_ptr<Gtk::TreeView>( new Gtk::TreeView );
-  iControllerWindow->add( *iControllerList );
-     
-  iControllerList->set_headers_visible( FALSE );
-  iControllerList->set_hexpand(TRUE);
-  iControllerList->set_vexpand(TRUE);
-  iControllerList->set_can_focus(TRUE);
-  
-  //Connect signal for double-click list row activation.
+  m_controller_list = std::unique_ptr<Gtk::TreeView>( new Gtk::TreeView );
+  m_controller_window->add( *m_controller_list );
+
+
+	//m_controller_window = std::make_unique<Gtk::ScrolledWindow>();
+	//m_controller_list   = std::make_unique<Gtk::TreeView>();
+	//m_controller_window->add( *m_controller_list );
+
+	m_controller_list->set_headers_visible(false);
+	m_controller_list->set_hexpand(true);
+	m_controller_list->set_vexpand(true);
+	m_controller_list->set_can_focus(true);
+
+	//Connect signal for double-click list row activation.
+
+	m_controller_list->signal_row_activated()
+		.connect(sigc::mem_fun(*this,
+		                       &Enigma::ControllerView::on_list_row_activated));
+
+	// Connect a key press event handler to the controller list, but place it
+	// before its default handler.  This allows capturing general key press
+	// events.
+
+	m_controller_list->signal_key_press_event()
+		.connect(sigc::mem_fun(*this,
+		                       &Enigma::ControllerView::On_List_Key_Press),
+	                         false);
+
+	Glib::RefPtr<Gtk::TreeSelection> tree_selection =
+		m_controller_list->get_selection();
+
+	tree_selection->set_mode(Gtk::SELECTION_BROWSE);
+
+	// Create the TreeView model, but do not attach it to the TreeView.
+	// This will be done later after the model has been filled.
+
+	m_liststore = Gtk::ListStore::create(m_column_record);	
+
+	// Create TreeView view.  The column cell has a function added for determining
+	// how to display the column data.
+
+	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
+	m_controller_list->append_column(*column);
+	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
+	Column->pack_start(*cell, true);
 	
-  iControllerList->signal_row_activated().connect(
-                   sigc::mem_fun( *this,
-                   &CControllerView::On_List_Row_Activated) );
-    
-  // Connect a key press event handler to the controller list, but place it
-  // before its default handler.  This allows capturing general key press
-  // events.
-	
-  iControllerList->signal_key_press_event().connect(
-                   sigc::mem_fun( *this,
-                   &CControllerView::On_List_Key_Press ),
-                   FALSE );
- 
-  Glib::RefPtr<Gtk::TreeSelection> TreeSelection
-    = iControllerList->get_selection();
+	Column->set_cell_data_func(*cell, sigc::mem_fun(*this,
+		&Enigma::ControllerView::cell_data_function)); 
 
-  TreeSelection->set_mode(Gtk::SELECTION_BROWSE);
-	
-  // Create the TreeView model, but do not attach it to the TreeView.
-  // This will be done later after the model has been filled.
-	
-  iListStore = Gtk::ListStore::create( iColumnRecord );	
+	// Prepare a scrolled window containing a controller sourcecode editor.
 
-  // Create TreeView view.  The column cell has a function added for determining
-  // how to display the column data.
-	
-  Gtk::TreeViewColumn* Column = Gtk::manage( new Gtk::TreeViewColumn );
-  iControllerList->append_column( *Column );
-  Gtk::CellRendererText* Cell = Gtk::manage( new Gtk::CellRendererText );
-  Column->pack_start( *Cell, TRUE );
-  Column->set_cell_data_func( *Cell,
-                              sigc::mem_fun( *this,
-                              &CControllerView::Data_Function )); 
+	m_code_window = std::make_unique<Gtk::ScrolledWindow>();
+	m_code_editor = std::make_unique<Gtk::TextView>();
+	m_code_window->add(*m_code_editor);
 
-  // Prepare a scrolled window containing a controller sourcecode editor.
+	m_code_editor->set_wrap_mode( Gtk::WRAP_WORD );
+	m_code_editor->set_editable(true);
+	m_code_editor->set_cursor_visible(true);
+	m_code_editor->set_hexpand(true);
+	m_code_editor->set_vexpand(true);
+	m_code_editor->set_can_focus(true);
 
-  iCodeWindow
-	  = std::unique_ptr<Gtk::ScrolledWindow>( new Gtk::ScrolledWindow );
+	// Connect a key press event handler to the code editor, but place it
+	// before its default handler.  This allows capturing general key press
+	// events.
 
-  iCodeEditor = std::unique_ptr<Gtk::TextView>( new Gtk::TextView );
-  iCodeWindow->add( *iCodeEditor );
-	
-	iCodeEditor->set_wrap_mode( Gtk::WRAP_WORD );
-  iCodeEditor->set_editable(TRUE);
-  iCodeEditor->set_cursor_visible(TRUE);
-  iCodeEditor->set_hexpand(TRUE);
-  iCodeEditor->set_vexpand(TRUE);
-  iCodeEditor->set_can_focus(TRUE);
+	m_code_editor->signal_key_press_event()
+		.connect(sigc::mem_fun(*this,
+	                         &CControllerView::On_Editor_Key_Press),
+	                         false);
 
-  // Connect a key press event handler to the code editor, but place it
-  // before its default handler.  This allows capturing general key press
-  // events.
-	
-  iCodeEditor->signal_key_press_event().connect(
-               sigc::mem_fun( *this,
-               &CControllerView::On_Editor_Key_Press ),
-               FALSE );
+// Add pages to the notebook.
 
-  // Add pages to the notebook.
-  
-  iControllerPageNumber = append_page( *iControllerWindow );
-  iCodePageNumber       = append_page( *iCodeWindow );
+	m_controller_page_number = append_page(*m_controller_window);
+	m_code_page_number       = append_page(*m_code_window);
 
-  // The first displayed page shows the controller list.
+	// The first displayed page shows the controller list.
 
-  set_current_page( iControllerPageNumber );
-  return;
+	set_current_page(m_controller_page_number);
 }
 
 //*-------------------------------------------------------------*
@@ -128,8 +140,8 @@ void CControllerView::on_map()
 //* content for display.                                          *
 //*---------------------------------------------------------------*
 
-void CControllerView::Data_Function( Gtk::CellRenderer* const& aCellRenderer,
-                                     const Gtk::TreeIter& aTreeIterator )
+void CControllerView::cell_data_function(Gtk::CellRenderer* const& aCellRenderer,
+                                         const Gtk::TreeIter& aTreeIterator )
 {	
   // Exit if there is no iterator.
 

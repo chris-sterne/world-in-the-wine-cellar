@@ -1,12 +1,21 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 4.0 for Linux OS                    *
- * File:    PlayerView.cpp                      *
- * Date:    September 7, 2016                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * This class displays all players in the map.  *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the PlayerView class implementation.  The PlayerView
+// class displays and allows editing players in the world.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
 #include "PlayerView.h"
@@ -190,51 +199,49 @@ void CPlayerView::On_Cursor_Changed()
 	return;
 }
 
-//*-------------------------------*
-//* This method updates the view. *
-//*-------------------------------*
+//------------------------------
+// This method updates the view.
+//------------------------------
 
-void CPlayerView::Update()
+void Enigma::PlayerView::update()
 {
   // Detach the model from the TreeView and clear all old entries.
   
-  iTreeView->unset_model();
-  iListStore->clear();
+  m_treeview->unset_model();
+  m_liststore->clear();
 
   // Populate the ListStore with iterators to all players in the map.
 	
-  Gtk::TreeModel::Row Row;	
-  std::list<CMapObject>::iterator Object;
+  Gtk::TreeModel::Row row;	
+  std::list<CMapObject>::iterator object;
 
-  for ( Object = iMap->iPlayers.begin();
-        Object != iMap->iPlayers.end();
-        ++ Object )
+  for (object = m_world->m_players.begin();
+       object != m_world->m_players.end();
+       ++ object)
   {
-    Row = *( iListStore->append() );
-    Row[ iColumnRecord.iIterator ] = Object;
+    Row = *(m_liststore->append());
+    Row[m_columnrecord.m_iterator] = object;
   }
 
   // Attach the filled model to the TreeView.
 
-  iTreeView->set_model( iListStore );
-	return;
+  m_treeview->set_model(m_liststore);
 }
 
-//*-----------------------------------------------*
-//* This method returns the item location signal. *
-//*-----------------------------------------------*
+//----------------------------------------------
+// This method returns the item location signal.
+//----------------------------------------------
 
-CPlayerView::type_signal_location CPlayerView::signal_location()
+PlayerView::type_signal_position Enigma::PlayerView::signal_position()
 {
-  return m_signal_location;
+  return m_signal_position;
 }
 
-//*------------------------------------------------------------*
-//* This method emits a signal containing the item's location. *
-//*------------------------------------------------------------*
+//-----------------------------------------------------------
+// This method emits a signal containing the item's location.
+//-----------------------------------------------------------
 
-void CPlayerView::Do_Location( CMapLocation aLocation)
+void Enigma::PlayerView::do_location(Enigma::Position position)
 {	  
-  m_signal_location.emit( aLocation );
-  return;
+  m_signal_position.emit(position);
 }

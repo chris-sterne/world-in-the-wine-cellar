@@ -1,14 +1,21 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 5.1 for Linux OS                    *
- * File:    ImageTiles.cpp                      *
- * Date:    September 7, 2017                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * ImageTiles class.                            *
- *----------------------------------------------*
- * This class handles map image tile drawing.   *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the Tiles class implementation.  The Tiles class draws object
+// image tiles in a game world level viewer.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ImageTiles.h"
 

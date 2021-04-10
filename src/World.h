@@ -20,15 +20,14 @@
 #ifndef __WORLD_H__
 #define __WORLD_H__
 
-#include <gtkmm.h>
-#include "ObjectList.h"
-#include "Controller.h"
+//#include "ObjectList.h"
+//#include "Controller.h"
 
 namespace Enigma
 {
 	class World : public sigc::trackable
 	{
-		public:
+		/*public:
 			// Public methods.
 
 			World();
@@ -38,13 +37,13 @@ namespace Enigma
 
 			// Public data.
 		
-			Glib::ustring m_filename;                 // World filename.
-			Enigma::ObjectList m_objects;             // Sorted object list.
-			Enigma::ObjectList m_players;             // Sorted player list.
-			Enigma::ObjectList m_items;               // Sorted item list.
-			Enigma::ObjectList m_teleporters;         // Sorted teleporter list.
-			Glib::ustring m_description;              // Description of game world.
-			bool m_savable;                           // TRUE if game can be saved.
+			Glib::ustring m_filename;            // World filename.
+			Enigma::ObjectList m_objects;        // Sorted object list.
+			Enigma::ObjectList m_players;        // Sorted player list.
+			Enigma::ObjectList m_items;          // Sorted item list.
+			Enigma::ObjectList m_teleporters;    // Sorted teleporter list.
+			Glib::ustring m_description;         // Description of game world.
+			bool m_savable;                      // TRUE if game can be saved.
 
 			// List of logic controllers.
 
@@ -53,7 +52,7 @@ namespace Enigma
 		private:
 			// Private methods.
 
-			void extract_world(std::string& filedata);
+			void extract_world(std::string& filedata);*/
 	};
 }
 

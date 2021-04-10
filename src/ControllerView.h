@@ -1,80 +1,99 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 4.0 for Linux OS                    *
- * File:    ControllerView.h                    *
- * Date:    September 7, 2016                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * ControllerView class header.                 *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the ControllerView class header.  The ControllerView class
+// displays and allows editing code for logic controllers.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 #ifndef __CONTROLLERVIEW_H__
 #define __CONTROLLERVIEW_H__
 
-#include <gtkmm.h>
-#include "Map.h"
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/notebook.h>
+#include <gtkmm/treemodel.h>
+#include <gtkmm/treeviewcolumn.h>
+#include <gdkmm/event.h>
+#include "Controller.h"
 
-class CControllerView : public Gtk::Notebook
+namespace Enigma
 {
-  public:
-    // Public methods.
-    
-    CControllerView();
-    void Update();
-    void Reset();
-    void Do_Name( const std::string& aString );
-    void SetMap( std::shared_ptr<CMap> aMap );
-    gboolean On_List_Key_Press( GdkEventKey* key_event );
-    gboolean On_Editor_Key_Press( GdkEventKey* key_event );
+	class World;
+	
+	class ControllerView : public Gtk::Notebook
+	{
+		public:
+			// Public methods.
 
-    void On_List_Row_Activated( const Gtk::TreeModel::Path& aPath,
-                                Gtk::TreeViewColumn* aColumn );
+			ControllerView();
+			void update();
+			void reset();
+			void do_name(const std::string& string);
+			void set_world(std::shared_ptr<Enigma::World> world);
+			bool on_list_key_press(GdkEventKey* key_event);
+			bool on_editor_key_press(GdkEventKey* key_event);
 
-    // Controller name signal accessor.
-		
-    typedef sigc::signal<void, const std::string&> type_signal_name;
-    type_signal_name signal_name();
+			void on_list_row_activated(const Gtk::TreeModel::Path& path,
+			                           Gtk::TreeViewColumn* column);
 
-  protected:
-    // Overridden base class methods.
+			// Controller name signal accessor.
 
-    void on_map();
+			typedef sigc::signal<void, const std::string&> type_signal_name;
+			type_signal_name signal_name();
 
-  private:
-    // Private classes.
-		
-    class CColumn : public Gtk::TreeModel::ColumnRecord
-    {
-      public:
-        Gtk::TreeModelColumn<std::list<CMapController>::iterator> iIterator;
-				
-        CColumn()
-        { 
-          add( iIterator );
-        }
-    };
+			// Overridden base class methods.
 
-    // Private methods.
+			void on_map() override;
 
-    void Data_Function( Gtk::CellRenderer* const& aCellRenderer,
-                        const Gtk::TreeIter& aTreeIterator );
-		
-    // Private data.
+		private:
+			// Private classes.
 
-    CColumn iColumnRecord;
-		
-    // Private data.
+			class Column : public Gtk::TreeModel::ColumnRecord
+			{
+				public:
+					Gtk::TreeModelColumn<std::list<Enigma::Controller>::iterator> m_iterator;
 
-    std::shared_ptr<CMap> iMap;                             // Shared Game map.
-    std::unique_ptr<Gtk::ScrolledWindow> iControllerWindow; // Controller window.
-    std::unique_ptr<Gtk::TreeView> iControllerList;         // Controller list.
-    Glib::RefPtr<Gtk::ListStore> iListStore;                // Storage for data entries.
-    std::unique_ptr<Gtk::ScrolledWindow> iCodeWindow;       // Code window.
-    std::unique_ptr<Gtk::TextView> iCodeEditor;             // Code editor.
-    std::list<CMapController>::iterator iSelected;          // Iterator to selected controller.
-    type_signal_name m_signal_name;                         // Name signal server.
-    int iControllerPageNumber;                              // Page number of list.
-    int iCodePageNumber;                                    // Page number of editor.
-};
+					Column()
+					{ 
+						add(m_iterator);
+					}
+			};
+
+			// Private methods.
+
+			void data_function(Gtk::CellRenderer* const& cell_renderer,
+			                   const Gtk::TreeIter& tree_iterator);
+
+			// Private data.
+
+			Column m_column_record;
+
+			// Private data.
+
+			std::shared_ptr<Enigma::World> m_world;
+			std::unique_ptr<Gtk::ScrolledWindow> m_controller_window;
+			std::unique_ptr<Gtk::TreeView> m_controller_list;
+			Glib::RefPtr<Gtk::ListStore> m_liststore;
+			std::unique_ptr<Gtk::ScrolledWindow> m_code_window;
+			std::unique_ptr<Gtk::TextView> m_code_editor;
+			std::list<Enigma::Controller>::iterator m_selected;
+			type_signal_name m_signal_name;
+			int m_controller_page_number;
+			int m_code_page_number;
+	};
+}
 
 #endif // __CONTROLLERVIEW_H__

@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License along
 // with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <glibmm/i18n.h>
+#include <glibmm.h>
 #include "Application.h"
 
 //-------------------
@@ -35,6 +37,6 @@ int main(int argc, char *argv[])
 	
 	// Create and run an instance of the application.
 	
-	std::make_unique<Enigma::Application>();
+	Glib::RefPtr<Enigma::Application> application(new Enigma::Application);
 	return application->run(argc, argv);
 }

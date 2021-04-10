@@ -1,72 +1,87 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 5.0 for Linux OS                    *
- * File:    TeleporterView.h                    *
- * Date:    September 13, 2015                  *
- * Author:  Chris Sterne                        *
- *                                              *
- * TeleporterView class header.                 *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the TeleporterView class header.  The TeleporterView class
+// displays and allows editing teleporter objects.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 #ifndef __TELEPORTERVIEW_H__
 #define __TELEPORTERVIEW_H__
 
-#include <gtkmm.h>
-#include "Map.h"
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/treemodel.h>
+#include <gdkmm/event.h>
+//#include "World.h"
 
-class CTeleporterView : public Gtk::ScrolledWindow
+namespace Enigma
 {
-  public:
-    // Public methods.
-    
-    CTeleporterView();
-		void Update();
-		void SetMap( std::shared_ptr<CMap> aMap );
-		gboolean On_Key_Press( GdkEventKey* key_event );
+	class World;
+	
+	class TeleporterView : public Gtk::ScrolledWindow
+	{
+		public:
+			// Public methods.
 
-    // Map location signal accessor.
-		
-    typedef sigc::signal<void, const CMapLocation&> type_signal_location;
-    type_signal_location signal_location();
+			TeleporterView();
+			void update();
+			void set_world(std::shared_ptr<Enigma::World> world);
+			bool on_key_press(GdkEventKey* key_event);
 
-	protected:
-		// Overridden base class methods.
+			// Map location signal accessor.
 
-		void on_map();
-		
-	private:
-		// Private classes.
-		
-		class CObjectColumns : public Gtk::TreeModel::ColumnRecord
-		{
-			public:
-				Gtk::TreeModelColumn<std::list<CMapObject>::iterator> iIterator;
-				
-				CObjectColumns()
-				{ 
-					add( iIterator );
-				}
-		};
+			typedef sigc::signal<void, const Enigma::Position&> type_signal_position;
+			type_signal_position signal_position();
 
-		// Private methods.
+			// Overridden base class methods.
 
-		void Object_Data_Function( Gtk::CellRenderer* const& aCellRenderer,
-															 const Gtk::TreeIter& aTreeIterator );
-		
-		void On_Cursor_Changed();
-    void Do_Location( CMapLocation aLocation );
-		
-		// Private data.
+			void on_map() override;
 
-		CObjectColumns iColumnRecord;
-		
-		// Private data.
+		private:
+			// Private classes.
 
-		std::shared_ptr<CMap> iMap;                // Shared Game map.
-		std::list<CMapObject> iBuffer;             // List of teleporter objects.
-		std::unique_ptr<Gtk::TreeView> iTreeView;  // Room object list viewer.
-		Glib::RefPtr<Gtk::ListStore> iListStore;   // Storage for data entries.
-		type_signal_location m_signal_location;    // Location signal server.
-};
+			class ObjectColumns : public Gtk::TreeModel::ColumnRecord
+			{
+				public:
+					Gtk::TreeModelColumn<std::list<Enigma::Object>::iterator> m_iterator;
+
+					ObjectColumns()
+					{ 
+						add(m_iterator);
+					}
+			};
+
+			// Private methods.
+
+			void object_data_function(Gtk::CellRenderer* const& cell_renderer,
+			                          const Gtk::TreeIter& tree_iterator);
+
+			void on_cursor_changed();
+			void do_position(Enigma::Position position);
+
+			// Private data.
+
+			ObjectColumns m_columnrecord;
+
+			// Private data.
+
+			std::shared_ptr<Enigma::World> m_world;     // Game world.
+			std::list<Enigma::Object> m_buffer;         // List of teleporter objects.
+			std::unique_ptr<Gtk::TreeView> m_treeview;  // Room object list viewer.
+			Glib::RefPtr<Gtk::ListStore> m_liststore;   // Storage for data entries.
+			type_signal_position m_signal_position;     // Location signal server.
+	};
+}
 
 #endif // __TELEPORTERVIEW_H__

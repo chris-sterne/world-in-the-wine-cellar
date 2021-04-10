@@ -1,8 +1,8 @@
 // "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
-// This file is the DescriptionView class header.  The DescriptionView class
-// displays and allows editing a description of the world.
+// This file contains the Volume class header.  The Volume class describes
+// a volume of positions in a game world. 
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -16,37 +16,23 @@
 //
 // You should have received a copy of the GNU General Public License along
 // with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+#ifndef __VOLUME_H__
+#define __VOLUME_H__
 
-#ifndef __DESCRIPTIONVIEW_H__
-#define __DESCRIPTIONVIEW_H__
-
-#include <gtkmm/scrolledwindow.h>
-#include <gtkmm/textview.h>
-#include "World.h"
+#include <gtkmm.h>
+#include "Position.h"
 
 namespace Enigma
 {
-	class DescriptionView : public Gtk::ScrolledWindow
+	class Volume
 	{
 		public:
-			// Public methods.
+			// Public data.
 
-			CDescriptionView();
-			void set_world(std::shared_ptr<Enigma::World> world);
-			void on_changed();
-			void update();
-
-			// Overridden base class methods.
-
-			void on_map() override;
-
-			private:
-				// Private data.
-
-				std::shared_ptr<Enigma::World> m_world;      // Game world.
-				std::unique_ptr<Gtk::TextView> m_textview;   // TextView widget.
-				sigc::connection m_textbuffer_connection;    // Signal connection.
+			Enigma::Position m_WSB;  // West-South-Below (lowest) corner of volume.
+			Enigma::Position m_ENA;  // East-North-Above (highest) corner of volume.
 	};
 }
 
-#endif // __DESCRIPTIONVIEW_H__
+#endif // __VOLUME_H__

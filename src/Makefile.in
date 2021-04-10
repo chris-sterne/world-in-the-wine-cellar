@@ -99,12 +99,19 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_world_in_the_wine_cellar_OBJECTS =
+am_world_in_the_wine_cellar_OBJECTS = main.$(OBJEXT) \
+	Application.$(OBJEXT) MainWindow.$(OBJEXT) \
+	CommandEntry.$(OBJEXT) ControllerView.$(OBJEXT) \
+	DescriptionView.$(OBJEXT) PlayerView.$(OBJEXT) \
+	RoomView.$(OBJEXT) TeleporterView.$(OBJEXT) ItemView.$(OBJEXT) \
+	LevelView.$(OBJEXT) HelpView.$(OBJEXT) World.$(OBJEXT) \
+	Tiles.$(OBJEXT) Controller.$(OBJEXT) MessageBar.$(OBJEXT) \
+	ObjectList.$(OBJEXT)
 world_in_the_wine_cellar_OBJECTS =  \
 	$(am_world_in_the_wine_cellar_OBJECTS)
 am__DEPENDENCIES_1 =
 world_in_the_wine_cellar_DEPENDENCIES = $(am__DEPENDENCIES_1)
-world_in_the_wine_cellar_LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+world_in_the_wine_cellar_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(world_in_the_wine_cellar_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -119,18 +126,31 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-AM_V_CC = $(am__v_CC_@AM_V@)
-am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
-am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CCLD = $(am__v_CCLD_@AM_V@)
-am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
-am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+am__maybe_remake_depfiles = depfiles
+am__depfiles_remade = ./$(DEPDIR)/Application.Po \
+	./$(DEPDIR)/CommandEntry.Po ./$(DEPDIR)/Controller.Po \
+	./$(DEPDIR)/ControllerView.Po ./$(DEPDIR)/DescriptionView.Po \
+	./$(DEPDIR)/HelpView.Po ./$(DEPDIR)/ItemView.Po \
+	./$(DEPDIR)/LevelView.Po ./$(DEPDIR)/MainWindow.Po \
+	./$(DEPDIR)/MessageBar.Po ./$(DEPDIR)/ObjectList.Po \
+	./$(DEPDIR)/PlayerView.Po ./$(DEPDIR)/RoomView.Po \
+	./$(DEPDIR)/TeleporterView.Po ./$(DEPDIR)/Tiles.Po \
+	./$(DEPDIR)/World.Po ./$(DEPDIR)/main.Po
+am__mv = mv -f
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 SOURCES = $(world_in_the_wine_cellar_SOURCES)
 DIST_SOURCES = $(world_in_the_wine_cellar_SOURCES)
 am__can_run_installinfo = \
@@ -139,7 +159,25 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
-am__DIST_COMMON = $(srcdir)/Makefile.in
+# Read a list of newline-separated strings from the standard input,
+# and print each of them once, without duplicates.  Input order is
+# *not* preserved.
+am__uniquify_input = $(AWK) '\
+  BEGIN { nonempty = 0; } \
+  { items[$$0] = 1; nonempty = 1; } \
+  END { if (nonempty) { for (i in items) print i; }; } \
+'
+# Make sure the list of sources is unique.  This is necessary because,
+# e.g., the same source file might be shared among _SOURCES variables
+# for different programs/libraries.
+am__define_uniq_tagged_files = \
+  list='$(am__tagged_files)'; \
+  unique=`for i in $$list; do \
+    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+  done | $(am__uniquify_input)`
+ETAGS = etags
+CTAGS = ctags
+am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -242,10 +280,29 @@ AM_CPPFLAGS = \
 AM_CFLAGS = -Wall
 world_in_the_wine_cellar_LDFLAGS = -pthread
 world_in_the_wine_cellar_LDADD = $(WORLD_IN_THE_WINE_CELLAR_LIBS)
-world_in_the_wine_cellar_SOURCES = 
+world_in_the_wine_cellar_SOURCES = \
+	main.cc \
+	Application.cc \
+	MainWindow.cc \
+	CommandEntry.cc \
+	ControllerView.cc \
+	DescriptionView.cc \
+	PlayerView.cc \
+	RoomView.cc \
+	TeleporterView.cc \
+	ItemView.cc \
+	LevelView.cc \
+	HelpView.cc \
+	World.cc \
+	Tiles.cc \
+	Controller.cc \
+	MessageBar.cc \
+	ObjectList.cc
+
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .cc .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -320,19 +377,103 @@ clean-binPROGRAMS:
 
 world-in-the-wine-cellar$(EXEEXT): $(world_in_the_wine_cellar_OBJECTS) $(world_in_the_wine_cellar_DEPENDENCIES) $(EXTRA_world_in_the_wine_cellar_DEPENDENCIES) 
 	@rm -f world-in-the-wine-cellar$(EXEEXT)
-	$(AM_V_CCLD)$(world_in_the_wine_cellar_LINK) $(world_in_the_wine_cellar_OBJECTS) $(world_in_the_wine_cellar_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(world_in_the_wine_cellar_LINK) $(world_in_the_wine_cellar_OBJECTS) $(world_in_the_wine_cellar_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
-tags TAGS:
 
-ctags CTAGS:
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Application.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CommandEntry.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Controller.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ControllerView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DescriptionView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HelpView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ItemView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LevelView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MainWindow.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MessageBar.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObjectList.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PlayerView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RoomView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TeleporterView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Tiles.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/World.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
 
-cscope cscopelist:
+$(am__depfiles_remade):
+	@$(MKDIR_P) $(@D)
+	@echo '# dummy' >$@-t && $(am__mv) $@-t $@
 
+am--depfiles: $(am__depfiles_remade)
+
+.cc.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cc.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+ID: $(am__tagged_files)
+	$(am__define_uniq_tagged_files); mkid -fID $$unique
+tags: tags-am
+TAGS: tags
+
+tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
+	set x; \
+	here=`pwd`; \
+	$(am__define_uniq_tagged_files); \
+	shift; \
+	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
+	  test -n "$$unique" || unique=$$empty_fix; \
+	  if test $$# -gt 0; then \
+	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
+	      "$$@" $$unique; \
+	  else \
+	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
+	      $$unique; \
+	  fi; \
+	fi
+ctags: ctags-am
+
+CTAGS: ctags
+ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
+	$(am__define_uniq_tagged_files); \
+	test -z "$(CTAGS_ARGS)$$unique" \
+	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
+	     $$unique
+
+GTAGS:
+	here=`$(am__cd) $(top_builddir) && pwd` \
+	  && $(am__cd) $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) "$$here"
+cscopelist: cscopelist-am
+
+cscopelist-am: $(am__tagged_files)
+	list='$(am__tagged_files)'; \
+	case "$(srcdir)" in \
+	  [\\/]* | ?:[\\/]*) sdir="$(srcdir)" ;; \
+	  *) sdir=$(subdir)/$(srcdir) ;; \
+	esac; \
+	for i in $$list; do \
+	  if test -f "$$i"; then \
+	    echo "$(subdir)/$$i"; \
+	  else \
+	    echo "$$sdir/$$i"; \
+	  fi; \
+	done >> $(top_builddir)/cscope.files
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) distdir-am
@@ -409,8 +550,26 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
+		-rm -f ./$(DEPDIR)/Application.Po
+	-rm -f ./$(DEPDIR)/CommandEntry.Po
+	-rm -f ./$(DEPDIR)/Controller.Po
+	-rm -f ./$(DEPDIR)/ControllerView.Po
+	-rm -f ./$(DEPDIR)/DescriptionView.Po
+	-rm -f ./$(DEPDIR)/HelpView.Po
+	-rm -f ./$(DEPDIR)/ItemView.Po
+	-rm -f ./$(DEPDIR)/LevelView.Po
+	-rm -f ./$(DEPDIR)/MainWindow.Po
+	-rm -f ./$(DEPDIR)/MessageBar.Po
+	-rm -f ./$(DEPDIR)/ObjectList.Po
+	-rm -f ./$(DEPDIR)/PlayerView.Po
+	-rm -f ./$(DEPDIR)/RoomView.Po
+	-rm -f ./$(DEPDIR)/TeleporterView.Po
+	-rm -f ./$(DEPDIR)/Tiles.Po
+	-rm -f ./$(DEPDIR)/World.Po
+	-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
-distclean-am: clean-am distclean-compile distclean-generic
+distclean-am: clean-am distclean-compile distclean-generic \
+	distclean-tags
 
 dvi: dvi-am
 
@@ -453,6 +612,23 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
+		-rm -f ./$(DEPDIR)/Application.Po
+	-rm -f ./$(DEPDIR)/CommandEntry.Po
+	-rm -f ./$(DEPDIR)/Controller.Po
+	-rm -f ./$(DEPDIR)/ControllerView.Po
+	-rm -f ./$(DEPDIR)/DescriptionView.Po
+	-rm -f ./$(DEPDIR)/HelpView.Po
+	-rm -f ./$(DEPDIR)/ItemView.Po
+	-rm -f ./$(DEPDIR)/LevelView.Po
+	-rm -f ./$(DEPDIR)/MainWindow.Po
+	-rm -f ./$(DEPDIR)/MessageBar.Po
+	-rm -f ./$(DEPDIR)/ObjectList.Po
+	-rm -f ./$(DEPDIR)/PlayerView.Po
+	-rm -f ./$(DEPDIR)/RoomView.Po
+	-rm -f ./$(DEPDIR)/TeleporterView.Po
+	-rm -f ./$(DEPDIR)/Tiles.Po
+	-rm -f ./$(DEPDIR)/World.Po
+	-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -472,18 +648,19 @@ uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: install-am install-strip
 
-.PHONY: all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic cscopelist-am ctags-am distclean \
-	distclean-compile distclean-generic distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS
+.PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
+	clean-binPROGRAMS clean-generic cscopelist-am ctags ctags-am \
+	distclean distclean-compile distclean-generic distclean-tags \
+	distdir dvi dvi-am html html-am info info-am install \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 

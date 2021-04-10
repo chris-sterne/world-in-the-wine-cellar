@@ -1,79 +1,93 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 5.1 for Linux OS                    *
- * File:    Application.h                       *
- * Date:    October 4, 2017                     *
- * Author:  Chris Sterne                        *
- *                                              *
- * Application class header.                    *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the Application class header.  The Application class serves
+// as a foundation on which the application is constructed.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
-#include <gtkmm.h>
-#include "EnigmaWC.h"
-#include "MainWindow.h"
-#include "LevelView.h"
-#include "RoomView.h"
-#include "ControllerView.h"
-#include "ControlView.h"
-#include "TeleporterView.h"
-#include "ItemView.h"
-#include "PlayerView.h"
-#include "DescriptionView.h"
-#include "HelpView.h"
-#include "CommandEntry.h"
-#include "Map.h"
+#include <gtkmm/application.h>
+#include <gtkmm/label.h>
+#include <gtkmm/grid.h>
+#include <gtkmm/notebook.h>
+#include <gdkmm/event.h>
 
-class CApplication : public Gtk::Application
+namespace Enigma
 {
-  public:
-    // Public methods.
-		
-    CApplication();
-    void On_Command( const Glib::ustring& aCommand );
-    gboolean On_Key_Press( GdkEventKey* key_event );
-    bool On_MainWindow_Delete( GdkEventAny* any_event );
-		
-  protected:
-    // Protected methods from base class.
-    
-    void on_activate();
+	class World;
+	class MainWindow;
+	class CommandEntry;
+	class LevelView;
+	class RoomView;
+	class TeleporterView;
+	class ItemView;
+	class PlayerView;
+	class ControllerView;
+	class ControlView;
+	class DescriptionView;
+	class HelpView;
+	
+	class Application : public Gtk::Application
+	{
+		public:
+			// Public methods.
 
-  private:
-    // Private data.
+			Application();
+			void on_command(const Glib::ustring& command);
+			bool on_key_press(GdkEventKey* key_event);
 
-    std::shared_ptr<CMap> iMap;                   // Game map.
-    std::unique_ptr< CMainWindow > iMainWindow;   // Top level window.
-    std::unique_ptr<Gtk::Grid> iGrid;							// Container for widgets.
-    std::unique_ptr<CCommandEntry> iCommandEntry; // Command line entry widget.
-    std::unique_ptr<Gtk::Label> iViewName;        // Map Viewer name label.
-    std::unique_ptr< Gtk::Notebook > iViewBook;   // Notebook for viewers.
-        
-    // Map viewers.
-    
-    std::unique_ptr<CLevelView> iLevelView;
-    std::unique_ptr<CRoomView> iRoomView;
-    std::unique_ptr<CTeleporterView> iTeleporterView;    
-    std::unique_ptr<CItemView> iItemView;
-    std::unique_ptr<CPlayerView> iPlayerView;    
-    std::unique_ptr<CControllerView> iControllerView;
-    std::unique_ptr<CControlView> iControlView;
-    std::unique_ptr<CDescriptionView> iDescriptionView;
-    std::unique_ptr<CHelpView> iHelpView;
+			// Protected methods from base class.
 
-    // Map viewer notebook page numbers.
-    
-    int iLevelViewNumber;
-    int iRoomViewNumber;
-    int iTeleporterViewNumber;    
-    int iItemViewNumber;
-    int iPlayerViewNumber;        
-    int iControllerViewNumber;
-    int iControlViewNumber;
-    int iDescriptionViewNumber;
-    int iHelpViewNumber;
-};
+			void on_activate() override;
+
+		private:
+			// Private data.
+
+			std::shared_ptr<Enigma::World> m_world;
+			std::unique_ptr<Enigma::MainWindow> m_mainwindow;
+			std::unique_ptr<Gtk::Grid> m_grid;
+			std::unique_ptr<Enigma::CommandEntry> m_commandentry;
+			std::unique_ptr<Gtk::Label> m_viewname;
+			std::unique_ptr<Gtk::Notebook> m_viewbook;
+
+			// Map viewers.
+
+			std::unique_ptr<Enigma::LevelView> m_levelview;
+			std::unique_ptr<Enigma::RoomView> m_roomview;
+			std::unique_ptr<Enigma::TeleporterView> m_teleporterview;    
+			std::unique_ptr<Enigma::ItemView> m_itemview;
+			std::unique_ptr<Enigma::PlayerView> m_playerview;    
+			std::unique_ptr<Enigma::ControllerView> m_controllerview;
+			std::unique_ptr<Enigma::ControlView> m_controlview;
+			std::unique_ptr<Enigma::DescriptionView> m_descriptionview;
+			std::unique_ptr<Enigma::HelpView> m_helpview;
+
+			// Map viewer notebook page numbers.
+
+			int m_levelview_number;
+			int m_roomView_number;
+			int m_teleporterview_number;    
+			int m_itemview_number;
+			int m_playerview_number;        
+			int m_controllerview_number;
+			int m_controlview_number;
+			int m_descriptionview_number;
+			int m_helpview_number;
+	};
+}
 
 #endif // __APPLICATION_H__

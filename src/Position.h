@@ -20,18 +20,16 @@
 #ifndef __POSITION_H__
 #define __POSITION_H__
 
-#include <gtkmm.h>
-
 namespace Enigma
 {
 	class Position
 	{
-		public:
-		// Public data.
+		/*public:
+			// Public data.
 
-		unsigned short m_above;
-		unsigned short m_north;
-		unsigned short m_east;
+			unsigned short m_above;
+			unsigned short m_north;
+			unsigned short m_east;*/
 	};
 }
 

@@ -1,71 +1,85 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 3.0 for Linux OS                    *
- * File:    LevelView.h                         *
- * Date:    July 4, 2016                        *
- * Author:  Chris Sterne                        *
- *                                              *
- * LevelView class header.                      *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the LevelView class header.  The LevelView class is an editor
+// for levels and rooms of a game world.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #ifndef __LEVELVIEW_H__
 #define __LEVELVIEW_H__
 
-#include <gtkmm.h>
-#include "MapVolume.h"
-#include "ImageTiles.h"
-#include "Map.h"
+#include <gtkmm/drawingarea.h>
+#include "Volume.h"
+#include "Tiles.h"
+#include "World.h"
 
-class CLevelView : public Gtk::DrawingArea
+namespace Enigma
 {
-  public:
-    // Public methods.
+	class LevelView : public Gtk::DrawingArea
+	{
+		/*public:
+			// Public methods.
 
-    CLevelView();
-    ~CLevelView();
-    void Home();
-		void Update();
-		void SetMap( std::shared_ptr<CMap> aMap );
-		void SetFilter( EnigmaWC::ID aFilter );
-		CMapLocation& GetCursor();
+			LevelView();
+			void home();
+			void update();
+			void set_world(std::shared_ptr<Enigma::World> world);
+			void set_filter(Enigma::Object::ID m_filter);
+			Enigma::Position& get_cursor();
 
-		// Map location signal accessor.
-		
-	  typedef sigc::signal<void, const CMapLocation&> type_signal_location;
-		type_signal_location signal_location();
-		
-  protected:
-		// Overridden base class methods.
-		
-		void on_size_allocate( Gtk::Allocation& allocation );
-		void on_map();
-    bool on_draw( const Cairo::RefPtr<Cairo::Context>& aCC );
-		bool on_key_press_event( GdkEventKey* key_event );
-		virtual void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const;
-		virtual void get_preferred_height_vfunc(int& minimum_height, int& natural_height) const;
-		
-  private:
-    // Private methods.
-    
-    void Do_Location();
-    void Mark();
-    void Delete();
-    void Cut();
-    void Copy();
-    void Paste();
-  
-		// Private data.
+			// Map position signal accessor.
 
-		std::shared_ptr<CMap> iMap;                // Shared Game map.
-		CImageTiles iImageTiles;                   // Image tile drawing object.
-		CMapVolume iView;                          // Visible volume (one level) of map.
-		CMapVolume iMark;                          // Marked volume of map.
-		CMapLocation iMarkOrigin;                  // Origin of marked volume.
-		CMapLocation iCursor;                      // Map location of cursor.
-		type_signal_location m_signal_location;    // Map location signal server.
-    std::list<CMapObject> iEditBuffer;         // Objects editing buffer.
-    EnigmaWC::ID iFilter;                      // Object viewing filter.
-};
+			typedef sigc::signal<void, const Enigma::Position&> type_signal_position;
+			type_signal_position signal_position();
+
+			// Overridden base class methods.
+
+			void on_size_allocate(Gtk::Allocation& allocation) override;
+			void on_map() override;
+			bool on_draw(const Cairo::RefPtr<Cairo::Context>& context) override;
+			bool on_key_press_event(GdkEventKey* key_event) override;
+			
+			void get_preferred_width_vfunc(int& minimum_width,
+			                               int& natural_width) const override;
+			
+			void get_preferred_height_vfunc(int& minimum_height,
+			                                int& natural_height) const override;
+
+		private:
+			// Private methods.
+
+			void do_location();
+			void mark();
+			void erase();
+			void cut();
+			void copy();
+			void paste();
+
+			// Private data.
+
+			std::shared_ptr<Enigma::World> m_world;    // Game world being viewed.
+			Enigma::Tiles m_tiles;                     // Image tile drawing object.
+			Enigma::Volume m_view;                     // Visible area of world.
+			Enigma::Volume m_mark;                     // Marked volume of world.
+			Enigma::Position m_mark_origin;            // Origin of marked volume.
+			Enigma::Position m_cursor;                 // Map position of cursor.
+			type_signal_location m_signal_location;    // Map position signal server.
+			std::list<Enigma::Object> m_edit_buffer;   // Objects editing buffer.
+			Enigma::Object::ID m_filter;               // Object viewing filter.*/
+	};
+}
 
 #endif // __LEVELVIEW_H__

@@ -20,15 +20,22 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
 
-#include <gtkmm.h>
-#include "Location.h"
+//#include "Position.h"
 
 namespace Enigma
 {
 	class Object
 	{
-		public:
-			enum class ID         // Object ID values.
+		/*public:
+			enum class Type         // Object type.
+			{
+				OBJECT = 0,
+				ITEM,
+				PLAYER,
+				TELEPORTER
+			};
+		
+			enum class ID           // Object ID values.
 			{
 				NONE = 0,
 				WINECELLAR,
@@ -113,12 +120,27 @@ namespace Enigma
 				TOTAL
 			};
 
-			enum Type            // Object type.
+			enum class Direction    // Directions in the world.
 			{
-				OBJECT = 0,
-				ITEM,
-				PLAYER,
-				TELEPORTER
+				NONE = 0,
+				NORTH,
+				SOUTH,
+				EAST,
+				WEST,
+				ABOVE,
+				BELOW,
+				CENTER,
+				TOTAL
+			};
+			
+			enum class Category   // Item object categories.
+			{
+				NONE = 0,
+				REQUIRED,           // Item is required.
+				OPTIONAL,           // Item is optional.
+				EASTEREGG,          // Item is a secret bonus.
+				SKULL,              // Item indicates player is trapped.
+				TOTAL
 			};
 
 			// Public methods.
@@ -129,25 +151,30 @@ namespace Enigma
 
 			Enigma::Object::Type m_type;             // Type of object.
 			Enigma::Object::ID m_id;                 // Object ID.
-			Enigma::Position m_position;             // Position in world.
+			Enigma::Position m_position;             // Position in the world.
 			Enigma::Object::Direction m_surface;     // Surface containing object.
 			Enigma::Object::Direction m_rotation;    // Rotation of object on surface.
 
+			// Player-specific data.
 
-			// Type-specific fields.
-
-			gboolean m_active;                       // Player: TRUE if active.
-			EnigmaWC::Category m_category;           // Item: Category.
-			EnigmaWC::Direction m_surface_arrival;   // Teleporter: Arrival surface.
-			EnigmaWC::Direction m_rotation_arrival;  // Teleporter: Arrival rotation.
-			Enigma::Position m_position_arrival;     // Teleporter: Arrival position.
+			bool m_active;                           // TRUE if active.
+			
+			// Item-specific data. 
+			
+			Enigma::Object::Category m_category;     // Category.
+			
+			// Teleporter-specific data.
+			
+			Enigma::Object::Direction m_surface_arrival;   // Arrival surface.
+			Enigma::Object::Direction m_rotation_arrival;  // Arrival rotation.
+			Enigma::Position m_position_arrival;           // Arrival position.
 
 			// Connection signal names.
 
-			std::string m_sense;
-			std::string m_state;
-			std::string m_visibility;
-			std::string m_presence;
+			std::string m_sense;          // Sense input.
+			std::string m_state;          // Active/idle visual state.
+			std::string m_visibility;     // TRUE if visible.
+			std::string m_presence;       // TRUE if present and functional.*/
 	};
 }
 

@@ -1,64 +1,81 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 2.0 for Linux OS                    *
- * File:    RoomView.h                          *
- * Date:    December 28, 2015                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * RoomView class header.                       *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the RoomView class header.  The RoomView class displays and
+// allows editing objects in a world room.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 #ifndef __ROOMVIEW_H__
 #define __ROOMVIEW_H__
 
-#include <gtkmm.h>
-#include "Map.h"
+#include <gdkmm/event.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/treeview.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/cellrenderer.h>
+#include "Position.h"
 
-class CRoomView : public Gtk::ScrolledWindow
+namespace Enigma
 {
-  public:
-    // Public methods.
-    
-    CRoomView();
-		void Update();
-		void SetMap( std::shared_ptr<CMap> aMap );
-		void SetLocation( const CMapLocation& aLocation );
-		gboolean On_Key_Press( GdkEventKey* key_event );
+	class World;
+	
+	class RoomView : public Gtk::ScrolledWindow
+	{
+		/*public:
+			// Public methods.
 
-	protected:
-		// Overridden base class methods.
+			RoomView();
+			void update();
+			void set_world(std::shared_ptr<Enigma::World> world);
+			void set_position(const Enigma::Position& position);
+			bool on_key_press(GdkEventKey* key_event);
 
-		void on_map();
-		
-	private:
-		// Private classes.
-		
-		class CObjectColumns : public Gtk::TreeModel::ColumnRecord
-		{
-			public:
-        Gtk::TreeModelColumn<std::list<CMapObject>::iterator> iIterator;
-        
-        CObjectColumns()
-				{
-					add( iIterator );
-				}
-		};
+			// Overridden base class methods.
 
-		// Private methods.
+			void on_map() override;
 
-		void Object_Data_Function( Gtk::CellRenderer* const& aCellRenderer,
-															 const Gtk::TreeIter& aTreeIterator );
-		
-		// Private data.
+		private:
+			// Private classes.
 
-		CObjectColumns iColumnRecord;
-		
-		// Private data.
+			class ObjectColumns : public Gtk::TreeModel::ColumnRecord
+			{
+				public:
+					Gtk::TreeModelColumn<std::list<Enigma::Object>::iterator> m_iterator;
 
-		std::shared_ptr<CMap> iMap;                  // Shared Game map.
-		CMapLocation iLocation;                      // Location of room.
-		std::unique_ptr<Gtk::TreeView> iTreeView;    // Room object list viewer.
-		Glib::RefPtr<Gtk::ListStore> iListStore;     // Storage for data entries.
-};
+					ObjectColumns()
+					{
+						add(m_iterator);
+					}
+			};
+
+			// Private methods.
+
+			void Object_Data_Function(Gtk::CellRenderer* const& cell_renderer,
+			                          const Gtk::TreeIter& tree_iterator);
+
+			// Private data.
+
+			ObjectColumns m_columnrecord;
+
+			// Private data.
+
+			std::shared_ptr<Enigma::World> m_world;      // Game world.
+			Enigma::Position m_position;                 // Position of room.
+			std::unique_ptr<Gtk::TreeView> m_treeview;   // Room object list viewer.
+			Glib::RefPtr<Gtk::ListStore> m_liststore;    // Storage for data entries.*/
+	};
+}
 
 #endif // __ROOMVIEW_H__

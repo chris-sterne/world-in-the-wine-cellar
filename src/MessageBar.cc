@@ -1,8 +1,8 @@
 // "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
-// This file is the ControlView class header.  The ControlView class manages
-// game world controls.
+// This file is the MessageBar class implementation.  The MessageBar class
+// displays messages while editing or viewing the world.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -17,35 +17,21 @@
 // You should have received a copy of the GNU General Public License along
 // with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __CONTROLVIEW_H__
-#define __CONTROLVIEW_H__
+#include <glibmm/i18n.h>
+#include "MessageBar.h"
 
-#include <gtkmm/grid.h>
-#include <gtkmm/checkbutton.h>
-#include "World.h"
+//-------------------------------------------------------------
+// This method displays a string description of a map position.
+//-------------------------------------------------------------
+// position: World position to be displayed.
+//-------------------------------------------------------------
 
-namespace Enigma
+void Enigma::MessageBar::set_position(const Enigma::Position& position)
 {
-	class ControlView : public Gtk::Grid
-	{
-		public:
-			// Public methods.
-
-			ControlView();
-			void set_world(std::shared_ptr<Enigma::World> world);
-			void on_changed();
-			void update();
-
-			// Overridden base class methods.
-
-			void on_map() override;
-
-			// Public data.
-
-			std::shared_ptr<Enigma::World> m_world;        // Game world.
-			std::unique_ptr<Gtk::CheckButton> m_savable;   // Can save map button.
-			sigc::connection m_savable_connection;         // Signal connection.
-	};
+	Glib::ustring string =
+		Glib::ustring::compose( _("East = %1   North = %2   Above = %3"),
+														 position.m_east,
+    	                     	 position.m_north,
+     	                       position.m_above );
+	set_label(string);
 }
-
-#endif // __CONTROLVIEW_H__

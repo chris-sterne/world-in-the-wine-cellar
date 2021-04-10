@@ -31,8 +31,8 @@ world_in_the_wine_cellar_SOURCES = \
 	LevelView.cc \
 	HelpView.cc \
 	World.cc \
-	ImageTiles.cc \
-	MapController.cc \
+	Tiles.cc \
+	Controller.cc \
 	MessageBar.cc \
 	ObjectList.cc
 
