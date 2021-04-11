@@ -20,14 +20,53 @@
 #ifndef __WORLD_H__
 #define __WORLD_H__
 
-//#include "ObjectList.h"
+#include "ObjectList.h"
 //#include "Controller.h"
 
 namespace Enigma
 {
-	class World : public sigc::trackable
+	class World
 	{
-		/*public:
+		public:
+		  // Public declarations.
+		  
+		  enum class Key       // World file key definitions.
+			{
+				NONE = 0,
+				END,               // Introduces the end of keyvalue array.		
+				OBJECT,            // Introduces a simple object.
+				PLAYER,            // Introduces a player object.
+				ITEM,              // Introduces an item object.
+				DESCRIPTION,       // Introduces a description of the map.
+				SURFACE,           // Surface on which object is located.
+				ROTATION,          // Rotation of object on surface.
+				ABOVE,             // Above location of object.
+				NORTH,             // North location of object.
+				EAST,              // East location of object.
+				BANK,              // Adds high byte onto previous key's value.
+				CATEGORY,          // Category of item.
+				OWNER,             // Owner of item.
+				ACTIVE,            // Active player or item.
+				LENGTH,            // Length of a data section.
+				DATA,              // Indicates the start of data section.
+				SAVED,             // Saved value.
+				RESTART,           // Restart value.
+				CURRENT,           // Current value.    
+				CONTROLLER,        // Introduces a map controller.
+				SIGNAL,            // Map controller signal name block.
+				CODE,              // Map controller bytecode block.
+				SENSE,             // Sensor state or signal.
+				STATE,             // Functional state or signal.
+				VISIBILITY,        // Visibility state or signal.
+				PRESENCE,          // Presence state or signal.
+				OUTDOOR,           // Player's environment.
+				SELECTED,          // Selected state of item.
+				USED,              // Used state of item.
+				TELEPORTER,        // Introduces a teleporter object.
+				ARRIVAL,           // Teleporter arrival value.
+				TOTAL
+			};
+			
 			// Public methods.
 
 			World();
@@ -47,12 +86,12 @@ namespace Enigma
 
 			// List of logic controllers.
 
-			std::list<Enigma::Controller> m_controllers;
+			//std::list<Enigma::Controller> m_controllers;
 
 		private:
 			// Private methods.
 
-			void extract_world(std::string& filedata);*/
+			void extract_world(std::string& filedata);
 	};
 }
 

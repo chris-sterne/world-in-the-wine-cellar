@@ -1,8 +1,8 @@
 // "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
-// This file is the Object class implementation.  The object class describes
-// objects in the game world.
+// This file is the Object class header.  The object class describes objects
+// in the game world.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -20,13 +20,14 @@
 #ifndef __OBJECT_H__
 #define __OBJECT_H__
 
-//#include "Position.h"
+#include <glibmm/ustring.h>
+#include "Position.h"
 
 namespace Enigma
 {
 	class Object
 	{
-		/*public:
+		public:
 			enum class Type         // Object type.
 			{
 				OBJECT = 0,
@@ -93,7 +94,7 @@ namespace Enigma
 				CUBE,
 				SPHERE,
 				WATERLAYER,
-				LIGHBEAM,
+				LIGHTBEAM,
 				EGG,
 				WEB,
 				ORANGE,
@@ -157,11 +158,11 @@ namespace Enigma
 
 			// Player-specific data.
 
-			bool m_active;                           // TRUE if active.
+			bool m_active;                           // TRUE if player is active.
 			
 			// Item-specific data. 
 			
-			Enigma::Object::Category m_category;     // Category.
+			Enigma::Object::Category m_category;     // Item category.
 			
 			// Teleporter-specific data.
 			
@@ -174,7 +175,7 @@ namespace Enigma
 			std::string m_sense;          // Sense input.
 			std::string m_state;          // Active/idle visual state.
 			std::string m_visibility;     // TRUE if visible.
-			std::string m_presence;       // TRUE if present and functional.*/
+			std::string m_presence;       // TRUE if present and functional.
 	};
 }
 

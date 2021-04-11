@@ -49,6 +49,7 @@ namespace Enigma
 			Application();
 			void on_command(const Glib::ustring& command);
 			bool on_key_press(GdkEventKey* key_event);
+			void do_shutdown();
 
 			// Protected methods from base class.
 
@@ -58,10 +59,10 @@ namespace Enigma
 			// Private data.
 
 			std::shared_ptr<Enigma::World> m_world;
-			std::unique_ptr<Enigma::MainWindow> m_mainwindow;
+			std::unique_ptr<Enigma::MainWindow> m_window;
 			std::unique_ptr<Gtk::Grid> m_grid;
-			std::unique_ptr<Enigma::CommandEntry> m_commandentry;
-			std::unique_ptr<Gtk::Label> m_viewname;
+			std::unique_ptr<Enigma::CommandEntry> m_command;
+			std::unique_ptr<Gtk::Label> m_view;
 			std::unique_ptr<Gtk::Notebook> m_viewbook;
 
 			// Map viewers.
@@ -79,7 +80,7 @@ namespace Enigma
 			// Map viewer notebook page numbers.
 
 			int m_levelview_number;
-			int m_roomView_number;
+			int m_roomview_number;
 			int m_teleporterview_number;    
 			int m_itemview_number;
 			int m_playerview_number;        

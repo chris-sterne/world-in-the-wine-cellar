@@ -20,9 +20,9 @@
 #include <glibmm/i18n.h>
 #include "World.h"
 
-//*-----------------------------------------------------*
-//* Default constructor.  All game map data is cleared. *
-//*-----------------------------------------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
 Enigma::World::World()
 {	
@@ -30,33 +30,49 @@ Enigma::World::World()
   clear();
 }
 
-//*-------------------------------------------------------------*
-//* This private function writes a KeyValue with a 16-bit value *
-//* to a buffer.  This function is used for new version maps.   *                                                *
-//*-------------------------------------------------------------*
-//* aBuffer: Destination buffer.                                *
-//* aKey:    KeyValue key.                                      *
-//* aValue:  16-bit value.                                      *
-//*-------------------------------------------------------------*
+//---------------------------------------------------------------------
+// This method clears data in the game world, but retains the filename.
+//---------------------------------------------------------------------
 
-void WriteKeyValue_16Bit( std::string& aBuffer,
-                          EnigmaWC::Key aKey,
-                          guint16 aValue )
+void Enigma::World::clear()
+{	
+  //m_controllers.clear();
+  m_objects.clear();
+  m_players.clear();
+  m_items.clear();
+  m_teleporters.clear();
+  m_description.clear();
+  
+  // Initialize instance variables.
+  
+  m_savable = false;
+}
+
+//------------------------------------------------------------
+// This private function writes a KeyValue with a 16-bit value
+// to a buffer.
+//------------------------------------------------------------
+// buffer: Destination buffer.
+// key:    KeyValue key.
+// value:  16-bit value.
+//------------------------------------------------------------
+
+void write_keyvalue_16bit(std::string& buffer,
+                          Enigma::World::Key key,
+                          guint16 value)
 {
-  aBuffer.push_back( (guchar)aKey );
-  aBuffer.push_back( (guchar)aValue );
+  buffer.push_back((guchar)key);
+  buffer.push_back((guchar)value);
 
   // Write a bank keyvalue if the level exceeds that for a byte.
 			
-  if ( aValue > G_MAXUINT8 )
+  if (value > G_MAXUINT8)
   {
-    aBuffer.push_back( (guchar)EnigmaWC::Key::EBank );
-    aBuffer.push_back( (guchar)(aValue >> 8) );
+    buffer.push_back((guchar)Enigma::World::Key::BANK);
+    buffer.push_back((guchar)(value >> 8));
   }
-  
-  return;
 }
-
+/*
 //*-------------------------------------------------------------*
 //* This private function writes a KeyValue with an 8-bit value *
 //* to a buffer.  This function is used for new version maps.   *
@@ -588,25 +604,6 @@ void ExtractNewController( const std::string& aFileData,
         break;
     }
   }
-}
-
-//*--------------------------------------------------------------------*
-//* This method clears data in the game map, but retains the filename. *
-//*--------------------------------------------------------------------*
-
-void CMap::Clear()
-{	
-  iControllers.clear();
-  iObjects.Clear();
-  iPlayers.Clear();
-  iItems.Clear();
-  iTeleporters.Clear();
-  iDescription.clear();
-  
-  // Initialize instance variables.
-  
-  iSavable = FALSE;
-  return;
 }
 
 //*--------------------------------------------------------------------*
@@ -1405,4 +1402,4 @@ comment Enigma in the Wine Cellar 5.0 game map, created by MapperWC 5.0\n";
   }
 
   return;
-}
+}*/

@@ -29,9 +29,9 @@
 void Enigma::MessageBar::set_position(const Enigma::Position& position)
 {
 	Glib::ustring string =
-		Glib::ustring::compose( _("East = %1   North = %2   Above = %3"),
-														 position.m_east,
-    	                     	 position.m_north,
-     	                       position.m_above );
+		Glib::ustring::compose(_("East = %1   North = %2   Above = %3"),
+														position.m_east,
+    	                     	position.m_north,
+     	                      position.m_above);
 	set_label(string);
 }

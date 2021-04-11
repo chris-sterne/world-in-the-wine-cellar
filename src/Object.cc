@@ -1,168 +1,193 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 5.1 for Linux OS                    *
- * File:    MapObject.cpp                       *
- * Date:    October 8, 2017                     *
- * Author:  Chris Sterne                        *
- *                                              *
- * MapObject class.                             *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the Object class implementation.  The object class describes
+// objects in the game world.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
-#include "MapObject.h"
+#include "Object.h"
 
-static const char* KIDText[ (int)EnigmaWC::ID::TOTAL ] =
+//--------------------
+// Local declarations.
+//--------------------
+
+// Array of strings associated with an object.  These are in the same order
+// as the enumerated object IDs, so an object ID can be used as an array
+// index.
+
+static const char* id_text_array[(int)Enigma::Object::ID::TOTAL] =
 {
-  "None",             // ENone
-  "WineCellar",	      // EWineCellar
-  "BlockWall",        // EBlockWall
-  "StoneWall",        // EStoneWall
-  "Ladder",           // ELadder
-  "LadderTop",        // ELadderTop
-  "Person",           // EPerson
-  "Blocker",          // EBlocker
-  "Mover",            // EMover
-  "Turner",           // ETurner
-  "Facer",            // EFacer
-  "Surfacer",         // ESurfacer
-  "Mushrooms",        // EMushrooms
-  "CorkScrew",        // ECorkScrew
-  "WineBottle",       // EWineBottle
-  "Bread",            // EBread
-  "Cheese",           // ECheese
-  "Knife",            // EKnife
-  "Apple",            // EApple	
-  "WineGlass",        // EWineGlass
-  "PlaceMat",         // EPlaceMat
-  "Grapes",           // EGrapes
-  "Skull",            // ESkull
-  "EdgeDrain",        // EEdgeDrain
-  "AirVent",          // EAirVent
-  "EasterEgg",        // EEasterEgg
-  "Flipper",          // EFlipper
-  "Edger",            // EEdger
-  "Stairs",           // EStairs
-  "StairsTop",        // EStairsTop
-  "Sensor",           // ESensor
-  "HandHold",         // EHandHold
-  "Moss0",            // EMoss0
-  "Moss90",           // EMoss90
-  "Moss180",          // EMoss180
-  "Moss270",          // EMoss270
-  "Moss360",          // EMoss360
-  "AirBalloon",       // EAirBalloon
-  "Plate",            // EPlate
-  "Fork",             // EFork
-  "Cake",             // ECake
-  "StonePost",        // EStonePost
-  "StoneButton",      // EStoneButton
-  "WallEyes",         // EWallEyes
-  "Outdoor",          // EOutdoor
-  "Indoor",           // EIndoor
-  "SkyObjects",       // ESkyObjects
-  "ArchWay",          // EArchWay
-  "WoodDoor",         // EWoodDoor
-  "WoodWall",         // EWoodWall
-  "PullRing",         // EPullRing
-  "CubeLock",         // ECubeLock
-  "SphereLock",       // ESphereLock
-  "Cube",             // ECube
-  "Sphere",           // ESphere
-  "WaterLayer",       // EWaterLayer
-  "LightBeam",        // ELightBeam
-  "Egg",              // EEgg
-  "Web",              // EWeb
-  "Orange",           // EOrange
-  "Fish",             // EFish
-  "WaterBottle",      // EWaterbottle
-  "Fertilizer",       // EFertilizer
-  "Tree",             // ETree
-  "TreeTop",          // ETreeTop
-  "CatWalk",          // ECatWalk
-  "Teleporter",       // ETeleporter
-  "InnerTube",        // EInnerTube
-  "HydrogenBalloon",  // EHydrogenBalloon
-  "Weed",             // EWeed
-  "Fern",             // EFern
-  "Vine",             // EVine
-  "WaterLock",        // EWaterLock
-  "AppleLock",        // EAppleLock
-  "OrangeLock",       // EOrangeLock
-  "WineLock",         // EWineLock
-  "PadButton",        // EPadButton,
-  "Fence",            // EFence
-  "EarthWall",        // EEarthWall
-  "Water"             // EWater
+  "None",
+  "WineCellar",
+  "BlockWall",
+  "StoneWall",
+  "Ladder",
+  "LadderTop",
+  "Person",
+  "Blocker",
+  "Mover",
+  "Turner",
+  "Facer",
+  "Surfacer",
+  "Mushrooms",
+  "CorkScrew",
+  "WineBottle",
+  "Bread",
+  "Cheese",
+  "Knife",
+  "Apple",
+  "WineGlass",
+  "PlaceMat",
+  "Grapes",
+  "Skull",
+  "EdgeDrain",
+  "AirVent",
+  "EasterEgg",
+  "Flipper",
+  "Edger",
+  "Stairs",
+  "StairsTop",
+  "Sensor",
+  "HandHold",
+  "Moss0",
+  "Moss90",
+  "Moss180",
+  "Moss270",
+  "Moss360",
+  "AirBalloon",
+  "Plate",
+  "Fork",
+  "Cake",
+  "StonePost",
+  "StoneButton",
+  "WallEyes",
+  "Outdoor",
+  "Indoor",
+  "SkyObjects",
+  "ArchWay",
+  "WoodDoor",
+  "WoodWall",
+  "PullRing",
+  "CubeLock",
+  "SphereLock",
+  "Cube",
+  "Sphere",
+  "WaterLayer",
+  "LightBeam",
+  "Egg",
+  "Web",
+  "Orange",
+  "Fish",
+  "WaterBottle",
+  "Fertilizer",
+  "Tree",
+  "TreeTop",
+  "CatWalk",
+  "Teleporter",
+  "InnerTube",
+  "HydrogenBalloon",
+  "Weed",
+  "Fern",
+  "Vine",
+  "WaterLock",
+  "AppleLock",
+  "OrangeLock",
+  "WineLock",
+  "PadButton",
+  "Fence",
+  "EarthWall",
+  "Water"
 };
 
-static const char* KDirectionText[ (int)EnigmaWC::Direction::TOTAL ]
+// Array of strings associated with a world direction.  These are in the same
+// order as the enumerated object directions, so a direction can be used as
+// an array index.
+
+static const char* direction_text_array[(int)Enigma::Object::Direction::TOTAL]
 {
-  "ENone",     // ENone
-  "North",     // ENorth
-  "South",     // ESouth
-  "East",      // EEast
-  "West",      // EWest
-  "Above",     // EAbove
-  "Below",     // EBelow
-  "Center"     // ECenter
+  "None",
+  "North",
+  "South",
+  "East",
+  "West",
+  "Above",
+  "Below",
+  "Center"
 };
 
-static const char* KCategoryText[ (int)EnigmaWC::Category::TOTAL ]
+// Array of strings associated with an item category.  These are in the same
+// order as the enumerated item categories, so a category can be used as
+// an array index.
+
+static const char* category_text_array[(int)Enigma::Object::Category::TOTAL]
 {
-  "None",             // ENone
-  "Required Item",    // ERequired
-  "Optional Item",    // EOptional
-  "Easter Egg Item",  // EEasterEgg
-  "Skull Item"        // ESkull
+  "None",
+  "Required Item",
+  "Optional Item",
+  "Easter Egg Item",
+  "Skull Item"
 };
 
-//*---------------------------------------------------------*
-//* This method returns a text description of the MapObject *
-//* (excludes the map location).                            *
-//*---------------------------------------------------------*
-//* aDescription: Destination buffer for text.              *
-//*---------------------------------------------------------*
+//--------------------------------------------------------
+// This method returns a text description of the object
+// (excludes the world position).
+//--------------------------------------------------------
+// description: Destination buffer for text.              
+//--------------------------------------------------------
 
-void CMapObject::GetDescription( Glib::ustring& aDescription )
+void Enigma::Object::get_description(Glib::ustring& description)
 {
-  Glib::ustring IDText;
+  Glib::ustring id_text;
 
-  // Select a text string corresponding to the object's ID.  Ensure an index
+  // Select text corresponding to the object's ID.  Ensure the index
   // formed from the ID will not exceed the ID text array.
   
-  if ( (int)iID < (int)EnigmaWC::ID::TOTAL )
-    IDText = KIDText[ (int)iID ];
+  if ((int)m_id < (int)Enigma::Object::ID::TOTAL)
+    id_text = id_text_array[(int)m_id];
   else
-    IDText = "???";
+    id_text = "???";
 
   // Select a text string corresponding to the object's type.
   
-  Glib::ustring TypeText;
+  Glib::ustring type_text;
 
-  switch( iType )
+  switch(m_type)
   {
-    case CMapObject::Type::EObject:
-      TypeText = _("Object");
+    case Enigma::Object::Type::OBJECT:
+      type_text = _("Object");
       break;
 	
-    case CMapObject::Type::EPlayer:
-      if ( iActive )
-        TypeText = _("Active Player");
+    case Enigma::Object::Type::PLAYER:
+      if (m_active)
+        type_text = _("Active Player");
       else
-        TypeText = _("Idle Player");
+        type_text = _("Idle Player");
 			
       break;
 						
-    case CMapObject::Type::EItem:
-      if ( (int)iCategory < (int)EnigmaWC::Category::TOTAL )      
-        TypeText = KCategoryText[ (int)iCategory ];
+    case Enigma::Object::Type::ITEM:
+      if ((int)m_category < (int)Enigma::Object::Category::TOTAL)      
+        type_text = category_text_array[(int)m_category];
       else
-        TypeText = "???";
+        type_text = "???";
         
     break;
         
-    case CMapObject::Type::ETeleporter:
-      TypeText = _("Teleporter");
+    case Enigma::Object::Type::TELEPORTER:
+      type_text = _("Teleporter");
       break;
       
     default:
@@ -171,157 +196,161 @@ void CMapObject::GetDescription( Glib::ustring& aDescription )
 
   // Built a text string describing teleporter information.  
 
-  Glib::ustring SurfaceText;
-  Glib::ustring RotationText;
-  Glib::ustring EastText;
-  Glib::ustring AboveText;
-  Glib::ustring NorthText;
-  Glib::ustring TeleportText;
+  Glib::ustring surface_text;
+  Glib::ustring rotation_text;
+  Glib::ustring east_text;
+  Glib::ustring above_text;
+  Glib::ustring north_text;
+  Glib::ustring teleport_text;
 
-  if ( iType == CMapObject::Type::ETeleporter )
+  if (m_type == Enigma::Object::Type::TELEPORTER)
   {
-    if ( iSurfaceArrival == EnigmaWC::Direction::ENone )
-      SurfaceText = _("Player");
-    else if ( (int)iSurfaceArrival < (int)EnigmaWC::Direction::TOTAL )
-      SurfaceText = KDirectionText[ (int)iSurfaceArrival ];
+    if (m_surface_arrival == Enigma::Object::Direction::NONE)
+      surface_text = _("Player");
+    else if ((int)m_surface_arrival < (int)Enigma::Object::Direction::TOTAL)
+      surface_text = direction_text_array[(int)m_surface_arrival];
     else
-      SurfaceText = "???";
+      surface_text = "???";
 
-    if ( iRotationArrival == EnigmaWC::Direction::ENone )
-      RotationText = _("Player");
-    else if ( (int)iRotationArrival < (int)EnigmaWC::Direction::TOTAL )
-      RotationText = KDirectionText[ (int)iRotationArrival ];
+    if (m_rotation_arrival == Enigma::Object::Direction::NONE)
+      rotation_text = _("Player");
+    else if ((int)m_rotation_arrival < (int)Enigma::Object::Direction::TOTAL)
+      rotation_text = direction_text_array[(int)m_rotation_arrival];
     else
-      RotationText = "???";
+      rotation_text = "???";
 
-    if ( iLocationArrival.iEast == G_MAXUINT16 )
-      EastText = _("Player");
+		unsigned short position = m_position_arrival.m_east;
+
+    if (position == 65535)
+      east_text = _("Player");
     else
-      EastText = Glib::ustring::compose( "%1", iLocationArrival.iEast );
+      east_text = Glib::ustring::compose("%1", position);
 
-    if ( iLocationArrival.iNorth == G_MAXUINT16 )
-      NorthText = _("Player");
+    position = m_position_arrival.m_north;
+    
+    if (position == 65535)
+      north_text = _("Player");
     else
-      NorthText = Glib::ustring::compose( "%1", iLocationArrival.iNorth );
+      north_text = Glib::ustring::compose("%1", position);
 
-    if ( iLocationArrival.iAbove == G_MAXUINT16 )
-      AboveText = _("Player");
+    position = m_position_arrival.m_above;
+    
+    if (position == 65535)
+      above_text = _("Player");
     else
-      AboveText = Glib::ustring::compose( "%1", iLocationArrival.iAbove );
+      above_text = Glib::ustring::compose("%1", position);
 
-    TeleportText = Glib::ustring::compose(
+    teleport_text = Glib::ustring::compose(
 _("\nARRIVAL    SURFACE = %1    ROTATION = %2    EAST = %3    NORTH = %4\
     ABOVE = %5" ),
-    SurfaceText, RotationText, EastText, NorthText, AboveText );
+    surface_text, rotation_text, east_text, north_text, above_text);
   }
 
   // Select a text string corresponding to the object's surface.
 
-  if ( (int)iSurface < (int)EnigmaWC::Direction::TOTAL )
-    SurfaceText = KDirectionText[ (int)iSurface ];
+  if ((int)m_surface < (int)Enigma::Object::Direction::TOTAL)
+    surface_text = direction_text_array[(int)m_surface];
   else
-    SurfaceText = "???";
+    surface_text = "???";
 
   // Select a text string corresponding to the object's rotation.
   
-  if ( iID == EnigmaWC::ID::ETurner )
+  if (m_id == Enigma::Object::ID::TURNER)
   {
-    // Turner are relative rotation offsets rather than compass
+    // Turner are relative rotation offsets rather than absolute
     // directions.
     
-    switch( (int)iRotation )
+    switch((int)m_rotation)
     {
       case 0:
-        RotationText = _("0 degrees");
+        rotation_text = _("0 degrees");
         break;
         
       case 1:
-        RotationText = _("90 degrees");
+        rotation_text = _("90 degrees");
         break;
     
       case 2:
-        RotationText = _("180 degrees");
+        rotation_text = _("180 degrees");
         break;
         
       case 3:
-        RotationText = _("270 degrees");
+        rotation_text = _("270 degrees");
         break;
     
       default:
-        RotationText = "???";
+        rotation_text = "???";
         break;
     }
   }
   else
   {
-    if ( (int)iRotation < (int)EnigmaWC::Direction::TOTAL )
-      RotationText = KDirectionText[ (int)iRotation ];
+    if ((int)m_rotation < (int)Enigma::Object::Direction::TOTAL)
+      rotation_text = direction_text_array[(int)m_rotation];
     else
-      RotationText = "???";
+      rotation_text = "???";
   }
 
   // Built a text string with all object states or state signals.
 
-  Glib::ustring SignalText;
+  Glib::ustring signal_text;
   
-  if ( iSense.size() )
+  if (m_sense.size())
   {
-    if ( SignalText.size() )
-      SignalText.append( "    " );
+    if (signal_text.size())
+      signal_text.append( "    ");
     else
-      SignalText.push_back( '\n' );
+      signal_text.push_back('\n');
 
-    SignalText.append(_("SENSE = ") );
-    SignalText.append( iSense );
+    signal_text.append(_("SENSE = "));
+    signal_text.append(m_sense);
   }
    
-  if ( iState.size() )
+  if (m_state.size())
   {
-    if ( SignalText.size() )
-      SignalText.append( "    " );
+    if (signal_text.size())
+      signal_text.append("    ");
     else
-      SignalText.push_back( '\n' );
+      signal_text.push_back('\n');
   
-    SignalText.append(_("STATE = ") );
-    SignalText.append( iState );
+    signal_text.append(_("STATE = "));
+    signal_text.append(m_state);
   }
   
-  if ( iVisibility.size() )
+  if (m_visibility.size())
   {
-    if ( SignalText.size() )
-      SignalText.append( "    " );
+    if (signal_text.size())
+      signal_text.append("    ");
     else
-      SignalText.push_back( '\n' );
+      signal_text.push_back('\n');
       
-    SignalText.append(_("VISIBILITY = ") );
-    SignalText.append( iVisibility );
+    signal_text.append(_("VISIBILITY = "));
+    signal_text.append(m_visibility);
   }
   
-  if ( iPresence.size() )
+  if (m_presence.size())
   {
-    if ( SignalText.size() )
-      SignalText.append( "    " );
+    if (signal_text.size())
+      signal_text.append("    ");
     else
-      SignalText.push_back( '\n' );
+      signal_text.push_back('\n');
 
-    SignalText.append(_("PRESENCE = ") );
-    SignalText.append( iPresence );
+    signal_text.append(_("PRESENCE = "));
+    signal_text.append(m_presence);
   } 
   
   // Assemble all text strings into one string.
   
-  aDescription =
+  description =
     Glib::ustring::compose(
 _("ID = %1\n\
 TYPE = %2    SURFACE = %3    ROTATION = %4\
 %5\
 %6"),
-      IDText,
-      TypeText,
-      SurfaceText,
-      RotationText,
-      TeleportText,
-      SignalText );
-
-  return;
+      id_text,
+      type_text,
+      surface_text,
+      rotation_text,
+      teleport_text,
+      signal_text);
 }

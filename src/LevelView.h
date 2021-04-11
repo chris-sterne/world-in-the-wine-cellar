@@ -1,8 +1,8 @@
 // "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
-// This file is the LevelView class header.  The LevelView class is an editor
-// for levels and rooms of a game world.
+// This file is the LevelView class header.  The LevelView class displays
+// levels of a game world, and allows editing the room contents on the level.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -24,13 +24,14 @@
 #include <gtkmm/drawingarea.h>
 #include "Volume.h"
 #include "Tiles.h"
-#include "World.h"
 
 namespace Enigma
 {
+	class World;
+	
 	class LevelView : public Gtk::DrawingArea
 	{
-		/*public:
+		public:
 			// Public methods.
 
 			LevelView();
@@ -75,10 +76,10 @@ namespace Enigma
 			Enigma::Volume m_view;                     // Visible area of world.
 			Enigma::Volume m_mark;                     // Marked volume of world.
 			Enigma::Position m_mark_origin;            // Origin of marked volume.
-			Enigma::Position m_cursor;                 // Map position of cursor.
-			type_signal_location m_signal_location;    // Map position signal server.
+			Enigma::Position m_cursor;                 // Position of cursor.
+			type_signal_position m_signal_position;    // Position signal server.
 			std::list<Enigma::Object> m_edit_buffer;   // Objects editing buffer.
-			Enigma::Object::ID m_filter;               // Object viewing filter.*/
+			Enigma::Object::ID m_filter;               // Object viewing filter.
 	};
 }
 

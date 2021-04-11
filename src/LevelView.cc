@@ -1,8 +1,8 @@
 // "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
-// This file is the LevelView class header.  The LevelView class is an editor
-// for levels and rooms of a game world.
+// This file is the LevelView class header.  The LevelView class displays
+// levels of a game world, and allows editing the room contents on the level.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -19,12 +19,13 @@
 
 #include <glibmm/i18n.h>
 #include "LevelView.h"
+#include "World.h"
 
 //-------------------
 // Local declarations
 //-------------------
 
-#define BACKGROUND_R 0                 // Background colour.
+#define BACKGROUND_R 0      // Background colour.
 #define BACKGROUND_G 0
 #define BACKGROUND_B 0
 
@@ -197,406 +198,419 @@ void Enigma::LevelView::on_map()
 //----------------------------------
 // Method to draw PlayerView widget.
 //----------------------------------
-// context: Cairo context.
+// context: Cairo drawing context.
 //----------------------------------
 
 bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 {	
-  // Draw the background colour.
+	// Draw the background colour.
 
-  context->set_source_rgb(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
-  context->paint();
+	context->set_source_rgb(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
+	context->paint();
 
-  Gtk::Allocation allocation = get_allocation();
-  Enigma::Position room;
-  std::list<std::list<Enigma::Object>::iterator> buffer;
-  std::list<std::list<Enigma::Object>::iterator>::iterator object;
-  bool drawn;
-  
-  unsigned short row;
-  unsigned short column; 
-  
-  room.m_above = m_cursor.m_above;
-	
-  for ( room.m_north = m_view.m_WSB.m_north;
-        room.m_north <= m_view.m_ENA.m_north;
-        ++ room.m_north )
-  {
-    for ( room.m_east = m_view.m_WSB.m_east;
-          room.m_east <= m_view.m_ENA.m_east;
-          ++ room.m_east )
-    {
-      Row    = room.m_north - m_view.m_WSB.m_north;
-      Column = room.m_east - m_view.m_WSB.m_east;
-			
-      // Read all MapObjects in the room.
+	Gtk::Allocation allocation = get_allocation();
+	Enigma::Position room;
+	std::list<std::list<Enigma::Object>::iterator> buffer;
+	std::list<std::list<Enigma::Object>::iterator>::iterator object;
+	bool drawn;
 
-      buffer.resize(0);
-      m_world->m_objects.Read(room, buffer);
-      m_world->m_items.Read(room, buffer);
-      m_world->m_players.Read(room, buffer);
-      m_world->m_teleporters.Read(room, buffer);
-      
-      for (object = buffer.begin(); object != buffer.end(); ++ object)
-      {
-        // Draw all environment objects first.
-			
-        if (((*(*Object)).iID == Enigma::Object::ID::EOutdoor )
-          || ((*(*Object)).iID == Enigma::Object::ID::EIndoor ))
-        {
-          if  (( m_filter == Enigma::Object::ID::ENone )
-            || ( m_filter == (*(*Object)).iID ))
-          {
-            Drawn = m_imagetiles.DrawMapObject( aCC,
-                                               Allocation,
-                                               Column,
-                                               Row,
-                                               *(*Object) );					
-            if ( !Drawn )
-              m_imagetiles.DrawGeneric( aCC, Allocation, Column, Row );
-          }
-            
-          // Erase environment object so it will not drawn again.
-	
-          Object = buffer.erase( Object );
-        }
-      }
-      
-      for ( Object = buffer.begin(); Object != buffer.end(); ++ Object )
-      {
-        // Draw all floor objects first.
-			
-        if ((((*(*object)).iID == Enigma::Object::ID::EBlockWall )
-          || ((*(*object)).iID == Enigma::Object::ID::EStoneWall ))
-          && ((*(*object)).iSurface == EnigmaWC::Direction::EBelow ))
-          
-        {
-          if  (( m_filter == Enigma::Object::ID::ENone )
-            || ( m_filter == (*(*Object)).iID ))
-          {
-            Drawn = m_imagetiles.DrawMapObject( aCC,
-                                               Allocation,
-                                               Column,
-                                               Row,
-                                               *(*Object) );					
-            if (!drawn)
-              m_imagetiles.DrawGeneric( aCC, Allocation, Column, Row );
-          }
-            
-          // Erase floor object so it will not drawn again.
-	
-          object = buffer.erase( Object );
-        }
-      }
+	unsigned short row;
+	unsigned short column; 
 
-      // Draw all objects above the floor.
+	room.m_above = m_cursor.m_above;
 
-      for (object = buffer.begin(); object != buffer.end(); ++ object)
-      {
-        if  (( m_filter == Enigma::Object::ID::ENone )
-          || ( m_filter == (*(*Object)).iID ))
-        {
-          drawn = m_imagetiles.DrawMapObject( aCC,
-                                             Allocation,
-                                             Column,
-                                             Row,
-                                             *(*Object ));                       
-          if ( !Drawn )
-            m_imagetiles.DrawGeneric( aCC, Allocation, Column, Row );
-        }
-      }
-      
-      // Draw a marker if the current room location falls within the marked area
-      // and the marked area is greater than one room in volume.
-  
-      if ((( m_mark.m_ENA.m_above != m_mark.m_WSB.m_above )
-        || ( m_mark.m_ENA.m_north != m_mark.m_WSB.m_north )
-        || ( m_mark.m_ENA.m_east != m_mark.m_WSB.m_east ))
-        && ( room.m_above >= m_mark.m_WSB.m_above )
-        && ( room.m_above <= m_mark.m_ENA.m_above )
-        && ( room.m_north >= m_mark.m_WSB.m_north )
-        && ( room.m_north <= m_mark.m_ENA.m_north )
-        && ( room.m_east >= m_mark.m_WSB.m_east )
-        && ( room.m_east <= m_mark.m_ENA.m_east ))
-      {
-        m_imagetiles.draw_marker(context, allocation, column, row);
-      }
-    }
-  }
+	for (room.m_north = m_view.m_WSB.m_north;
+	     room.m_north <= m_view.m_ENA.m_north;
+	     ++ room.m_north )
+	{
+		for (room.m_east = m_view.m_WSB.m_east;
+		     room.m_east <= m_view.m_ENA.m_east;
+		     ++ room.m_east)
+		{
+			row    = room.m_north - m_view.m_WSB.m_north;
+			column = room.m_east - m_view.m_WSB.m_east;
 
-  // Draw all teleporter arrival marks that fall within the view. 
+			// Read all objects in the room.
 
-  std::list<Enigma::object>::iterator teleporter;
+			buffer.resize(0);
+			m_world->m_objects.read(room, buffer);
+			m_world->m_items.read(room, buffer);
+			m_world->m_players.read(room, buffer);
+			m_world->m_teleporters.read(room, buffer);
 
-  unsigned short east_arrival;
-  unsigned short north_arrival;
-  unsigned short above_arrival;
-    
-  for (teleporter = m_world->m_teleporters.begin();
-       teleporter != m_world->m_teleporters.end();
-       ++ teleporter )
-  {
-    east_arrival = (*teleporter).m_Position_arrival.m_east;
-    north_arrival = (*teleporter).m_Position_arrival.m_north;
-    above_arrival = (*teleporter).m_Position_arrival.m_above;
-    
-    // If an arrival location is set to its maximum value, the arrival
-    // location is the player's (and teleporter's) current location.
-    
-    if (east_arrival == 65535)
-      east_arrival = (*teleporter).m_position.m_east;
-      
-    if (north_arrival == 65535)
-      north_arrival = (*teleporter).m_position.m_north;
-      
-    if (above_arrival == 65535)
-      above_arrival = (*teleporter).m_position.m_above;
-    
-    if  ((east_arrival >= m_view.m_WSB.m_east)
-      && (east_arrival <= m_view.m_ENA.m_east)
-      && (north_arrival >= m_view.m_WSB.m_north)
-      && (north_arrival <= m_view.m_ENA.m_north)
-      && (above_arrival == room.m_above))
-    {
-      Column = east_arrival - m_view.m_WSB.m_east;
-      Row    = north_arrival - m_view.m_WSB.m_north;
+			// Draw all environment objects first.
 
-      m_imagetiles.draw_arrival(context, allocation, column, row);
-    }
-  }
+			for (object = buffer.begin();
+			     object != buffer.end();
+			     ++ object)
+			{
+				if  (((*(*object)).m_id == Enigma::Object::ID::OUTDOOR)
+					|| ((*(*object)).m_id == Enigma::Object::ID::INDOOR))
+				{
+					if  ((m_filter == Enigma::Object::ID::NONE)
+						|| (m_filter == (*(*object)).m_ID))
+					{
+						drawn = m_imagetiles.draw_object(context,
+						                                 allocation,
+						                                 column,
+						                                 row,
+						                                 *(*object));					
+						if (!drawn)
+							m_imagetiles.draw_generic(context, allocation, column, row);
+					}
 
-  // Draw the cursor last.
-	
-  column = m_cursor.m_east - m_view.m_WSB.m_east;
-  row    = m_cursor.m_north - m_view.m_WSB.m_north;
+					// Erase environment object so it will not drawn again.
 
-  m_imagetiles.draw_cursor(context, allocation, column, row);
-  
-  // Return TRUE to indicate all drawing has been done.
+					Object = buffer.erase( Object );
+				}
+			}
 
-  return true;
-}
+			// Draw all floor objects first.
 
-//*-------------------------------------------*
-//* Method to handle key press events.        *
-//*-------------------------------------------*
-//* key_event: Pointer to GdkEventKey.        *
-//* RETURN:    TRUE if key press was handled. *
-//*-------------------------------------------*
+			for (object = buffer.begin();
+			     object != buffer.end();
+			     ++ object)
+			{
+				if ((((*(*object)).m_id == Enigma::Object::ID::BLOCKWALL)
+					|| ((*(*object)).m_id == Enigma::Object::ID::STONEWALL)
+					|| ((*(*object)).m_id == Enigma::Object::ID::WOODWALL)
+					|| ((*(*object)).m_id == Enigma::Object::ID::EARTHWALL))
+					&& ((*(*object)).m_surface == Enigma::Object::Direction::BELOW))
+				{
+					if  ((m_filter == Enigma::Object::ID::NONE)
+					  || (m_filter == (*(*object)).m_id))
+					{
+						drawn = m_imagetiles.draw_object(context,
+						                                 allocation,
+						                                 column,
+						                                 row,
+						                                 *(*object));
+						if (!drawn)
+							m_imagetiles.draw_generic(context, allocation, column, row);
+					}
 
-bool CLevelView::on_key_press_event( GdkEventKey* key_event )
-{
-  gboolean Handled = FALSE;
+					// Erase floor object so it will not drawn again.
 
-  if ( key_event->type == GDK_KEY_PRESS )
-  {
-    int KeyValue = key_event->keyval;
-    int KeyState = key_event->state;
-    
-    if ( KeyState & GDK_CONTROL_MASK )
-    {
-      switch ( KeyValue )
-      {
-        case GDK_KEY_x:
-          Cut();
-          Handled = TRUE;
-          break;
-          
-        case GDK_KEY_c:
-          Copy();
-          Handled = TRUE;
-          break;
-          
-        case GDK_KEY_v:
-          Paste();
-          Handled = TRUE;
-          break;
-          
-        default:
-          break;
-      }
-    }
-    else
-    {
-      switch ( KeyValue )
-      {
-        case GDK_KEY_Up:
-          if ( m_cursor.m_north < G_MAXUINT16 )
-          {
-            ++ m_cursor.m_north;
-            Do_Location();
+					object = buffer.erase(object);
+				}
+			}
 
-            // Make sure the cursor falls within the visible rows.
-				
-            AlignRange( m_cursor.m_north, m_view.m_WSB.m_north, m_view.m_ENA.m_north );
-                        			    
-  			    // The cursor has now been moved.  Use its new location
-  			    // to update the marked volume.
-  			    
-  			    if ( KeyState & GDK_SHIFT_MASK )
-              Mark();            
-            
-            // Update the view to show the changes.
-            
-            Update();
-          }
+			// Draw all objects above the floor.
 
-			    
-			    Handled = TRUE;
-			    break;
-			    
-        case GDK_KEY_Down:
-          if ( m_cursor.m_north > 0 )
-          {           
-            -- m_cursor.m_north;
-            Do_Location();
+			for (object = buffer.begin(); object != buffer.end(); ++ object)
+			{
+				if  ((m_filter == Enigma::Object::ID::NONE)
+				  || ( m_filter == (*(*Object)).iID ))
+				{
+					drawn = m_imagetiles.draw_object(context,
+					                                 allocation,
+					                                 column,
+					                                 row,
+					                                 *(*object));                       
+					
+					if (!drawn)
+						m_imagetiles.draw_generic(context, allocation, column, row);
+				}
+			}
 
-            // Make sure the cursor falls within the visible rows.
-				
-            AlignRange( m_cursor.m_north, m_view.m_WSB.m_north, m_view.m_ENA.m_north );
-            
-            // The cursor has now been moved.  Use its new location
-  			    // to update the marked volume.
-            
-            if ( KeyState & GDK_SHIFT_MASK )
-              Mark();
-            
-            // Update the view to show the changes.
-            
-            Update();
-          }
-          
-          Handled = TRUE;
-          break;
-          
-        case GDK_KEY_Left:  
-          if ( m_cursor.m_east > 0 )
-          {
-            m_cursor.m_east --;
-            Do_Location();
+			// Draw a marker if the current room location falls within the marked
+			// area and the marked area is greater than one room in volume.
 
-            // Make sure the cursor falls within the visible columns.
-				
-            AlignRange( m_cursor.m_east, m_view.m_WSB.m_east, m_view.m_ENA.m_east );
-            
-            // The cursor has now been moved.  Use its new location
-  			    // to update the marked volume.
-            
-            if ( KeyState & GDK_SHIFT_MASK )
-              Mark();
-            
-            // Update the view to show the changes.
-            
-            Update();
-          }
-           
-          Handled = TRUE;
-          break;
-          
-        case GDK_KEY_Right:
-          if ( m_cursor.m_east < G_MAXUINT16 )
-          {           
-            m_cursor.m_east ++;
-            Do_Location();
-
-            // Make sure the cursor falls within the visible columns.
-				
-            AlignRange( m_cursor.m_east, m_view.m_WSB.m_east, m_view.m_ENA.m_east );
-            
-            // The cursor has now been moved.  Use its new location
-  			    // to update the marked volume.
-            
-            if ( KeyState & GDK_SHIFT_MASK )
-              Mark();
-            
-            // Update the view to show the changes.
-            
-            Update();
-          }
-          
-          Handled = TRUE;
-          break;
-          
-        case GDK_KEY_Page_Down:
-          if ( m_cursor.m_above > 0 )
-          {          
-            m_cursor.m_above --;
-            Do_Location();
-
-            // Make sure the cursor falls within the visible level.
-				
-            m_view.m_WSB.m_above = m_cursor.m_above;
-            m_view.m_ENA.m_above = m_cursor.m_above;
-            
-            // The cursor has now been moved.  Use its new location
-  			    // to update the marked volume.
-            
-            if ( KeyState & GDK_SHIFT_MASK )
-              Mark();
-            
-            // Update the view to show the changes.
-            
-            Update();
-          }
-          
-          Handled = TRUE;
-          break;
-          
-        case GDK_KEY_Page_Up:
-          if ( m_cursor.m_above < G_MAXUINT16 )
-          {          
-            m_cursor.m_above ++;
-            Do_Location();
-
-            // Make sure the cursor falls within the visible level.
-				
-            m_view.m_WSB.m_above = m_cursor.m_above;
-            m_view.m_ENA.m_above = m_cursor.m_above;
-            
-            // The cursor has now been moved.  Use its new location
-  			    // to update the marked volume.
-            
-            if ( KeyState & GDK_SHIFT_MASK )
-              Mark();
-            
-            // Update the view to show the changes.
-            
-            Update();
-          }
-          
-          Handled = TRUE;
-          break;
-        
-        case GDK_KEY_Home:
-	        // Set the map view to convenient location.
-	         
-	        Home();
-          break;
-        
-        case GDK_KEY_Delete:
-	        // Erase the marked volume.
-	        
-          erase();  
-          break;
-        
-        case GDK_KEY_Escape:
-        case GDK_KEY_Shift_L:
-        case GDK_KEY_Shift_R:
-          // Begin volume marking, or clear the current marking.  Since this
-          // must occur only once when starting to mark a volume,  the SHIFT
-          // key must not repeat while being pressed.
-
-          iMarkOrigin = m_cursor;
-          mark();
-          break;
-
-        default:
-          break;
-      }  
-    }
+			if (((m_mark.m_ENA.m_above != m_mark.m_WSB.m_above)
+			  || (m_mark.m_ENA.m_north != m_mark.m_WSB.m_north)
+			  || (m_mark.m_ENA.m_east != m_mark.m_WSB.m_east))
+			  && (room.m_above >= m_mark.m_WSB.m_above)
+			  && (room.m_above <= m_mark.m_ENA.m_above)
+			  && (room.m_north >= m_mark.m_WSB.m_north)
+			  && (room.m_north <= m_mark.m_ENA.m_north)
+			  && (room.m_east >= m_mark.m_WSB.m_east)
+			  && (room.m_east <= m_mark.m_ENA.m_east))
+			{
+				m_imagetiles.draw_marker(context, allocation, column, row);
+			}
+		}
 	}
 
-	return Handled;
+	// Draw all teleporter arrival marks that fall within the view. 
+
+	std::list<Enigma::object>::iterator teleporter;
+
+	unsigned short east_arrival;
+	unsigned short north_arrival;
+	unsigned short above_arrival;
+
+	for (teleporter = m_world->m_teleporters.begin();
+	     teleporter != m_world->m_teleporters.end();
+	     ++ teleporter )
+	{
+		east_arrival  = (*teleporter).m_position_arrival.m_east;
+		north_arrival = (*teleporter).m_position_arrival.m_north;
+		above_arrival = (*teleporter).m_position_arrival.m_above;
+
+		// If an arrival location is set to its maximum value, the arrival
+		// location is the player's (and teleporter's) current location.
+
+		if (east_arrival == 65535)
+			east_arrival = (*teleporter).m_position.m_east;
+
+		if (north_arrival == 65535)
+			north_arrival = (*teleporter).m_position.m_north;
+
+		if (above_arrival == 65535)
+			above_arrival = (*teleporter).m_position.m_above;
+
+		if  ((east_arrival >= m_view.m_WSB.m_east)
+		  && (east_arrival <= m_view.m_ENA.m_east)
+		  && (north_arrival >= m_view.m_WSB.m_north)
+		  && (north_arrival <= m_view.m_ENA.m_north)
+		  && (above_arrival == room.m_above))
+		{
+			column = east_arrival - m_view.m_WSB.m_east;
+			row    = north_arrival - m_view.m_WSB.m_north;
+
+			m_imagetiles.draw_arrival(context, allocation, column, row);
+		}
+	}
+
+	// Draw the cursor last.
+
+	column = m_cursor.m_east - m_view.m_WSB.m_east;
+	row    = m_cursor.m_north - m_view.m_WSB.m_north;
+
+	m_imagetiles.draw_cursor(context, allocation, column, row);
+
+	// Return TRUE to indicate all drawing has been done.
+
+	return true;
+}
+
+//------------------------------------------
+// Method to handle key press events.
+//------------------------------------------
+// key_event: Pointer to GdkEventKey.
+// RETURN:    TRUE if key press was handled.
+//------------------------------------------
+
+bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
+{
+	bool handled = false;
+
+	if (key_event->type == GDK_KEY_PRESS)
+	{
+		int key_value = key_event->keyval;
+		int key_state = key_event->state;
+
+		if (key_state & GDK_CONTROL_MASK )
+		{
+			switch (key_value)
+			{
+				case GDK_KEY_x:
+					cut();
+					handled = TRUE;
+					break;
+
+				case GDK_KEY_c:
+					copy();
+					handled = TRUE;
+					break;
+
+				case GDK_KEY_v:
+					paste();
+					handled = TRUE;
+					break;
+
+				default:
+					break;
+			}
+		}
+		else
+		{
+			switch (key_value)
+			{
+				case GDK_KEY_Up:
+					if (m_cursor.m_north < 65535)
+					{
+						++ m_cursor.m_north;
+						do_location();
+
+						// Make sure the cursor falls within the visible rows.
+
+						align_range(m_cursor.m_north,
+							          m_view.m_WSB.m_north,
+							          m_view.m_ENA.m_north);
+
+						// The cursor has now been moved.  Use its new location
+						// to update the marked volume.
+
+						if (key_state & GDK_SHIFT_MASK)
+							mark();            
+
+						// Update the view to show the changes.
+
+						update();
+					}
+
+					handled = true;
+					break;
+
+				case GDK_KEY_Down:
+					if ( m_cursor.m_north > 0 )
+					{           
+						-- m_cursor.m_north;
+						do_location();
+
+						// Make sure the cursor falls within the visible rows.
+
+						align_range(m_cursor.m_north,
+							          m_view.m_WSB.m_north,
+							          m_view.m_ENA.m_north);
+
+						// The cursor has now been moved.  Use its new location
+						// to update the marked volume.
+
+						if (key_state & GDK_SHIFT_MASK)
+							mark();
+
+						// Update the view to show the changes.
+
+						update();
+					}
+
+					handled = true;
+					break;
+
+				case GDK_KEY_Left:  
+					if (m_cursor.m_east > 0)
+					{
+						m_cursor.m_east --;
+						do_location();
+
+						// Make sure the cursor falls within the visible columns.
+
+						align_range(m_cursor.m_east,
+							          m_view.m_WSB.m_east,
+							          m_view.m_ENA.m_east);
+
+						// The cursor has now been moved.  Use its new location
+						// to update the marked volume.
+
+						if (key_state & GDK_SHIFT_MASK)
+							mark();
+
+						// Update the view to show the changes.
+
+						update();
+					}
+
+					handled = true;
+					break;
+
+				case GDK_KEY_Right:
+					if (m_cursor.m_east < 65535)
+					{           
+						m_cursor.m_east ++;
+						do_location();
+
+						// Make sure the cursor falls within the visible columns.
+
+						alignrange(m_cursor.m_east,
+							         m_view.m_WSB.m_east,
+							         m_view.m_ENA.m_east);
+
+						// The cursor has now been moved.  Use its new location
+						// to update the marked volume.
+
+						if (key_state & GDK_SHIFT_MASK)
+							mark();
+
+						// Update the view to show the changes.
+
+						update();
+					}
+
+					handled = true;
+					break;
+
+				case GDK_KEY_Page_Down:
+					if (m_cursor.m_above > 0)
+					{          
+						m_cursor.m_above --;
+						do_location();
+
+						// Make sure the cursor falls within the visible level.
+
+						m_view.m_WSB.m_above = m_cursor.m_above;
+						m_view.m_ENA.m_above = m_cursor.m_above;
+
+						// The cursor has now been moved.  Use its new location
+						// to update the marked volume.
+
+						if (key_state & GDK_SHIFT_MASK)
+							mark();
+
+						// Update the view to show the changes.
+
+						update();
+					}
+
+					handled = true;
+					break;
+
+				case GDK_KEY_Page_Up:
+					if (m_cursor.m_above < 65535)
+					{          
+						m_cursor.m_above ++;
+						do_location();
+
+						// Make sure the cursor falls within the visible level.
+
+						m_view.m_WSB.m_above = m_cursor.m_above;
+						m_view.m_ENA.m_above = m_cursor.m_above;
+
+						// The cursor has now been moved.  Use its new location
+						// to update the marked volume.
+
+						if (key_state & GDK_SHIFT_MASK)
+							mark();
+
+						// Update the view to show the changes.
+
+						update();
+					}
+
+					handled = true;
+					break;
+
+				case GDK_KEY_Home:
+					// Set the map view to convenient location.
+
+					home();
+					break;
+
+				case GDK_KEY_Delete:
+					// Erase the marked volume.
+
+					erase();  
+					break;
+
+				case GDK_KEY_Escape:
+				case GDK_KEY_Shift_L:
+				case GDK_KEY_Shift_R:
+					// Begin volume marking, or clear the current marking.  Since this
+					// must occur only once when starting to mark a volume,  the SHIFT
+					// key must not repeat while being pressed.
+
+					m_mark_origin = m_cursor;
+					mark();
+					break;
+
+				default:
+					break;
+			}  
+		}
+	}
+
+	return handled;
 }
 
 //----------------------------------------------
@@ -634,135 +648,135 @@ Enigma::Position& Enigma::LevelView::get_cursor()
 	return m_cursor;
 }
 
-//*------------------------------------------------------------------*
-//* This method changes the map view so it shows objects of the map. *
-//*------------------------------------------------------------------*
+//-----------------------------------------------------------------
+// This method changes the map view so it shows objects of the map.
+//-----------------------------------------------------------------
 
-void CLevelView::Home()
+void Enigma::LevelView::home()
 { 
-  // Search for an active player.
-  
-  std::list<CMapObject>::iterator Object;
-  
-  for ( Object = iMap->iPlayers.begin();
-        Object != iMap->iPlayers.end();
-        ++ Object )
-  {
-    if ( (*Object).iActive )
-    {
-       // An active player was found.  Set the cursor to its location.
-    
-      m_cursor = (*Object).m_position;
-      break;
-    }
-  }
-  
-  if ( Object == iMap->iPlayers.end() )
-  {
-    // There are no active players present, so try the first player.
-    
-    Object = iMap->iPlayers.begin();
-    
-    if ( Object != iMap->iPlayers.end() )
-      m_cursor = (*Object).m_position;
-    else   
-    {
-      // There are no players present, so try the first item.
-    
-      Object = iMap->iItems.begin();
-    
-      if ( Object != iMap->iItems.end() )
-        m_cursor = (*Object).m_position;
-      else
-      {
-        // There are no items present, so try the first teleporter.
-        
-        Object = iMap->iTeleporters.begin();
-        
-        if ( Object != iMap->iTeleporters.end() )
-          m_cursor = (*Object).m_position;
-        else
-        {
-          // There are no teleporters present, so try the first structural
-          // object.
-      
-          Object = iMap->iObjects.begin();
-      
-          if ( Object != iMap->iObjects.end() )
-            m_cursor = (*Object).m_position;
-          else
-          {
-            // There are no objects in the map.  Set the cursor to a location
-            // of zero.
-        
-            m_cursor.m_above = 0;
-            m_cursor.m_north = 0;
-	          m_cursor.m_east  = 0;
-	        }
-        }
-      }
-    }
-  }
+	// Search for an active player.
 
-  // Report changes to the cursor location.
-  
-  Do_Location();
+	std::list<Enigma::Object>::iterator object;
 
-  // Adjust the visible view volume so the cursor is visible.
+	for (object = m_world->m_players.begin();
+	     object != m_world->m_players.end();
+	     ++ object)
+	{
+		if ((*object).m_active )
+		{
+			// An active player was found.  Set the cursor to its location.
 
-  AlignRange( m_cursor.m_north, m_view.m_WSB.m_north, m_view.m_ENA.m_north );
-  AlignRange( m_cursor.m_east, m_view.m_WSB.m_east, m_view.m_ENA.m_east );
-  
-  // Update the view to show the changes.
+			m_cursor = (*object).m_position;
+			break;
+		}
+	}
 
-  Update();
+	if (object == m_world->m_players.end())
+	{
+		// There are no active players present, so try the first player.
+
+		object = m_world->m_players.begin();
+
+		if ( object != m_world->m_players.end())
+			m_cursor = (*object).m_position;
+		else   
+		{
+			// There are no players present, so try the first item.
+
+			object = m_world->m_items.begin();
+
+			if (object != m_world->m_items.end())
+				m_cursor = (*object).m_position;
+			else
+			{
+				// There are no items present, so try the first teleporter.
+
+				object = m_world->m_teleporters.begin();
+
+				if ( object != m_world->m_teleporters.end())
+					m_cursor = (*object).m_position;
+				else
+				{
+					// There are no teleporters present, so try the first structural
+					// object.
+
+					object = m_world->m_objects.begin();
+
+					if (object != m_world->m_objects.end())
+						m_cursor = (*object).m_position;
+					else
+					{
+						// There are no objects in the map.  Set the cursor to a location
+						// of zero.
+
+						m_cursor.m_above = 0;
+						m_cursor.m_north = 0;
+						m_cursor.m_east  = 0;
+					}
+				}
+			}
+		}
+	}
+
+	// Report changes to the cursor location.
+
+	do_location();
+
+	// Adjust the visible view volume so the cursor is visible.
+
+	align_range(m_cursor.m_north, m_view.m_WSB.m_north, m_view.m_ENA.m_north);
+	align_range(m_cursor.m_east, m_view.m_WSB.m_east, m_view.m_ENA.m_east);
+
+	// Update the view to show the changes.
+
+	update();
 }
 
-//*----------------------------------------------------------------------*
-//* This method expands the marked map volume using the cursor location. *
-//*----------------------------------------------------------------------*
+//---------------------------------------------------------------------
+// This method expands the marked map volume using the cursor position.
+//---------------------------------------------------------------------
 
-void CLevelView::Mark()
+void Enigma::LevelView::mark()
 {
-  // Update the marked volume so it contain the cursor volume
-  // and the proper relationship between the volume corners.
+	// Update the marked volume so it contain the cursor volume
+	// and the proper relationship between the volume corners.
 
-  if ( m_cursor.m_above >= iMarkOrigin.m_above )
-  {
-    m_mark.m_WSB.m_above = iMarkOrigin.m_above;
-    m_mark.m_ENA.m_above = m_cursor.m_above;
-  }
-  else if ( m_cursor.m_above < iMarkOrigin.m_above )
-  {
-    m_mark.m_WSB.m_above = m_cursor.m_above;
-    m_mark.m_ENA.m_above = iMarkOrigin.m_above;
-  }
+	if (m_cursor.m_above >= m_mark_origin.m_above)
+	{
+		m_mark.m_WSB.m_above = m_mark_origin.m_above;
+		m_mark.m_ENA.m_above = m_cursor.m_above;
+	}
+	else if (m_cursor.m_above < m_mark_origin.m_above)
+	{
+		m_mark.m_WSB.m_above = m_cursor.m_above;
+		m_mark.m_ENA.m_above = m_mark_origin.m_above;
+	}
 
-  if ( m_cursor.m_north >= iMarkOrigin.m_north )
-  {
-    m_mark.m_WSB.m_north = iMarkOrigin.m_north;
-    m_mark.m_ENA.m_north = m_cursor.m_north;
-  }
-  else if ( m_cursor.m_north < iMarkOrigin.m_north )
-  {
-    m_mark.m_WSB.m_north = m_cursor.m_north;
-    m_mark.m_ENA.m_north = iMarkOrigin.m_north;
-  } 
-     
-  if ( m_cursor.m_east >= iMarkOrigin.m_east )
-  {
-    m_mark.m_WSB.m_east = iMarkOrigin.m_east;
-    m_mark.m_ENA.m_east = m_cursor.m_east;
-  }
-  else if ( m_cursor.m_east < iMarkOrigin.m_east )
-  {
-    m_mark.m_WSB.m_east = m_cursor.m_east;
-    m_mark.m_ENA.m_east = iMarkOrigin.m_east;
-  }
-  
-  // Update the view to show the changes.
+	if (m_cursor.m_north >= m_mark_origin.m_north)
+	{
+		m_mark.m_WSB.m_north = m_mark_origin.m_north;
+		m_mark.m_ENA.m_north = m_cursor.m_north;
+	}
+	else if (m_cursor.m_north < m_mark_origin.m_north)
+	{
+		m_mark.m_WSB.m_north = m_cursor.m_north;
+		m_mark.m_ENA.m_north = m_mark_origin.m_north;
+	} 
 
-  update();
+	if (m_cursor.m_east >= m_mark_origin.m_east)
+	{
+		m_mark.m_WSB.m_east = m_mark_origin.m_east;
+		m_mark.m_ENA.m_east = m_cursor.m_east;
+	}
+	else if (m_cursor.m_east < m_mark_origin.m_east)
+	{
+		m_mark.m_WSB.m_east = m_cursor.m_east;
+		m_mark.m_ENA.m_east = m_mark_origin.m_east;
+	}
+
+	// Update the view to show the changes.
+
+	update();
 }
 
 //*-----------------------------------------*
@@ -771,55 +785,54 @@ void CLevelView::Mark()
 
 void Enigma::LevelView::erase()
 {
-  // Select the map volume to be erased.  If the marked volume has a size
-  // of only one room, set it to the cursor volume instead.
-  
-  if  (( m_mark.m_ENA.m_above == m_mark.m_WSB.m_above )
-    && ( m_mark.m_ENA.m_north == m_mark.m_WSB.m_north )
-    && ( m_mark.m_ENA.m_east == m_mark.m_WSB.m_east ))
-  {
-    m_mark.m_ENA = m_cursor;
-    m_mark.m_WSB = m_cursor;
-  }
+	// Select the map volume to be erased.  If the marked volume has a size
+	// of only one room, set it to the cursor volume instead.
 
-  // Move all marked volume objects to a buffer.
+	if  ((m_mark.m_ENA.m_above == m_mark.m_WSB.m_above)
+	  && (m_mark.m_ENA.m_north == m_mark.m_WSB.m_north)
+	  && (m_mark.m_ENA.m_east == m_mark.m_WSB.m_east))
+	{
+		m_mark.m_ENA = m_cursor;
+		m_mark.m_WSB = m_cursor;
+	}
 
-  std::list<std::list<CMapObject>::iterator> Marked;
-  std::list<CMapObject> buffer;
+	// Move all marked volume objects to a buffer.
 
-  iMap->iObjects.Read( iMark, Marked );
-  iMap->iObjects.Remove( Marked, buffer );
+	std::list<std::list<Enigma::Object>::iterator> marked;
+	std::list<Enigma::Object> buffer;
 
-  // Move all marked volume items to a buffer.
-  
-  Marked.clear();
+	m_world->m_objects.read(m_mark, marked);
+	m_world->m_objects.remove(marked, buffer);
 
-  iMap->iItems.Read( iMark, Marked );
-  iMap->iItems.Remove( Marked, buffer );
+	// Move all marked volume items to a buffer.
 
-  // Move all marked volume players to the buffer.
-  
-  Marked.clear();
-  
-  iMap->iPlayers.Read( iMark, Marked );
-  iMap->iPlayers.Remove( Marked, buffer );
+	marked.clear();
 
-  // Move all marked volume teleporters to the buffer.
-  
-  Marked.clear();
-  
-  iMap->iTeleporters.Read( iMark, Marked );
-  iMap->iTeleporters.Remove( Marked, buffer );
+	m_world->m_items.read(m_mark, marked);
+	m_world->m_items.remove(marked, buffer);
 
-  // Unmark the marked volume.
-  
-  m_mark.m_ENA = m_cursor;
-  m_mark.m_WSB = m_cursor;
-  
-  // Update the view to show the changes.
+	// Move all marked volume players to the buffer.
 
-  Update();
-  return;
+	Marked.clear();
+
+	m_world->m_players.read(m_mark, marked);
+	m_world->m_players.remove(marked, buffer);
+
+	// Move all marked volume teleporters to the buffer.
+
+	Marked.clear();
+
+	m_world->m_teleporters.read(m_mark, marked);
+	m_world->m_teleporters.remove(marked, buffer);
+
+	// Unmark the marked volume.
+
+	m_mark.m_ENA = m_cursor;
+	m_mark.m_WSB = m_cursor;
+
+	// Update the view to show the changes.
+
+	update();
 }
 
 //-----------------------------------------------------------
@@ -828,75 +841,77 @@ void Enigma::LevelView::erase()
 
 void Enigma::LevelView::cut()
 {  
-  // Clear any old objects in the editing buffer.
-  
-  m_edit_buffer.clear();
-  
-  // Select the map volume to be cut.  If the marked volume has a size
-  // of only one room, set it to the cursor volume instead.
-  
-  if  ((m_mark.m_ENA.m_above == m_mark.m_WSB.m_above)
-    && (m_mark.m_ENA.m_north == m_mark.m_WSB.m_north)
-    && (m_mark.m_ENA.m_east == m_mark.m_WSB.m_east))
-  {
-    m_mark.m_ENA = m_cursor;
-    m_mark.m_WSB = m_cursor;
-  }
+	// Clear any old objects in the editing buffer.
 
-  // Move all marked volume objects to the editing buffer.
+	m_edit_buffer.clear();
 
-  std::list<std::list<Enigma::Object>::iterator> marked;
+	// Select the map volume to be cut.  If the marked volume has a size
+	// of only one room, set it to the cursor volume instead.
 
-  m_world->m_objects.read(m_mark, marked);
-  m_world->m_objects.remove(marked, m_edit_buffer);
+	if  ((m_mark.m_ENA.m_above == m_mark.m_WSB.m_above)
+	  && (m_mark.m_ENA.m_north == m_mark.m_WSB.m_north)
+	  && (m_mark.m_ENA.m_east == m_mark.m_WSB.m_east))
+	{
+		m_mark.m_ENA = m_cursor;
+		m_mark.m_WSB = m_cursor;
+	}
 
-  // Move all marked volume items to the editing buffer.
-  
-  marked.clear();
+	// Move all marked volume objects to the editing buffer.
 
-  m_world->m_items.read(m_mark, marked);
-  m_world->m_items.remove(marked, m_edit_buffer);
+	std::list<std::list<Enigma::Object>::iterator> marked;
 
-  // Move all marked volume players to the edit buffer.
-  
-  marked.clear();
-  
-  m_world->m_players.read(m_mark, marked);
-  m_world->m_players.remove(marked, m_edit_buffer);
+	m_world->m_objects.read(m_mark, marked);
+	m_world->m_objects.remove(marked, m_edit_buffer);
 
-  // Move all marked volume teleporters to the edit buffer.
-  
-  marked.clear();
-  
-  m_world->m_teleporters.read(m_mark, marked);
-  m_world->m_teleporters.remove(marked, m_edit_buffer);
+	// Move all marked volume items to the editing buffer.
 
-  // Change the map position of all objects to be an offset from a map
-  // position of (0, 0, 0), corresponding to the West-South-Below corner
-  // of the marked volume.
+	marked.clear();
 
-  std::list<Enigma::Object>::iterator object;
-  
-  for (object = m_edit_buffer.begin(); object != m_edit_buffer.end(); ++ object)
-  {
-    (*object).m_position.m_above =
-      (*object).m_position.m_above - m_mark.m_WSB.m_above;
-    
-    (*object).m_position.m_north =
-      (*object).m_position.m_north - m_mark.m_WSB.m_north;
-    
-    (*object).m_position.m_east =
-      (*object).m_position.m_east - m_mark.m_WSB.m_east;
-  }
-  
-  // Unmark the marked volume.
-  
-  m_mark.m_ENA = m_cursor;
-  m_mark.m_WSB = m_cursor;
-  
-  // Update the view to show the changes.
+	m_world->m_items.read(m_mark, marked);
+	m_world->m_items.remove(marked, m_edit_buffer);
 
-  update();
+	// Move all marked volume players to the edit buffer.
+
+	marked.clear();
+
+	m_world->m_players.read(m_mark, marked);
+	m_world->m_players.remove(marked, m_edit_buffer);
+
+	// Move all marked volume teleporters to the edit buffer.
+
+	marked.clear();
+
+	m_world->m_teleporters.read(m_mark, marked);
+	m_world->m_teleporters.remove(marked, m_edit_buffer);
+
+	// Change the map position of all objects to be an offset from a map
+	// position of (0, 0, 0), corresponding to the West-South-Below corner
+	// of the marked volume.
+
+	std::list<Enigma::Object>::iterator object;
+
+	for (object = m_edit_buffer.begin();
+	     object != m_edit_buffer.end();
+	     ++ object)
+	{
+		(*object).m_position.m_above =
+			(*object).m_position.m_above - m_mark.m_WSB.m_above;
+
+		(*object).m_position.m_north =
+			(*object).m_position.m_north - m_mark.m_WSB.m_north;
+
+		(*object).m_position.m_east =
+			(*object).m_position.m_east - m_mark.m_WSB.m_east;
+	}
+
+	// Unmark the marked volume.
+
+	m_mark.m_ENA = m_cursor;
+	m_mark.m_WSB = m_cursor;
+
+	// Update the view to show the changes.
+
+	update();
 }
 
 //-----------------------------------------------------------
@@ -905,47 +920,49 @@ void Enigma::LevelView::cut()
 
 void Enigma::LevelView::copy()
 {
-  // Clear any old objects in the editing buffer.
-  
-  m_edit_buffer.clear();
+	// Clear any old objects in the editing buffer.
 
-  // Select the map volume to be cut.  If the marked volume has a size
-  // of only one room, use the cursor volume instead.
-  
-  if  ((m_mark.m_ENA.m_above == m_mark.m_WSB.m_above)
-    && (m_mark.m_ENA.m_north == m_mark.m_WSB.m_north)
-    && (m_mark.m_ENA.m_east == m_mark.m_WSB.m_east))
-  {
-    m_mark.m_ENA = m_cursor;
-    m_mark.m_WSB = m_cursor;
-  }
+	m_edit_buffer.clear();
 
-  // Get a copy of all marked objects from all object lists.
+	// Select the map volume to be cut.  If the marked volume has a size
+	// of only one room, use the cursor volume instead.
 
-  m_world->m_objects.copy(m_mark, m_edit_buffer);
-  m_world->m_items.copy(m_mark, m_edit_buffer);
-  m_world->m_players.copy(m_mark, m_edit_buffer);
-  m_world->m_teleporters.copy(m_mark, m_edit_buffer);
-  
-  // Change the map position of all objects to be an offset from a map
-  // location of (0, 0, 0), corresponding to the upper-top-left corner
-  // of the marked volume.
+	if  ((m_mark.m_ENA.m_above == m_mark.m_WSB.m_above)
+	  && (m_mark.m_ENA.m_north == m_mark.m_WSB.m_north)
+	  && (m_mark.m_ENA.m_east == m_mark.m_WSB.m_east))
+	{
+		m_mark.m_ENA = m_cursor;
+		m_mark.m_WSB = m_cursor;
+	}
 
-  std::list<CMapObject>::iterator object;
-  
-  for (object = m_edit_buffer.begin(); object != m_edit_buffer.end(); ++ object)
-  {
-    (*Object).m_position.m_above =
-      (*Object).m_position.m_above - m_mark.m_WSB.m_above;
-    
-    (*Object).m_position.m_north =
-      (*Object).m_position.m_north - m_mark.m_WSB.m_north;
-    
-    (*Object).m_position.m_east =
-      (*Object).m_position.m_east - m_mark.m_WSB.m_east;
-  }
+	// Get a copy of all marked objects from all object lists.
 
-  // A marked volume will remain marked to show the volume that was copied.
+	m_world->m_objects.copy(m_mark, m_edit_buffer);
+	m_world->m_items.copy(m_mark, m_edit_buffer);
+	m_world->m_players.copy(m_mark, m_edit_buffer);
+	m_world->m_teleporters.copy(m_mark, m_edit_buffer);
+
+	// Change the map position of all objects to be an offset from a map
+	// location of (0, 0, 0), corresponding to the upper-top-left corner
+	// of the marked volume.
+
+	std::list<Enigma::Object>::iterator object;
+
+	for (object = m_edit_buffer.begin();
+	     object != m_edit_buffer.end();
+	     ++ object)
+	{
+		(*object).m_position.m_above =
+			(*object).m_position.m_above - m_mark.m_WSB.m_above;
+
+		(*object).m_position.m_north =
+			(*object).m_position.m_north - m_mark.m_WSB.m_north;
+
+		(*object).m_position.m_east =
+			(*object).m_position.m_east - m_mark.m_WSB.m_east;
+	}
+
+	// The marked volume will remain marked.
 }
 
 //----------------------------------------------------------------
@@ -955,58 +972,60 @@ void Enigma::LevelView::copy()
 
 void Enigma::LevelView::paste()
 { 
-  // Set the world position of all new objects being inserted relative to the
-  // world position of the cursor.  The position of the original objects in
-  // the editing buffer must not be modified, since they are an offset from 
-  // position of (0, 0, 0).
+	// Set the world position of all new objects being inserted relative to the
+	// world position of the cursor.  The position of the original objects in
+	// the editing buffer must not be modified, since they are an offset from 
+	// position of (0, 0, 0).
 
-  Enigma::Object new_object;
-  std::list<Enigma::Object>::iterator object;
-  
-  for (object = m_edit_buffer.begin(); object != m_edit_buffer.end(); ++ object )
-  {
-    new_object = (*object);
-   
-    // Prevent a wrap-around of the map location if pasting near
-    // a map boundary.
- 
-    if  ((new_object.m_position.m_above <= (65535 - m_cursor.m_above))
-      && (new_object.m_position.m_north <= (65535 - m_cursor.m_north)) 
-      && (new_object.m_position.m_east <= (65535 - m_cursor.m_east)))
-    { 
-      new_object.m_position.m_above  += m_cursor.m_above;
-      new_object.m_position.m_north    += m_cursor.m_north;
-      new_object.m_position.m_east += m_cursor.m_east;
-  
-      // Add the new object to the appropriate list in the map.
-  
-      switch (new_object.m_type)
-      {
-        case Enigma::Object::Type::OBJECT:
-          m_world->m_objects.insert(new_object);
-          break;
-        
-        case Enigma::Object::Type::ITEM:
-          m_world->m_items.insert(new_object);
-          break;
-        
-        case Enigma::Object::Type::PLAYER:
-          m_world->m_players.insert(new_object);
-          break;
-        
-        case Enigma::Object::Type::TELEPORTER:
-          m_world->m_teleporters.insert(new_object);
-          break;
-        
-        default:
-          break;
-      }
-    }
-  }
+	Enigma::Object new_object;
+	std::list<Enigma::Object>::iterator object;
 
-  // Update the view to show the changes.
+	for (object = m_edit_buffer.begin();
+	     object != m_edit_buffer.end();
+	     ++ object )
+	{
+		new_object = (*object);
 
-  update();
+		// Prevent a wrap-around of the map position if pasting near
+		// a map boundary.  Objects outside the boundary will be lost.
+
+		if  ((new_object.m_position.m_above <= (65535 - m_cursor.m_above))
+		  && (new_object.m_position.m_north <= (65535 - m_cursor.m_north)) 
+		  && (new_object.m_position.m_east <= (65535 - m_cursor.m_east)))
+		{ 
+			new_object.m_position.m_above += m_cursor.m_above;
+			new_object.m_position.m_north += m_cursor.m_north;
+			new_object.m_position.m_east  += m_cursor.m_east;
+
+			// Add the new object to the appropriate list in the map.
+
+			switch (new_object.m_type)
+			{
+				case Enigma::Object::Type::OBJECT:
+					m_world->m_objects.insert(new_object);
+					break;
+
+				case Enigma::Object::Type::ITEM:
+					m_world->m_items.insert(new_object);
+					break;
+
+				case Enigma::Object::Type::PLAYER:
+					m_world->m_players.insert(new_object);
+					break;
+
+				case Enigma::Object::Type::TELEPORTER:
+					m_world->m_teleporters.insert(new_object);
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	// Update the view to show the changes.
+
+	update();
 }
 
 //------------------------------
@@ -1019,19 +1038,19 @@ void Enigma::LevelView::update()
 }
 
 //---------------------------------------------
-// This method returns the map location signal.
+// This method returns the map position signal.
 //---------------------------------------------
 
-Enigma::LevelView::type_signal_location Enigma::LevelView::signal_location()
+Enigma::LevelView::type_signal_position Enigma::LevelView::signal_position()
 {
-  return m_signal_location;
+	return m_signal_position;
 }
 
 //-----------------------------------------------------------
-// This method emits a signal containing the cursor location.
+// This method emits a signal containing the cursor position.
 //-----------------------------------------------------------
 
-void Enigma::LevelView::do_location()
+void Enigma::LevelView::do_position()
 {	  
-  m_signal_location.emit(m_cursor);
+	m_signal_position.emit(m_cursor);
 }

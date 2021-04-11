@@ -20,297 +20,289 @@
 
 #include "ObjectList.h"
 
-//*----------------------*
-//* Default constructor. *
-//*----------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CObjectList::CObjectList()
+Enigma::ObjectList::ObjectList()
 { 
-	// Initialize the list iterator.
+	// Initialize the cached list iterator.
 
-	iIterator = end();
-	return;
+	m_iterator = end();
 }
 
-//*------------------------------*
-//* This method clears the list. *
-//*------------------------------*
+//-----------------------------
+// This method clears the list.
+//-----------------------------
 
-void CObjectList::Clear()
+void Enigma::ObjectList::clear()
 {
-	clear();
-	iIterator = end();
-	return;
+	// Call parent class clear().
+
+	std::list<Enigma::Object>::clear();
+	m_iterator = end();
 }
 
-//*------------------------------------------------------------------*
-//* This method moves the list iterator just past an object whose    *
-//* location (East, North, Above) matches the one provided.          *
-//* If none exist, the iterator will point past the end of the list. *
-//* Using this method before inserting objects into the list will    *
-//* cause them to be sorted in an ascending order based on location. *
-//*------------------------------------------------------------------*
-//* aLocation: Map location to seek.                                 *
-//*------------------------------------------------------------------*
+//-----------------------------------------------------------------
+// This method moves the list iterator just past an object whose
+// position (East, North, Above) matches the one provided.
+// If none exist, the iterator will point past the end of the list.
+// Using this method before inserting objects into the list will
+// cause them to be sorted in an ascending order based on location.
+//-----------------------------------------------------------------
+// position: World position to seek.
+//-----------------------------------------------------------------
 
-void CObjectList::Seek( const CMapLocation& aLocation )
+void Enigma::ObjectList::seek(const Enigma::Position& position)
 {
 	// Move the list iterator if East, North, or Above are too high. 
-	
-	while (( iIterator != begin() )
-	  && 
-			(( iIterator == end() )
+
+	while ((m_iterator != begin())
+		&& 
+		  ((m_iterator == end())
 		||
-		  ( (*iIterator).iLocation.iAbove > aLocation.iAbove )
+		  ((*m_iterator).m_position.m_above > position.m_above)
 		||
-			(( (*iIterator).iLocation.iAbove == aLocation.iAbove )
-		&& ( (*iIterator).iLocation.iNorth > aLocation.iNorth ))
+		  (((*m_iterator).m_position.m_above == position.m_above)
+		&& ((*m_iterator).m_position.m_north > position.m_north))
 		|| 
-			(( (*iIterator).iLocation.iAbove == aLocation.iAbove )
-		&& ( (*iIterator).iLocation.iNorth == aLocation.iNorth )
-		&& ( (*iIterator).iLocation.iEast > aLocation.iEast ))))
+		  (((*m_iterator).m_position.m_above == position.m_above)
+		&& ((*m_iterator).m_position.m_north == position.m_north)
+		&& ((*m_iterator).m_position.m_east > position.m_east))))
 		{
-			iIterator --;
+			m_iterator --;
 		}
 
 	// Move the list iterator if East, North, or Above are too low
 	// or equal.
-	
-	while (( iIterator != end() )
-		&& (( (*iIterator).iLocation.iAbove < aLocation.iAbove )
+
+	while ((m_iterator != end())
+		&& (((*m_iterator).m_position.m_above < position.m_above)
 		||
-			(( (*iIterator).iLocation.iAbove == aLocation.iAbove )
-		&& ( (*iIterator).iLocation.iNorth < aLocation.iNorth ))
+		  (((*m_iterator).m_position.m_above == position.m_above)
+		&& ((*m_iterator).m_position.m_north < position.m_north))
 		|| 
-			(( (*iIterator).iLocation.iAbove == aLocation.iAbove )
-		&& ( (*iIterator).iLocation.iNorth == aLocation.iNorth )
-		&& ( (*iIterator).iLocation.iEast <= aLocation.iEast ))))
+		  (( (*m_iterator).m_position.m_above == position.m_above)
+		&& ((*m_iterator).m_position.m_north == position.m_north)
+		&& ((*m_iterator).m_position.m_east <= position.m_east))))
 		{
-			iIterator ++;
+			m_iterator ++;
 		}
-	
-	return;
 }
 
-//*-------------------------------------------------------*
-//* This method removes a list of MapObjects.             *
-//*-------------------------------------------------------*
-//* aObjects: List of iterators to objects to be removed. *
-//* aBuffer:  Buffer to receive removed objects.          *
-//*-------------------------------------------------------*
+//-----------------------------------------------------
+// This method removes a list of objects.
+//-----------------------------------------------------
+// objects: List of iterators to objects to be removed.
+// buffer:  Buffer to receive removed objects.         
+//-----------------------------------------------------
 
-void CObjectList::Remove( std::list<std::list<CMapObject>::iterator>& aObjects,
-                          std::list<CMapObject>& aBuffer )
+void Enigma::ObjectList::remove(
+	std::list<std::list<Enigma::Object>::iterator>& objects,
+  std::list<Enigma::Object>& buffer)
 {
-  std::list<std::list<CMapObject>::iterator>::iterator Object;
+  std::list<std::list<Enigma::Object>::iterator>::iterator object;
 
-  for ( Object = aObjects.begin(); Object != aObjects.end(); ++ Object )
+  for (object = objects.begin();
+       object != objects.end();
+       ++ object)
   {
     // If the cached iterator points to an object about to be removed,
     // move the iterator to the next object.  This keeps the cached
     // iterator valid.
   
-    if ( *Object != end() )
+    if (*object != end())
     {
-      if ( iIterator == *Object )
-        ++ iIterator;
+      if (m_iterator == *object)
+        ++ m_iterator;
 
-      // Move the MapObject to the end of the buffer.
+      // Move the object to the end of the buffer.
 
-      aBuffer.splice( aBuffer.end(), *this, *Object );
+      buffer.splice(buffer.end(), *this, *object);
     }
   }
-
-	return;
 }
 
-//*---------------------------------------------*
-//* This method erases a MapObject in the list. *
-//*---------------------------------------------*
-//* aObjects: Iterator to object to be erased.  *
-//*---------------------------------------------*
+//------------------------------------------
+// This method erases an object in the list.
+//------------------------------------------
+// object: Iterator to object to be erased.
+//------------------------------------------
 
-void CObjectList::Erase( std::list<CMapObject>::iterator& aObject )
+void Enigma::ObjectList::erase(std::list<Enigma::Object>::iterator& object)
 {
-  if ( aObject != end() )
-    iIterator = erase( aObject );
-
-  return;
+  // If the list is not empty, call the parent erase() method
+  // to erase the object. 
+  
+  if (object != end())
+    m_iterator = std::list<Enigma::Object>::erase(object);
 }
 
-//*--------------------------------------------------------------------*
-//* This method sorts a MapObject by location and inserts a copy of it *
-//* into the list.                                                     * 
-//*--------------------------------------------------------------------*
-//* aObject: MapObject to be inserted.                                 *
-//*--------------------------------------------------------------------*
+//-----------------------------------------------------------------
+// This method sorts an object by position and inserts a copy of it
+// into the list.
+//-----------------------------------------------------------------
+// object: Object to be inserted.
+//-----------------------------------------------------------------
 
-void CObjectList::Insert( CMapObject& aObject )
+void Enigma::ObjectList::insert(Enigma::Object& object)
 { 
-	Seek( aObject.iLocation );
+	seek(object.m_position);
 	
-	// The list iterator has been moved to the insertion point.
-	// Insert a copy of the object just before the insertion point.
+	// The list iterator has been moved to the insertion point.  Call
+	// the parent insert() method to insert a copy of the object just
+	// before the insertion point.
 	
-	iIterator = insert( iIterator, aObject );
-	return;
+	m_iterator = std::list<Enigma::Object>::insert(m_iterator, object);
 }
 
-//*------------------------------------------------------------------*
-//* This method sorts and inserts copies of MapObjects from a buffer *
-//* into the list.                                                   * 
-//*------------------------------------------------------------------*
-//* aBuffer: List of MapObject to be inserted.                       *
-//*------------------------------------------------------------------*
+//--------------------------------------------------------------
+// This method sorts and inserts copies of objects from a buffer
+// into the list.
+//--------------------------------------------------------------
+// buffer: List of world objects to be inserted.
+//--------------------------------------------------------------
 
-void CObjectList::Insert( std::list<CMapObject>& aBuffer )
+void Enigma::ObjectList::insert(std::list<Enigma::Object>& buffer)
 { 
-	std::list<CMapObject>::iterator Object;
+	std::list<Enigma::Object>::iterator object;
 
-	for ( Object = aBuffer.begin(); Object != aBuffer.end(); ++ Object )
+	for (object = buffer.begin();
+	     object != buffer.end();
+	     ++ object)
 	{
-		Insert( (*Object) );
+		insert((*object));
 	}
-
-	return;
 }
 
-//*-----------------------------------------------------------------*
-//* This method copies MapObject iterators within a map volume into *
-//* a buffer.  The MapObjects in the buffer will most likely be     *
-//* unsorted.                                                       *
-//*-----------------------------------------------------------------*
-//* aVolume: Map volume to be copied.                               *
-//* aBuffer: Buffer to receive copies of MapObject iterators.       *
-//*-----------------------------------------------------------------*
+//-------------------------------------------------------------------
+// This method copies object iterators within a world volume into
+// a buffer.  The objects in the buffer will most likely be unsorted.
+//-------------------------------------------------------------------
+// volume: World volume to be copied.
+// buffer: Buffer to receive copies of object iterators.
+//-------------------------------------------------------------------
 
-void CObjectList::Read( CMapVolume& aVolume,
-                        std::list<std::list<CMapObject>::iterator>& aBuffer )
+void Enigma::ObjectList::read(
+	Enigma::Volume& volume,
+  std::list<std::list<Enigma::Object>::iterator>& buffer)
 {
-	CMapLocation Location;
-	
-	for ( Location.iAbove = aVolume.iWSB.iAbove;
-	     Location.iAbove <= aVolume.iENA.iAbove;
-	     ++ Location.iAbove )
+	Enigma::Position position;
+
+	for (position.m_above = volume.m_WSB.m_above;
+	     position.m_above <= volume.m_ENA.m_above;
+	     ++ position.m_above )
 	{
-		for ( Location.iNorth = aVolume.iWSB.iNorth;
-					Location.iNorth <= aVolume.iENA.iNorth;
-					++ Location.iNorth )
+		for (position.m_north = volume.m_WSB.m_north;
+		     position.m_north <= volume.m_ENA.m_north;
+		     ++ position.m_north )
 		{
-			for ( Location.iEast = aVolume.iWSB.iEast;
-	  			  Location.iEast <= aVolume.iENA.iEast;
-			      ++ Location.iEast )
+			for (position.m_east = volume.m_WSB.m_east;
+			     position.m_east <= volume.m_ENA.m_east;
+			     ++ position.m_east )
 			{
-				Read( Location, aBuffer );
+				read(position, buffer);
 			}
 		}
 	}
-	     
-	return;
 }
 
-//*---------------------------------------------------------------------------*
-//* This method copies MapObject iterators from a map location into a buffer. *
-//*---------------------------------------------------------------------------*
-//* aLocation: Map volume to be copied.                                       *
-//* aBuffer:   Buffer to receive copies of MapObject iterators.               *
-//*---------------------------------------------------------------------------*
+//---------------------------------------------------------------------------
+// This method copies object iterators within a world position into a buffer.
+//---------------------------------------------------------------------------
+// position: World position to be copied.
+// buffer:   Buffer to receive copies of object iterators.
+//---------------------------------------------------------------------------
 
-void CObjectList::Read( CMapLocation& aLocation,
-                        std::list<std::list<CMapObject>::iterator>& aBuffer )
+void Enigma::ObjectList::read(
+	Enigma::Position& position,
+	std::list<std::list<Enigma::Object>::iterator>& buffer)
 {
-	Seek( aLocation );
+	seek(position);
 
-	while ( iIterator != begin() )
+	while (m_iterator != begin())
 	{
 		// Since the list iterator following a seek will be on the object
 		// just past a desired object (or past the end of the list),
 		// move the iterator back.
 
-		iIterator --;
+		m_iterator --;
 
-		if  (((*iIterator).iLocation.iAbove == aLocation.iAbove )
-			&& ((*iIterator).iLocation.iNorth == aLocation.iNorth )
-			&& ((*iIterator).iLocation.iEast == aLocation.iEast ))
+		if  (((*m_iterator).m_position.m_above == position.m_above)
+		  && ((*m_iterator).m_position.m_north == position.m_north)
+		  && ((*m_iterator).m_position.m_east == position.m_east))
 		{
 			// An object is present with the correct location.
 			// Copy this object into the provided buffer.
-			
-			aBuffer.push_back( iIterator );
+
+			buffer.push_back(m_iterator);
 		}
 		else
 			break;
 	}
-	
-	return;
 }
 
-//*-----------------------------------------------------------------*
-//* This method copies MapObject from a map location into a buffer. *
-//*-----------------------------------------------------------------*
-//* aLocation: Map volume to be copied.                             *
-//* aBuffer:   Buffer to receive copies of MapObject.               *
-//*-----------------------------------------------------------------*
+//----------------------------------------------------------------
+// This method copies objects from a world position into a buffer.
+//----------------------------------------------------------------
+// position: World position to be copied.
+// buffer:   Buffer to receive copies of objects.
+//----------------------------------------------------------------
 
-void CObjectList::Copy( CMapLocation& aLocation,
-                        std::list<CMapObject>& aBuffer )
+void Enigma::ObjectList::copy(Enigma::Position& position,
+                              std::list<Enigma::Object>& buffer)
 {
-	Seek( aLocation );
+	seek(position);
 
-	while ( iIterator != begin() )
+	while (m_iterator != begin())
 	{
 		// Since the list iterator following a seek will be on the object
 		// just past a desired object (or past the end of the list),
 		// move the iterator back.
 
-		iIterator --;
+		m_iterator --;
 
-		if  (((*iIterator).iLocation.iAbove == aLocation.iAbove )
-			&& ((*iIterator).iLocation.iNorth == aLocation.iNorth )
-			&& ((*iIterator).iLocation.iEast == aLocation.iEast ))
+		if  (((*m_iterator).m_position.m_above == position.m_above)
+		  && ((*m_iterator).m_position.m_north == position.m_north)
+		  && ((*m_iterator).m_position.m_east == position.m_east))
 		{
 			// An object is present with the correct location.
 			// Copy this object into the provided buffer.
-			
-			aBuffer.push_back( *iIterator );
+
+			buffer.push_back(*m_iterator);
 		}
 		else
 			break;
 	}
-	
-	return;
 }
 
-//*----------------------------------------------------------*
-//* This method copies MapObjects within a map volume into   *
-//* a buffer.  The MapObjects in the buffer will most likely *
-//* be unsorted.                                             *
-//*----------------------------------------------------------*
-//* aVolume: Map volume to be copied.                        *
-//* aBuffer: Buffer to receive copies of MapObjects.         *
-//*----------------------------------------------------------*
+//----------------------------------------------------------------
+// This method copies objects within a world volume into a buffer.
+//  The objects in the buffer will most likely be unsorted.
+//----------------------------------------------------------------
+// volume: World volume to be copied.
+// buffer: Buffer to receive copies of objects.
+//----------------------------------------------------------------
 
-void CObjectList::Copy( CMapVolume& aVolume,
-                        std::list<CMapObject>& aBuffer )
+void Enigma::ObjectList::copy(Enigma::Volume& volume,
+                             std::list<Enigma::Object>& buffer)
 {
-	CMapLocation Location;
-	
-	for ( Location.iAbove = aVolume.iWSB.iAbove;
-	     Location.iAbove <= aVolume.iENA.iAbove;
-	     ++ Location.iAbove )
+	Enigma::Position position;
+
+	for (position.m_above = volume.m_WSB.m_above;
+	     position.m_above <= volume.m_ENA.m_above;
+	     ++ position.m_above)
 	{
-		for ( Location.iNorth = aVolume.iWSB.iNorth;
-					Location.iNorth <= aVolume.iENA.iNorth;
-					++ Location.iNorth )
+		for (position.m_north = volume.m_WSB.m_north;
+		     position.m_north <= volume.m_ENA.m_north;
+		     ++ position.m_north)
 		{
-			for ( Location.iEast = aVolume.iWSB.iEast;
-	  			  Location.iEast <= aVolume.iENA.iEast;
-			      ++ Location.iEast )
+			for (position.m_east = volume.m_WSB.m_east;
+			     position.m_east <= volume.m_ENA.m_east;
+			     ++ position.m_east)
 			{
-	      Copy( Location, aBuffer );
+				copy(position, buffer);
 			}
 		}
 	}
-	     
-	return;
 }

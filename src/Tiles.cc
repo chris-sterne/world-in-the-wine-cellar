@@ -19,1741 +19,1730 @@
 
 #include "ImageTiles.h"
 
-//*--------------------*
-//* Local declarations *
-//*--------------------*
+//--------------------
+// Local declarations.
+//--------------------
 
-#define KTileSize 60         // Pixel size of image tile.
+#define TILESIZE 60         // Pixel size of image tile.
                
-//*----------------------*
-//* Default constructor. *
-//*----------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CImageTiles::CImageTiles()
+Enigma::ImageTiles::ImageTiles()
 { 
-  iCursorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Cursor.png" );
+	// Load image tiles from files.
+	
+	m_cursor =
+		Cairo::ImageSurface::create_from_png("./images/Cursor.png");
 
-  iMarkerImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Marker.png" );
+	m_marker =
+		Cairo::ImageSurface::create_from_png("./images/Marker.png");
 
-  iGenericImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Generic.png" );
+	m_generic =
+		Cairo::ImageSurface::create_from_png("./images/Generic.png");
 
-  iWallImage = 
-    Cairo::ImageSurface::create_from_png( "./Images/Wall.png" );
+	m_Wall = 
+		Cairo::ImageSurface::create_from_png("./images/Wall.png");
 
-  iCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Ceiling.png" );
+	m_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/Ceiling.png");
 
-  iFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Floor.png" );
+	m_Floor =
+		Cairo::ImageSurface::create_from_png("./images/Floor.png");
 
-  iLadderImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Ladder.png" );
+	m_ladder =
+		Cairo::ImageSurface::create_from_png("./images/Ladder.png");
 
-  iLadderEndImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderEnd.png" );
+	m_ladderend =
+		Cairo::ImageSurface::create_from_png("./images/LadderEnd.png");
 
-  iLadderEndHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderEndHorizontal.png" );
- 
-  iLadderEndCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderEndCeiling.png" );
- 
-  iLadderEndFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderEndFloor.png" );
- 
-  iLadderHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderHorizontal.png" );
+	m_ladderEnd_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/LadderEndHorizontal.png");
 
-  iLadderCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderCeiling.png" );
+	m_ladderend_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/LadderEndCeiling.png");
 
-  iLadderFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LadderFloor.png" );
-  
-  iPlayerActiveImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PlayerActive.png" );
+	m_ladderend_floor =
+		Cairo::ImageSurface::create_from_png("./images/LadderEndFloor.png");
 
-  iPlayerIdleImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PlayerIdle.png" );
+	m_ladder_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/LadderHorizontal.png");
 
-  iBlockerImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Blocker.png" );
+	m_ladder_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/LadderCeiling.png");
 
-  iBlockerHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/BlockerHorizontal.png" );
+	m_ladder_floor =
+		Cairo::ImageSurface::create_from_png("./images/LadderFloor.png");
 
-  iMoverImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Mover.png" );
+	m_player_active =
+		Cairo::ImageSurface::create_from_png("./images/PlayerActive.png");
 
-  iMoverBelowImage =
-    Cairo::ImageSurface::create_from_png( "./Images/MoverBelow.png" );
+	m_player_idle =
+		Cairo::ImageSurface::create_from_png("./images/PlayerIdle.png");
 
-  iMoverAboveImage =
-    Cairo::ImageSurface::create_from_png( "./Images/MoverAbove.png" );
+	m_blocker =
+		Cairo::ImageSurface::create_from_png("./images/Blocker.png");
 
-  iTurnerImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Turner.png" );
+	m_blocker_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/BlockerHorizontal.png");
 
-  iItemImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Item.png" );
-  
-  iFlipperImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Flipper.png" );
+	m_mover =
+		Cairo::ImageSurface::create_from_png("./images/Mover.png");
 
-  iSurfacerImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Surfacer.png" );
+	m_Mover_Below =
+		Cairo::ImageSurface::create_from_png("./images/MoverBelow.png");
 
-  iCornerSurfacerImage =
-    Cairo::ImageSurface::create_from_png( "./Images/CornerSurfacer.png" );
+	m_mover_above =
+		Cairo::ImageSurface::create_from_png("./images/MoverAbove.png");
 
-  iStairsImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Stairs.png" );
+	m_turner =
+		Cairo::ImageSurface::create_from_png("./images/Turner.png");
 
-  iStairsTopImage =
-    Cairo::ImageSurface::create_from_png( "./Images/StairsTop.png" );
+	m_item =
+		Cairo::ImageSurface::create_from_png("./images/Item.png");
 
-  iHandHoldImage =
-    Cairo::ImageSurface::create_from_png( "./Images/HandHold.png" );
+	m_flipper =
+		Cairo::ImageSurface::create_from_png("./images/Flipper.png");
 
-  iHandHoldHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/HandHoldHorizontal.png" );
+	m_surfacer =
+		Cairo::ImageSurface::create_from_png("./images/Surfacer.png");
 
-  iOutdoorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Outdoor.png" );
+	m_surfacer_corner =
+		Cairo::ImageSurface::create_from_png("./images/SurfacerCorner.png");
 
-  iOutdoorVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/OutdoorVertical.png" );
-    
-  iOutdoorCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/OutdoorCeiling.png" );
-    
-  iOutdoorFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/OutdoorFloor.png" );
+	m_stairs =
+		Cairo::ImageSurface::create_from_png("./images/Stairs.png");
 
-  iIndoorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Indoor.png" );
+	m_stairstop =
+		Cairo::ImageSurface::create_from_png("./images/StairsTop.png");
 
-  iIndoorVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/IndoorVertical.png" );
-    
-  iIndoorCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/IndoorCeiling.png" );
-    
-  iIndoorFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/IndoorFloor.png" );
+	m_handhold =
+		Cairo::ImageSurface::create_from_png("./images/HandHold.png");
 
-  iArchWayVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/ArchWayVertical.png" );
+	m_handhold_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/HandHoldHorizontal.png");
 
-  iArchWayCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/ArchWayCeiling.png" );
+	m_outdoor =
+		Cairo::ImageSurface::create_from_png("./images/Outdoor.png");
 
-  iArchWayFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/ArchWayFloor.png" );
+	m_outdoor_vertical =
+		Cairo::ImageSurface::create_from_png("./images/OutdoorVertical.png");
 
-  iWoodDoorVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WoodDoorVertical.png" );
+	m_outdoor_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/OutdoorCeiling.png");
 
-  iWoodDoorCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WoodDoorCeiling.png" );
+	m_outdoor_floor =
+		Cairo::ImageSurface::create_from_png("./images/OutdoorFloor.png");
 
-  iWoodDoorFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WoodDoorFloor.png" );
+	m_indoor =
+		Cairo::ImageSurface::create_from_png("./images/Indoor.png");
 
-  iWoodWallVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WoodWallVertical.png" );
+	m_indoor_vertical =
+		Cairo::ImageSurface::create_from_png("./images/IndoorVertical.png");
 
-  iWoodWallCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WoodWallCeiling.png" );
+	m_indoor_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/IndoorCeiling.png" ;
 
-  iWoodWallFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WoodWallFloor.png" );
+	m_indoor_floor =
+		Cairo::ImageSurface::create_from_png("./images/IndoorFloor.png");
 
-  iPullRingHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PullRingHorizontal.png" );
+	m_archway_vertical =
+		Cairo::ImageSurface::create_from_png("./images/ArchWayVertical.png");
 
-  iPullRingVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PullRingVertical.png" );
+	m_archway_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/ArchWayCeiling.png");
 
-  iLockHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LockHorizontal.png" );
+	m_archway_floor =
+		Cairo::ImageSurface::create_from_png("./images/ArchWayFloor.png");
 
-  iLockVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LockVertical.png" );
+	m_wooddoor_vertical =
+		Cairo::ImageSurface::create_from_png("./images/WoodDoorVertical.png");
 
-  iWaterLayerVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WaterLayerVertical.png" );
+	m_wooddoor_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/WoodDoorCeiling.png");
 
-  iWaterLayerBelowImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WaterLayerBelow.png" );
+	m_wooddoor_floor =
+		Cairo::ImageSurface::create_from_png("./images/WoodDoorFloor.png");
 
-  iWaterLayerAboveImage =
-    Cairo::ImageSurface::create_from_png( "./Images/WaterLayerAbove.png" );
+	m_woodwall_vertical =
+		Cairo::ImageSurface::create_from_png("./images/WoodWallVertical.png");
 
-  iLightBeamHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LightBeamHorizontal.png" );
+	m_woodwall_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/WoodWallCeiling.png");
 
-  iLightBeamVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/LightBeamVertical.png" );
+	m_woodwall_floor =
+		Cairo::ImageSurface::create_from_png("./images/WoodWallFloor.png");
 
-  iTreeImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Tree.png" );
-    
-  iTreeHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeHorizontal.png" );
+	m_pullring_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/PullRingHorizontal.png");
 
-  iTreeCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeCeiling.png" );
+	m_pullring_vertical =
+		Cairo::ImageSurface::create_from_png("./images/PullRingVertical.png");
 
-  iTreeFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeFloor.png" );
+	m_lock_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/LockHorizontal.png");
 
-  iTreeTopImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeTop.png" );
+	m_lock_vertical =
+		Cairo::ImageSurface::create_from_png("./images/LockVertical.png");
 
-  iTreeTopHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeTopHorizontal.png" );
- 
-  iTreeTopCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeTopCeiling.png" );
- 
-  iTreeTopFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TreeTopFloor.png" );
+	m_waterlayer_vertical =
+		Cairo::ImageSurface::create_from_png("./images/WaterLayerVertical.png");
 
-  iCatWalkCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/CatWalkCeiling.png" );
-    
-  iCatWalkFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/CatWalkFloor.png" );
-    
-  iCatWalkHorizontalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/CatWalkHorizontal.png" );
-    
-  iCatWalkVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/CatWalkVertical.png" );
+	m_waterlayer_below =
+		Cairo::ImageSurface::create_from_png("./images/WaterLayerBelow.png");
 
-  iTeleporterDepartureImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TeleporterDeparture.png" );
- 
-  iTeleporterArrivalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/TeleporterArrival.png" ); 
- 
-  iFernFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/FernFloor.png" );  
- 
-  iWaterImage =
-    Cairo::ImageSurface::create_from_png( "./Images/Water.png" );
-    
-  iEarthWallVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/EarthWallVertical.png" );
+	m_waterlayer_above =
+		Cairo::ImageSurface::create_from_png("./images/WaterLayerAbove.png");
 
-  iEarthWallCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/EarthWallCeiling.png" );
+	m_lightbeam_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/LightBeamHorizontal.png");
 
-  iEarthWallFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/EarthWallFloor.png" );
- 
-  iPadButtonCeilingImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PadButtonCeiling.png" );
- 
-  iPadButtonFloorImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PadButtonFloor.png" );
- 
-  iPadButtonVerticalImage =
-    Cairo::ImageSurface::create_from_png( "./Images/PadButtonVertical.png" );
- 
-  return;
+	m_lightbeam_vertical =
+		Cairo::ImageSurface::create_from_png("./images/LightBeamVertical.png");
+
+	m_Tree =
+		Cairo::ImageSurface::create_from_png("./images/Tree.png");
+
+	m_tree_vorizontal =
+		Cairo::ImageSurface::create_from_png("./images/TreeHorizontal.png");
+
+	m_tree_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/TreeCeiling.png");
+
+	m_tree_floor =
+		Cairo::ImageSurface::create_from_png("./images/TreeFloor.png");
+
+	m_treetop =
+		Cairo::ImageSurface::create_from_png("./images/TreeTop.png");
+
+	m_treetop_gorizontal =
+		Cairo::ImageSurface::create_from_png("./images/TreeTopHorizontal.png");
+
+	m_treetop_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/TreeTopCeiling.png");
+
+	m_treetop_floor =
+		Cairo::ImageSurface::create_from_png("./images/TreeTopFloor.png");
+
+	m_catwalk_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/CatWalkCeiling.png");
+
+	m_catwalk_floor =
+		Cairo::ImageSurface::create_from_png("./images/CatWalkFloor.png");
+
+	m_catwalk_horizontal =
+		Cairo::ImageSurface::create_from_png("./images/CatWalkHorizontal.png");
+
+	m_catwalk_vertical =
+		Cairo::ImageSurface::create_from_png("./images/CatWalkVertical.png");
+
+	m_teleporter_departure =
+		Cairo::ImageSurface::create_from_png("./images/TeleporterDeparture.png");
+
+	m_teleporter_arrival =
+		Cairo::ImageSurface::create_from_png("./images/TeleporterArrival.png"); 
+
+	m_fernfloor =
+		Cairo::ImageSurface::create_from_png("./images/FernFloor.png");  
+
+	m_water =
+		Cairo::ImageSurface::create_from_png("./images/Water.png");
+
+	m_earthwall_vertical =
+		Cairo::ImageSurface::create_from_png("./images/EarthWallVertical.png");
+
+	m_earthwall_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/EarthWallCeiling.png");
+
+	m_earthwall_floor =
+		Cairo::ImageSurface::create_from_png("./images/EarthWallFloor.png");
+
+	m_padbutton_ceiling =
+		Cairo::ImageSurface::create_from_png("./images/PadButtonCeiling.png");
+
+	m_PadButton_floor =
+		Cairo::ImageSurface::create_from_png("./images/PadButtonFloor.png");
+
+	m_padbutton_vertical =
+		Cairo::ImageSurface::create_from_png("./images/PadButtonVertical.png");
 }
 
-//*------------------------------------------------*
-//* This method returns the image tile pixel size. *
-//*------------------------------------------------*
-//* RETURN: Tile size.                             *                             
-//*------------------------------------------------*
+//-----------------------------------------------
+// This method returns the image tile pixel size.
+//-----------------------------------------------
+// RETURN: Tile size.                            
+//-----------------------------------------------
 
-int CImageTiles::GetTileSize() const
+int Enigma::Tiles::get_tile_size() const
 {
-	return KTileSize;
+	return TILESIZE;
 }
 
-//*-------------------------------------------------------------------*
-//* This private function draws an image tile.                        *
-//*-------------------------------------------------------------------*
-//* aCC:    Cairo drawing context.                                    *
-//* aX:     X screen pixel coordinate of tile.                        *
-//* aY:     Y screen pixel coordinate of tile.                        *
-//* aR:     Rotation amount (0, 90, 180, 270 degrees).                *
-//* aImage: Image surface to draw.                                    *
-//*-------------------------------------------------------------------*
-//* RETURN:   TRUE to draw tile.                                      *
-//*-------------------------------------------------------------------*
+//---------------------------------------------------
+// This private function draws an image tile.
+//---------------------------------------------------
+// context: Cairo drawing context.
+// x:       X screen pixel coordinate of tile.
+// y:       Y screen pixel coordinate of tile.
+// r:       Rotation amount (0, 90, 180, 270 degrees).
+// image:   Image surface to draw.
+//----------------------------------------------------
 
-void DrawTile( const Cairo::RefPtr<Cairo::Context>& aCC,
-               double aX,
-               double aY,
-               double aR,
-               Cairo::RefPtr<Cairo::ImageSurface> aImage )
+void draw_tile(const Cairo::RefPtr<Cairo::Context>& context,
+              double x,
+              double y,
+              double r,
+              Cairo::RefPtr<Cairo::ImageSurface> image)
 {
-	if ( aR == 90 )
+	if (r == 90)
 	{
-		aX += KTileSize;
+		x += TILESIZE;
 	}
-	else if ( aR == 180 )
+	else if (r == 180)
 	{
-		aX += KTileSize;
-		aY += KTileSize;
+		x += TILESIZE;
+		y += TILESIZE;
 	}	
-	else if ( aR == 270 )
+	else if (r == 270)
 	{
-		aY += KTileSize;
+		y += TILESIZE;
 	}
 	else
 	{
-		aR = 0;
+		r = 0;
 	}
 
-	aCC->save();
-	aCC->translate( aX, aY );
-	aCC->rotate_degrees( aR );
-	
-	aCC->set_source( aImage, 0, 0 );
-	aCC->paint();
-	aCC->restore();
-	
-	return;
+	context->save();
+	context->translate(x, y);
+	context->rotate_degrees(r);
+
+	context->set_source(image, 0, 0);
+	context->paint();
+	context->restore();
 }
 
-//*---------------------------------------------------------*
-//* This method draws a cursor tile.  The lower-left corner *
-//* of the view is the origin (Row = 0, Column = 0).        *  
-//*---------------------------------------------------------*
-//* aCC:         Cairo context for drawing.                 *
-//* aAllocation: Pixel boundary of view.                    *
-//* aColumn:     Cursor column number.                      *
-//* aRow:        Cursor row number.                         *
-//*---------------------------------------------------------*
+//--------------------------------------------------------
+// This method draws a cursor tile.  The lower-left corner
+// of the view is the origin (Row = 0, Column = 0).         
+//--------------------------------------------------------
+// context:    Cairo context for drawing.
+// allocation: Pixel boundary of view.
+// column:     Cursor column number.
+// row:        Cursor row number.
+//--------------------------------------------------------
 
-void CImageTiles::DrawCursor( const Cairo::RefPtr<Cairo::Context>& aCC,
-                             Gtk::Allocation aAllocation,
-                             guint16 aColumn,
-                             guint16 aRow )
+void Enigma::Tiles::DrawCursor(const Cairo::RefPtr<Cairo::Context>& context,
+                               Gtk::Allocation allocation,
+                               guint16 column,
+                               guint16 row)
 {
-  double X = aColumn * KTileSize;
-  double Y = aAllocation.get_height()
-           - KTileSize
-           - (aRow * KTileSize);
+	double x = column * TILESIZE;
+	double y = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
-  aCC->set_source( iCursorImage, X, Y );
-  aCC->paint();
-	
-	return;
+	context->set_source(m_cursor, x, y);
+	context->paint();
 }
 
-//*---------------------------------------------------------*
-//* This method draws a marker tile.  The lower-left corner *
-//* of the view is the origin (Row = 0, Column = 0).        *
-//*---------------------------------------------------------*
-//* aCC:         Cairo context for drawing.                 *
-//* aAllocation: Pixel boundary of view.                    *
-//* aColumn:     Cursor column number.                      *
-//* aRow:        Cursor row number.                         *
-//*---------------------------------------------------------*
+//--------------------------------------------------------
+// This method draws a marker tile.  The lower-left corner
+// of the view is the origin (Row = 0, Column = 0).
+//--------------------------------------------------------
+// context:    Cairo context for drawing.
+// allocation: Pixel boundary of view.
+// column:     Cursor column number.
+// row:        Cursor row number.
+//--------------------------------------------------------
 
-void CImageTiles::DrawMarker( const Cairo::RefPtr<Cairo::Context>& aCC,
-                             Gtk::Allocation aAllocation,
-                             guint16 aColumn,
-                             guint16 aRow )
+void Enigma::Tiles::draw_marker(const Cairo::RefPtr<Cairo::Context>& context,
+                                Gtk::Allocation allocation,
+                                guint16 column,
+                                guint16 row)
 {
-	double X = aColumn * KTileSize;
-  double Y = aAllocation.get_height()
-           - KTileSize
-           - (aRow * KTileSize);
+	double x = column * TILESIZE;
+	double y = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
-	aCC->set_source( iMarkerImage, X, Y );
-	aCC->paint();
-	
-	return;
+	context->set_source(m_marker, x, y);
+	context->paint();
 }
 
-//*---------------------------------------------------------------*
-//* This method draws a tile for a generic object.  This would be *   
-//* used for objects that have no unique image, but require some  *
-//* image to indicate their presence.                             *
-//*---------------------------------------------------------------*
-//* aCC:         Cairo context for drawing.                       *
-//* aAllocation: Pixel boundary of view.                          *
-//* aColumn:     Cursor column number.                            *
-//* aRow:        Cursor row number.                               *
-//*---------------------------------------------------------------*
+//--------------------------------------------------------------
+// This method draws a tile for a generic object.  This would be   
+// used for objects that have no unique image, but require some
+// image to indicate their presence.
+//--------------------------------------------------------------
+// context:    Cairo context for drawing.
+// allocation: Pixel boundary of view.
+// column:     Cursor column number.
+// row:        Cursor row number.
+//--------------------------------------------------------------
 
-void CImageTiles::DrawGeneric( const Cairo::RefPtr<Cairo::Context>& aCC,
-                              Gtk::Allocation aAllocation,
-                              guint16 aColumn,
-                              guint16 aRow )
+void Enigma::Tiles::draw_generic(const Cairo::RefPtr<Cairo::Context>& context,
+                                 Gtk::Allocation allocation,
+                                 guint16 column,
+                                 guint16 row)
 {
-	double X = aColumn * KTileSize;
-  double Y = aAllocation.get_height()
-           - KTileSize
-           - (aRow * KTileSize);
+	double X = column * TILESIZE;
+	double Y = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
-	aCC->set_source( iGenericImage, X, Y );
-	aCC->paint();
-	
-	return;
+	context->set_source(m_Generic, x, y);
+	context->paint();
 }
 
 //*-----------------------------------------------------------------*
 //* This method draws a tile marking a teleporter arrival location. *
 //*-----------------------------------------------------------------*
-//* aCC:         Cairo context for drawing.                         *
+//* context:         Cairo context for drawing.                         *
 //* aAllocation: Pixel boundary of view.                            *
 //* aColumn:     Cursor column number.                              *
 //* aRow:        Cursor row number.                                 *
 //*-----------------------------------------------------------------*
 
-void CImageTiles::DrawArrival( const Cairo::RefPtr<Cairo::Context>& aCC,
-                               Gtk::Allocation aAllocation,
-                               guint16 aColumn,
-                               guint16 aRow )
+void Enigma::Tiles::draw_arrival(const Cairo::RefPtr<Cairo::Context>& context,
+                                 Gtk::Allocation allocation,
+                                 guint16 column,
+                                 guint16 row)
 {
-	double X = aColumn * KTileSize;
-  double Y = aAllocation.get_height()
-           - KTileSize
-           - (aRow * KTileSize);
+	double X = column * TILESIZE;
+	double Y = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
-	aCC->set_source( iTeleporterArrivalImage, X, Y );
-	aCC->paint();
-	
-	return;
+	context->set_source(m_teleporter_arrival, x, y);
+	context->paint();
 }
 
-//*-------------------------------------------------------------*
-//* This method draws a map object tile.  The lower-left corner *
-//* of the view is the origin (Row = 0, Column = 0).            *
-//*-------------------------------------------------------------*
-//* aCC:         Cairo context for drawing.                     *
-//* aAllocation: Pixel boundary of view.                        *
-//* aColumn:     Visible column of map level.                   *
-//* aRow:        Visible row of map level.                      *
-//* aObject:     Map object to draw.                            *
-//* RETURN:      TRUE if an image was drawn.                    *
-//*-------------------------------------------------------------*
+//------------------------------------------------------------
+// This method draws a map object tile.  The lower-left corner
+// of the view is the origin (Row = 0, Column = 0).
+//------------------------------------------------------------
+// context:    Cairo context for drawing.
+// allocation: Pixel boundary of view.
+// column:     Visible column of map level.
+// row:        Visible row of map level.
+// object:     Map object to draw.
+// RETURN:     TRUE if an image was drawn.
+//------------------------------------------------------------
 
-gboolean CImageTiles::DrawMapObject( const Cairo::RefPtr<Cairo::Context>& aCC,
-                                     Gtk::Allocation aAllocation,
-                                     guint16 aColumn,
-                                     guint16 aRow,
-                                     CMapObject& aObject)
+bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
+                                Gtk::Allocation allocation,
+                                guint16 column,
+                                guint16 row,
+                                Enigma::Object& object)
 {
-  gboolean Drawn = TRUE;
-  
-  double X = aColumn * KTileSize;
-  double Y = aAllocation.get_height()
-           - KTileSize
-           - (aRow * KTileSize);
+	bool drawn = true;
+	double x   = column * TILESIZE;
+	double y   = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
-  if ( aObject.iType == CMapObject::Type::EItem )
-  {
-    // Draw a general image for all items.
-    
-		DrawTile( aCC, X, Y, 0, iItemImage );
-  }
-  else if ( aObject.iType == CMapObject::Type::ETeleporter )
-  {
-    // Draw a general image for all teleporters.
-    
-		DrawTile( aCC, X, Y, 0, iTeleporterDepartureImage );
-  }
-	else if ( aObject.iID == EnigmaWC::ID::EStairs )
+	if (object.m_type == Enigma::Object::Type::ITEM)
 	{
-    switch( aObject.iRotation )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iStairsImage ); 
-				break;
+		// Draw a general image for all items.
 
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iStairsImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iStairsImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iStairsImage );
-				break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
+		draw_tile(context, x, y, 0, m_item);
 	}
-	else if ( aObject.iID == EnigmaWC::ID::EStairsTop )
+	else if (object.m_type == Enigma::Object::Type::TELEPORTER)
 	{
-    switch( aObject.iRotation )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iStairsTopImage ); 
-				break;
+		// Draw a general image for all teleporters.
 
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iStairsTopImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iStairsTopImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iStairsTopImage );
-				break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
+		draw_tile(context, x, y, 0, m_teleporter_departure);
 	}
-	else if ( aObject.iID == EnigmaWC::ID::EArchWay )
+	else if (object.m_id == Enigma::Object::ID::STAIRS)
 	{
-		switch( aObject.iSurface )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iArchWayVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iArchWayVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iArchWayVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iArchWayVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 270, iArchWayCeilingImage );
-				break;
-				
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 270, iArchWayFloorImage );
-				break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EWoodDoor )
-	{
-		switch( aObject.iSurface )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iWoodDoorVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iWoodDoorVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iWoodDoorVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iWoodDoorVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 270, iWoodDoorCeilingImage );
-				break;
-				
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 270, iWoodDoorFloorImage );
-				break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
-	}
-  else if ( aObject.iID == EnigmaWC::ID::EPullRing )
-	{
-		switch( aObject.iSurface )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iPullRingVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iPullRingVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iPullRingVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iPullRingVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iPullRingHorizontalImage );	
-        break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
-	}
-  else if (( aObject.iID == EnigmaWC::ID::ECubeLock )
-        || ( aObject.iID == EnigmaWC::ID::ESphereLock )
-        || ( aObject.iID == EnigmaWC::ID::EWaterLock )
-        || ( aObject.iID == EnigmaWC::ID::EAppleLock )
-        || ( aObject.iID == EnigmaWC::ID::EOrangeLock )
-        || ( aObject.iID == EnigmaWC::ID::EWineLock ))
-	{
-		switch( aObject.iSurface )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iLockVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iLockVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iLockVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iLockVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iLockHorizontalImage );	
-        break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
-	}
-	else if (( aObject.iID == EnigmaWC::ID::EWaterLayer ))
-	{
-		switch( aObject.iSurface )
-		{
-		  case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iWaterLayerVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iWaterLayerVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iWaterLayerVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iWaterLayerVerticalImage );
-				break;
+		// Draw stairs images.
 		
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iWaterLayerBelowImage );	
-        break;
-        
-      case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 0, iWaterLayerAboveImage );	
-        break;
+		switch (object.m_rotation)
+		{
+			case Enigma::Object::Direction::NORTH:
+				draw_tile(context, x, y, 0, m_stairs); 
+				break;
+
+			case Enigma::Object::Direction::SOUTH:
+				draw_tile(context, x, y, 180, m_stairs);
+				break;
+
+			case Enigma::Object::Direction::EAST:
+				draw_tile(context, x, y, 90, m_stairs);
+				break;
+
+			case Enigma::Object::Direction::WEST:
+				draw_tile(context, x, y, 270, m_stairs);
+				break;
 
 			default:
-        Drawn = FALSE;
+				drawn = false;
 				break;
+			}
 		}
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EWater )
-    DrawTile( aCC, X, Y, 0, iWaterImage );
-	else if ( aObject.iID == EnigmaWC::ID::ELightBeam )
-	{
-		switch( aObject.iSurface )
+		else if (object.m_id == Enigma::Object::ID::STAIRSTOP)
 		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iLightBeamHorizontalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iLightBeamHorizontalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iLightBeamHorizontalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iLightBeamHorizontalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iLightBeamVerticalImage );	
-        break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EWoodWall )
-	{
-		switch( aObject.iSurface )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iWoodWallVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iWoodWallVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iWoodWallVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iWoodWallVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 0, iWoodWallCeilingImage );
-				break;
+			switch (object.m_rotation)
+			{
+				// Draw StairsTop images.
 				
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iWoodWallFloorImage );
-				break;
+				case Enigma::Object::Direction::NORTH:
+					draw_tile(context, x, y, 0, m_stairstop); 
+					break;
 
-			default:
-        Drawn = FALSE;
-				break;
+				case Enigma::Object::Direction::SOUTH:
+					draw_tile(context, x, y, 180, m_stairstop);
+					break;
+
+				case Enigma::Object::Direction::EAST:
+					draw_tile(context, x, y, 90, m_stairstop);
+					break;
+
+				case Enigma::Object::Direction::WEST:
+					draw_tile(context, x, y, 270, m_stairstop);
+					break;
+
+				default:
+					drawn = false;
+					break;
+			}
 		}
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EPadButton )
-	{
-		switch( aObject.iSurface )
+		else if (object.m_id == Enigma::Object::ID::ARCHWAY)
 		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iPadButtonVerticalImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iPadButtonVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iPadButtonVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iPadButtonVerticalImage );
-				break;
-
-			case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 0, iPadButtonCeilingImage );
-				break;
+			switch (object.m_surface)
+			{
+				// Draw ArchWay images.
 				
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iPadButtonFloorImage );
-				break;
+				case Enigma::Object::Direction::NORTH:
+					draw_tile(context, x, y, 0, m_archway_vertical); 
+					break;
 
-			default:
-        Drawn = FALSE;
-				break;
+				case Enigma::Object::Direction::SOUTH:
+					draw_tile(context, x, y, 180, m_archway_vertical);
+					break;
+
+				case Enigma::Object::Direction::EAST:
+					draw_tile(context, x, y, 90, m_archway_vertical);
+					break;
+
+				case Enigma::Object::Direction::WEST:
+					draw_tile(context, x, y, 270, m_archway_vertical);
+					break;
+
+				case Enigma::Object::Direction::ABOVE:
+					draw_tile(context, x, y, 270, m_archway_ceiling);
+					break;
+
+				case Enigma::Object::Direction::BELOW:
+					draw_tile(context, x, y, 270, m_archway_floor);
+					break;
+
+				default:
+					drawn = false;
+					break;
+			}
 		}
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EEarthWall )
-	{
-		switch( aObject.iSurface )
+		else if (object.m_id == Enigma::Object::ID::WOODDOOR)
 		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iEarthWallVerticalImage ); 
-				break;
+			// Draw WoodDoor images.
+			
+			switch (object.m_surface)
+			{
+				case Enigma::Object::Direction::NORTH:
+					draw_tile(context, x, y, 0, m_wooddoor_vertical); 
+					break;
 
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iEarthWallVerticalImage );
-				break;
+				case Enigma::Object::Direction::SOUTH:
+					draw_tile(context, x, y, 180, m_wooddoor_vertical);
+					break;
 
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iEarthWallVerticalImage );
-				break;
+				case Enigma::Object::Direction::EAST:
+					draw_tile(context, x, y, 90, m_wooddoor_vertical);
+					break;
 
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iEarthWallVerticalImage );
-				break;
+				case Enigma::Object::Direction::WEST:
+					draw_tile(context, x, y, 270, m_wooddoor_vertical);
+					break;
 
-			case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 0, iEarthWallCeilingImage );
-				break;
-				
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iEarthWallFloorImage );
-				break;
+				case Enigma::Object::Direction::ABOVE:
+					draw_tile(context, x, y, 270, m_wooddoor_ceiling);
+					break;
 
-			default:
-        Drawn = FALSE;
-				break;
+				case Enigma::Object::Direction::BELOW:
+					draw_tile(context, x, y, 270, m_wooddoor_floor);
+					break;
+
+				default:
+					drawn = false;
+					break;
+			}
 		}
-	}
-	else if  (( aObject.iID == EnigmaWC::ID::EBlockWall )
-	       || ( aObject.iID == EnigmaWC::ID::EStoneWall ))      
-	{
-		switch( aObject.iSurface )
+		else if (object.m_id == Enigma::Object::ID::PULLRING)
 		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iWallImage ); 
-				break;
+			// Draw PullRing images.
+			
+			switch (object.m_surface)
+			{
+				case Enigma::Object::Direction::NORTH:
+					draw_tile(context, x, y, 0, m_pullring_vertical); 
+					break;
 
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iWallImage );
-				break;
+				case Enigma::Object::Direction::SOUTH:
+					draw_tile(context, x, y, 180, m_pullring_vertical);
+					break;
 
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iWallImage );
-				break;
+				case Enigma::Object::Direction::EAST:
+					draw_tile(context, x, y, 90, m_pullring_vertical);
+					break;
 
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iWallImage );
-				break;
+				case Enigma::Object::Direction::WEST:
+					draw_tile(context, x, y, 270, m_pullring_vertical);
+					break;
 
-			case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 0, iCeilingImage );
-				break;
-				
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iFloorImage );
-				break;
+				case Enigma::Object::Direction::ABOVE:
+				case Enigma::Object::Direction::BELOW:
+					draw_tile(context, x, y, 0, m_pullring_horizontal);	
+					break;
 
-			default:
-        Drawn = FALSE;
-				break;
+				default:
+					drawn = false;
+					break;
+			}
 		}
-	}	
-  else if ( aObject.iID == EnigmaWC::ID::EBlocker )
-	{
-		switch( aObject.iSurface )
+		else if ((object.m_id == Enigma::Object::ID::CUBELOCK)
+		      || (object.m_id == Enigma::Object::ID::SPHERELOCK)
+		      || (object.m_id == Enigma::Object::ID::WATERLOCK)
+		      || (object.m_id == Enigma::Object::ID::APPLELOCK)
+		      || (object.m_id == Enigma::Object::ID::ORANGELOCK)
+		      || (object.m_id == Enigma::Object::ID::WINELOCK))
 		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iBlockerImage ); 
-				break;
+			// Draw generic lock images.
+			
+			switch (object.m_surface)
+			{
+				case Enigma::Object::Direction::NORTH:
+					draw_tile(context, x, y, 0, m_lock_vertical); 
+					break;
 
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iBlockerImage );
-				break;
+				case Enigma::Object::Direction::SOUTH:
+					draw_tile(context, x, y, 180, m_lock_vertical);
+					break;
 
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iBlockerImage );
-				break;
+				case Enigma::Object::Direction::EAST:
+					draw_tile(context, x, y, 90, m_lock_vertical);
+					break;
 
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iBlockerImage );
-				break;
+				case Enigma::Object::Direction::WEST:
+					draw_tile(context, x, y, 270, m_lock_vertical);
+					break;
 
-      case EnigmaWC::Direction::EAbove:
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iBlockerHorizontalImage );
-				break;
+				case Enigma::Object::Direction::ABOVE:
+				case Enigma::Object::Direction::BELOW:
+					draw_tile(context, x, y, 0, m_lock_horizontal);	
+					break;
 
-			default:
-        Drawn = FALSE;
-				break;
+				default:
+					drawn = false;
+					break;
+			}
 		}
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EFlipper )
-  {
-    // Draw an image for a Flipper.
-    
-		switch( aObject.iSurface )
-    {
-      case EnigmaWC::Direction::ENorth:
-        DrawTile( aCC, X, Y, 0, iSurfacerImage ); 
-        break;
-
-      case EnigmaWC::Direction::ESouth:
-        DrawTile( aCC, X, Y, 180, iSurfacerImage );
-        break;
-
-      case EnigmaWC::Direction::EEast:
-        DrawTile( aCC, X, Y, 90, iSurfacerImage );
-        break;
-
-      case EnigmaWC::Direction::EWest:
-        DrawTile( aCC, X, Y, 270, iSurfacerImage );
-        break;
-
-      case EnigmaWC::Direction::EAbove:
-      case EnigmaWC::Direction::EBelow:
-        DrawTile( aCC, X, Y, 0, iFlipperImage ); 
-        break;
-          
-      default:
-        Drawn = FALSE;
-        break;
-    }
-  }
-	else if (( aObject.iID == EnigmaWC::ID::ESurfacer )
-	      || ( aObject.iID == EnigmaWC::ID::EEdger ))
-	{
-		// Draw images for Surfacers and Edgers.
-				
-		if  (( aObject.iSurface == EnigmaWC::Direction::EAbove )
-		  || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))
+		else if ((object.m_id == Enigma::Object::ID::EWaterLayer))
 		{
-      switch( aObject.iRotation )
-      {
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iSurfacerImage ); 
-          break;
+			switch(object.m_surface)
+			{
+				case Enigma::Object::Direction::NORTH:
+					draw_tile(context, x, y, 0, m_waterlayer_vertical); 
+					break;
 
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iSurfacerImage );
-          break;
+				case Enigma::Object::Direction::SOUTH:
+					draw_tile(context, x, y, 180, m_waterlayer_vertical);
+					break;
 
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iSurfacerImage );
-          break;
+				case Enigma::Object::Direction::EAST:
+					draw_tile(context, x, y, 90, m_waterlayer_vertical);
+					break;
 
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iSurfacerImage );
-          break;
-          
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else
-		{
-		  switch ( aObject.iSurface )
-      {
-        case EnigmaWC::Direction::ENorth:
-          if ( aObject.iRotation == EnigmaWC::Direction::EWest )
-            DrawTile( aCC, X, Y, 0, iCornerSurfacerImage );
-          else if ( aObject.iRotation == EnigmaWC::Direction::EEast )
-            DrawTile( aCC, X, Y, 90, iCornerSurfacerImage );
-          else
-            DrawTile( aCC, X, Y, 0, iSurfacerImage ); 
-          break;
+				case Enigma::Object::Direction::WEST:
+					draw_tile(context, x, y, 270, m_waterlayer_vertical);
+					break;
 
-        case EnigmaWC::Direction::ESouth:
-          if ( aObject.iRotation == EnigmaWC::Direction::EWest )
-            DrawTile( aCC, X, Y, 270, iCornerSurfacerImage );
-          else if ( aObject.iRotation == EnigmaWC::Direction::EEast )
-            DrawTile( aCC, X, Y, 180, iCornerSurfacerImage );
-          else
-            DrawTile( aCC, X, Y, 180, iSurfacerImage );
-          break;
+				case Enigma::Object::Direction::BELOW:
+					draw_tile(context, x, y, 0, m_waterlayer_below);	
+					break;
 
-        case EnigmaWC::Direction::EEast:
-          if ( aObject.iRotation == EnigmaWC::Direction::ENorth )
-            DrawTile( aCC, X, Y, 90, iCornerSurfacerImage );
-          else if ( aObject.iRotation == EnigmaWC::Direction::ESouth )
-            DrawTile( aCC, X, Y, 180, iCornerSurfacerImage );
-          else
-            DrawTile( aCC, X, Y, 90, iSurfacerImage );
-          break;
+				case Enigma::Object::Direction::ABOVE:
+					draw_tile(context, x, y, 0, m_waterlayer_above);	
+					break;
 
-        case EnigmaWC::Direction::EWest:
-          if ( aObject.iRotation == EnigmaWC::Direction::ENorth )
-            DrawTile( aCC, X, Y, 0, iCornerSurfacerImage );
-          else if ( aObject.iRotation == EnigmaWC::Direction::ESouth )
-            DrawTile( aCC, X, Y, 270, iCornerSurfacerImage );
-          else
-            DrawTile( aCC, X, Y, 270, iSurfacerImage );
-          break;
-          
-        default:
-          Drawn = FALSE;
-          break;
-      }
+				default:
+					drawn = false;
+					break;
+			}
 		}
-	}
-  else if ( aObject.iID == EnigmaWC::ID::EMover )
-	{
-		switch( aObject.iRotation )
-		{
-			case EnigmaWC::Direction::ENorth:
-				DrawTile( aCC, X, Y, 0, iMoverImage ); 
-				break;
-
-			case EnigmaWC::Direction::ESouth:
-				DrawTile( aCC, X, Y, 180, iMoverImage );
-				break;
-
-			case EnigmaWC::Direction::EEast:
-				DrawTile( aCC, X, Y, 90, iMoverImage );
-				break;
-
-			case EnigmaWC::Direction::EWest:
-				DrawTile( aCC, X, Y, 270, iMoverImage );
-				break;
-
-      case EnigmaWC::Direction::EAbove:
-				DrawTile( aCC, X, Y, 0, iMoverAboveImage );
-        break;
-        
-			case EnigmaWC::Direction::EBelow:
-				DrawTile( aCC, X, Y, 0, iMoverBelowImage );
-				break;
-
-			default:
-        Drawn = FALSE;
-				break;
-		}
-  }
-  else if ( aObject.iID == EnigmaWC::ID::ETurner )
-	{
-    // Draw a turner.
-    
-	  DrawTile( aCC, X, Y, 0, iTurnerImage ); 
-  }
-	else if ( aObject.iID == EnigmaWC::ID::ELadder )
-	{
-    if  (( aObject.iRotation == EnigmaWC::Direction::EAbove )
-      || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))	  
-    {
-      // Draw an Above/Below complete ladder.
-
-      switch( aObject.iSurface )
-		  {
-  			case EnigmaWC::Direction::ENorth:
-  				DrawTile( aCC, X, Y, 0, iLadderImage );
-  				break;
-
-  			case EnigmaWC::Direction::ESouth:
-  				DrawTile( aCC, X, Y, 180, iLadderImage );
-  				break;
-
-  			case EnigmaWC::Direction::EEast:
-  				DrawTile( aCC, X, Y, 90, iLadderImage );
-  				break;
-
-  			case EnigmaWC::Direction::EWest:
-	  			DrawTile( aCC, X, Y, 270, iLadderImage );
-  				break;
-  				
-        default:
-          Drawn = FALSE;
-          break;
-  		  }
-    }
-    else if (( aObject.iRotation == EnigmaWC::Direction::EEast )
-      || ( aObject.iRotation == EnigmaWC::Direction::EWest ))
-    {
-      // Draw an East/West complete ladder.
-    
-      switch( aObject.iSurface )
-		  {  
-        case EnigmaWC::Direction::EAbove:
-          DrawTile( aCC, X, Y, 0, iLadderCeilingImage );
-          break;
-
-        case EnigmaWC::Direction::EBelow:
-          DrawTile( aCC, X, Y, 0, iLadderFloorImage );
-          break;
-
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iLadderHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iLadderHorizontalImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if (( aObject.iRotation == EnigmaWC::Direction::ENorth )
-      || ( aObject.iRotation == EnigmaWC::Direction::ESouth ))
-    {
-      // Draw a North/South complete ladder.
-    
-      switch( aObject.iSurface )
-		  {  
-        case EnigmaWC::Direction::EAbove:
-          DrawTile( aCC, X, Y, 90, iLadderFloorImage );
-          break;
-
-        case EnigmaWC::Direction::EBelow:
-          DrawTile( aCC, X, Y, 90, iLadderCeilingImage );
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iLadderHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iLadderHorizontalImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }  
-	}
-	else if ( aObject.iID == EnigmaWC::ID::ELadderEnd )
-	{
-    if  (( aObject.iRotation == EnigmaWC::Direction::EAbove )
-      || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))
-    {
-      // Draw an Above/Below ladder top.
-
-      switch( aObject.iSurface )
-      {
-          case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iLadderEndImage ); 
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iLadderEndImage );
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iLadderEndImage );
-          break;
-
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iLadderEndImage );
-          break;
-          
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iRotation == EnigmaWC::Direction::EWest )
-    {
-      // Draw a West ladder top.
-      
-      switch( aObject.iSurface )
-      {
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iLadderEndHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 270, iLadderEndHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 0, iLadderEndCeilingImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 0, iLadderEndFloorImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iRotation == EnigmaWC::Direction::EEast )
-    {
-      // Draw an East ladder top.
-      
-      switch( aObject.iSurface )
-      {
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 90, iLadderEndHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iLadderEndHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 180, iLadderEndCeilingImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 180, iLadderEndFloorImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iRotation == EnigmaWC::Direction::ENorth )
-    {
-      // Draw a North ladder top.
-      
-      switch( aObject.iSurface )
-      {
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 0, iLadderEndHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iLadderEndHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 90, iLadderEndFloorImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 90, iLadderEndCeilingImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iRotation == EnigmaWC::Direction::ESouth )
-    {
-      // Draw a South ladder top.
-      
-      switch( aObject.iSurface )
-      {
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iLadderEndHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 180, iLadderEndHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 270, iLadderEndFloorImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 270, iLadderEndCeilingImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else
-      Drawn = FALSE;
-	}
-	else if ( aObject.iID == EnigmaWC::ID::ETree )
-	{
-    if  (( aObject.iSurface == EnigmaWC::Direction::EAbove )
-      || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))	  
-    {
-      // Draw an tree growing on the Above/Below surface.
-
-      switch( aObject.iRotation )
-		  {
-  			case EnigmaWC::Direction::ENorth:
-  				DrawTile( aCC, X, Y, 0, iTreeImage );
-  				break;
-
-  			case EnigmaWC::Direction::ESouth:
-  				DrawTile( aCC, X, Y, 180, iTreeImage );
-  				break;
-
-  			case EnigmaWC::Direction::EEast:
-  				DrawTile( aCC, X, Y, 90, iTreeImage );
-  				break;
-
-  			case EnigmaWC::Direction::EWest:
-	  			DrawTile( aCC, X, Y, 270, iTreeImage );
-  				break;
-  				
-        default:
-          Drawn = FALSE;
-          break;
-  		  }
-    }
-    else if (( aObject.iSurface == EnigmaWC::Direction::EEast )
-      || ( aObject.iSurface == EnigmaWC::Direction::EWest ))
-    {
-      // Draw a tree growing on the East/West surface.
-    
-      switch( aObject.iRotation )
-		  {  
-        case EnigmaWC::Direction::EAbove:
-          DrawTile( aCC, X, Y, 0, iTreeCeilingImage );
-          break;
-
-        case EnigmaWC::Direction::EBelow:
-          DrawTile( aCC, X, Y, 0, iTreeFloorImage );
-          break;
-
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iTreeHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iTreeHorizontalImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if (( aObject.iSurface == EnigmaWC::Direction::ENorth )
-      || ( aObject.iSurface == EnigmaWC::Direction::ESouth ))
-    {
-      // Draw a tree growing on the North/South surface.
-    
-      switch( aObject.iRotation )
-		  {  
-        case EnigmaWC::Direction::EAbove:
-          DrawTile( aCC, X, Y, 90, iTreeFloorImage );
-          break;
-
-        case EnigmaWC::Direction::EBelow:
-          DrawTile( aCC, X, Y, 90, iTreeCeilingImage );
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iTreeHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iTreeHorizontalImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }  
-	}
-	else if ( aObject.iID == EnigmaWC::ID::ETreeTop )
-	{
-    if  (( aObject.iSurface == EnigmaWC::Direction::EAbove )
-      || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))
-    {
-      // Draw a tree top on the Above/Below surface.
-
-      switch( aObject.iRotation )
-      {
-          case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iTreeTopImage ); 
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iTreeTopImage );
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iTreeTopImage );
-          break;
-
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iTreeTopImage );
-          break;
-          
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iSurface == EnigmaWC::Direction::EWest )
-    {
-      // Draw a tree top on the West surface.
-      
-      switch( aObject.iRotation )
-      {
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iTreeTopHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 270, iTreeTopHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 0, iTreeTopCeilingImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 0, iTreeTopFloorImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iSurface == EnigmaWC::Direction::EEast )
-    {
-      // Draw a tree top on the East surface.
-      
-      switch( aObject.iRotation )
-      {
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 90, iTreeTopHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iTreeTopHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 180, iTreeTopCeilingImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 180, iTreeTopFloorImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iSurface == EnigmaWC::Direction::ENorth )
-    {
-      // Draw a tree top on the North surface.
-      
-      switch( aObject.iRotation )
-      {
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 0, iTreeTopHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iTreeTopHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 90, iTreeTopFloorImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 90, iTreeTopCeilingImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if ( aObject.iSurface == EnigmaWC::Direction::ESouth )
-    {
-      // Draw a tree top on the South surface.
-      
-      switch( aObject.iRotation )
-      {
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iTreeTopHorizontalImage ); 
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 180, iTreeTopHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EAbove:
-	  			DrawTile( aCC, X, Y, 270, iTreeTopFloorImage );
-	  			break;
-	  			
-        case EnigmaWC::Direction::EBelow:
-	  			DrawTile( aCC, X, Y, 270, iTreeTopCeilingImage );
-	  			break;
-      
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else
-      Drawn = FALSE;
-	}
-	else if ( aObject.iID == EnigmaWC::ID::ECatWalk )
-	{
-    if  (( aObject.iRotation == EnigmaWC::Direction::EAbove )
-      || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))	  
-    {
-      // Draw an Above/Below catwalk. 
-
-      switch( aObject.iSurface )
-		  {
-  			case EnigmaWC::Direction::ENorth:
-  				DrawTile( aCC, X, Y, 0, iCatWalkVerticalImage );
-  				break;
-
-  			case EnigmaWC::Direction::ESouth:
-  				DrawTile( aCC, X, Y, 180, iCatWalkVerticalImage );
-  				break;
-
-  			case EnigmaWC::Direction::EEast:
-  				DrawTile( aCC, X, Y, 90, iCatWalkVerticalImage );
-  				break;
-
-  			case EnigmaWC::Direction::EWest:
-	  			DrawTile( aCC, X, Y, 270, iCatWalkVerticalImage );
-  				break;
-  				
-        default:
-          Drawn = FALSE;
-          break;
-  		  }
-    }
-    else if (( aObject.iRotation == EnigmaWC::Direction::EEast )
-      || ( aObject.iRotation == EnigmaWC::Direction::EWest ))
-    {
-      // Draw an East/West catwalk.
-    
-      switch( aObject.iSurface )
-		  {  
-        case EnigmaWC::Direction::EAbove:
-          DrawTile( aCC, X, Y, 0, iCatWalkCeilingImage );
-          break;
-
-        case EnigmaWC::Direction::EBelow:
-          DrawTile( aCC, X, Y, 0, iCatWalkFloorImage );
-          break;
-
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iCatWalkHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iCatWalkHorizontalImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else if (( aObject.iRotation == EnigmaWC::Direction::ENorth )
-      || ( aObject.iRotation == EnigmaWC::Direction::ESouth ))
-    {
-      // Draw a North/South catwalk.
-    
-      switch( aObject.iSurface )
-		  {  
-        case EnigmaWC::Direction::EAbove:
-          DrawTile( aCC, X, Y, 90, iCatWalkFloorImage );
-          break;
-
-        case EnigmaWC::Direction::EBelow:
-          DrawTile( aCC, X, Y, 90, iCatWalkCeilingImage );
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iCatWalkHorizontalImage );
-          break;
-
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iCatWalkHorizontalImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }  
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EFern )
-	{
-	  if ( aObject.iRotation == EnigmaWC::Direction::EBelow )
-	  {
-	    switch( aObject.iSurface )
-		  {  
-        case EnigmaWC::Direction::ENorth:
-          DrawTile( aCC, X, Y, 0, iFernFloorImage );
-          break;
-
-        case EnigmaWC::Direction::EEast:
-          DrawTile( aCC, X, Y, 90, iFernFloorImage );
-          break;
-
-        case EnigmaWC::Direction::ESouth:
-          DrawTile( aCC, X, Y, 180, iFernFloorImage );
-          break;
-
-        case EnigmaWC::Direction::EWest:
-          DrawTile( aCC, X, Y, 270, iFernFloorImage );
-          break;
-
-        default:
-          Drawn = FALSE;
-          break;
-      }
-    }
-    else
-      Drawn = FALSE;
-	}
-	else if ( aObject.iID == EnigmaWC::ID::EHandHold )
-	{
-    if (((( aObject.iSurface == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))  
-	    && ( aObject.iRotation == EnigmaWC::Direction::ENorth ))
-	    ||
-      ((( aObject.iRotation == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))
-	    && ( aObject.iSurface == EnigmaWC::Direction::ENorth )))
-	  {
-	    DrawTile( aCC, X, Y, 0, iHandHoldImage ); 
-	  }
-    else if (((( aObject.iSurface == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))  
-	    && ( aObject.iRotation == EnigmaWC::Direction::EEast ))
-	    ||
-      ((( aObject.iRotation == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))
-	    && ( aObject.iSurface == EnigmaWC::Direction::EEast )))
-	  {
-	    DrawTile( aCC, X, Y, 90, iHandHoldImage ); 
-	  }
-	  else if (((( aObject.iSurface == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))  
-	    && ( aObject.iRotation == EnigmaWC::Direction::ESouth ))
-	    ||
-      ((( aObject.iRotation == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))
-	    && ( aObject.iSurface == EnigmaWC::Direction::ESouth )))
-	  {
-	    DrawTile( aCC, X, Y, 180, iHandHoldImage ); 
-	  }
-	  else if (((( aObject.iSurface == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iSurface == EnigmaWC::Direction::EBelow ))  
-	    && ( aObject.iRotation == EnigmaWC::Direction::EWest ))
-	    ||
-      ((( aObject.iRotation == EnigmaWC::Direction::EAbove )
-	    || ( aObject.iRotation == EnigmaWC::Direction::EBelow ))
-	    && ( aObject.iSurface == EnigmaWC::Direction::EWest )))
-	  {
-	    DrawTile( aCC, X, Y, 270, iHandHoldImage ); 
-	  }
-	  else if ((( aObject.iSurface == EnigmaWC::Direction::ENorth )
-	    && ( aObject.iRotation == EnigmaWC::Direction::EWest ))
-	    || (( aObject.iSurface == EnigmaWC::Direction::EWest )
-	    && ( aObject.iRotation == EnigmaWC::Direction::ENorth )))
-	  {
-	    DrawTile( aCC, X, Y, 0, iHandHoldHorizontalImage );
-	  }
-    else if ((( aObject.iSurface == EnigmaWC::Direction::EEast )
-	    && ( aObject.iRotation == EnigmaWC::Direction::ENorth ))
-	    || (( aObject.iSurface == EnigmaWC::Direction::ENorth )
-	    && ( aObject.iRotation == EnigmaWC::Direction::EEast )))
-	  {
-	    DrawTile( aCC, X, Y, 90, iHandHoldHorizontalImage );
-	  }
-    else if ((( aObject.iSurface == EnigmaWC::Direction::ESouth )
-	    && ( aObject.iRotation == EnigmaWC::Direction::EEast ))
-	    || (( aObject.iSurface == EnigmaWC::Direction::EEast )
-	    && ( aObject.iRotation == EnigmaWC::Direction::ESouth )))
-	  {
-	    DrawTile( aCC, X, Y, 180, iHandHoldHorizontalImage );
-	  }
-    else if ((( aObject.iSurface == EnigmaWC::Direction::EWest )
-	    && ( aObject.iRotation == EnigmaWC::Direction::ESouth ))
-	    || (( aObject.iSurface == EnigmaWC::Direction::ESouth )
-	    && ( aObject.iRotation == EnigmaWC::Direction::EWest )))
-	  {
-	    DrawTile( aCC, X, Y, 270, iHandHoldHorizontalImage );
-	  }	  
-    else
-      Drawn = FALSE;
-	}
-  else if ( aObject.iID == EnigmaWC::ID::EOutdoor )      
-  {
-    switch( aObject.iSurface )
-    {
-      case EnigmaWC::Direction::ENorth:
-        DrawTile( aCC, X, Y, 0, iOutdoorVerticalImage ); 
-        break;
-
-      case EnigmaWC::Direction::ESouth:
-        DrawTile( aCC, X, Y, 180, iOutdoorVerticalImage );
-        break;
-
-      case EnigmaWC::Direction::EEast:
-        DrawTile( aCC, X, Y, 90, iOutdoorVerticalImage );
-        break;
-
-      case EnigmaWC::Direction::EWest:
-        DrawTile( aCC, X, Y, 270, iOutdoorVerticalImage );
-        break;
-
-      case EnigmaWC::Direction::EAbove:
-        DrawTile( aCC, X, Y, 0, iOutdoorCeilingImage );
-        break;
-				
-      case EnigmaWC::Direction::EBelow:
-        DrawTile( aCC, X, Y, 0, iOutdoorFloorImage );
-        break;
-
-      case EnigmaWC::Direction::ECenter:
-        DrawTile( aCC, X, Y, 0, iOutdoorImage );
-        break;
-
-      default:
-        Drawn = FALSE;
-        break;
-    }
-  }
-  else if ( aObject.iID == EnigmaWC::ID::EIndoor )      
-  {
-    switch( aObject.iSurface )
-    {
-      case EnigmaWC::Direction::ENorth:
-        DrawTile( aCC, X, Y, 0, iIndoorVerticalImage ); 
-        break;
-
-      case EnigmaWC::Direction::ESouth:
-        DrawTile( aCC, X, Y, 180, iIndoorVerticalImage );
-        break;
-
-      case EnigmaWC::Direction::EEast:
-        DrawTile( aCC, X, Y, 90, iIndoorVerticalImage );
-        break;
-
-      case EnigmaWC::Direction::EWest:
-        DrawTile( aCC, X, Y, 270, iIndoorVerticalImage );
-        break;
-
-      case EnigmaWC::Direction::EAbove:
-        DrawTile( aCC, X, Y, 0, iIndoorCeilingImage );
-        break;
-				
-      case EnigmaWC::Direction::EBelow:
-        DrawTile( aCC, X, Y, 0, iIndoorFloorImage );
-        break;
-
-      case EnigmaWC::Direction::ECenter:
-        DrawTile( aCC, X, Y, 0, iIndoorImage );
-        break;
-
-      default:
-        Drawn = FALSE;
-        break;
-    }
-  }
-  else if ( aObject.iID == EnigmaWC::ID::EPerson )
-	{
-		if ( aObject.iActive )
-			DrawTile( aCC, X, Y, 0, iPlayerActiveImage );
-		else
-			DrawTile( aCC, X, Y, 0, iPlayerIdleImage );
-	}
-	else
-	  Drawn = false;
-	
-	return Drawn;
+else if ( object.m_id == Enigma::Object::ID::EWater )
+draw_tile(context, x, y, 0, iWaterImage );
+else if ( object.m_id == Enigma::Object::ID::ELightBeam )
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iLightBeamHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iLightBeamHorizontalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iLightBeamHorizontalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iLightBeamHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iLightBeamVerticalImage );	
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EWoodWall )
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iWoodWallVerticalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iWoodWallVerticalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iWoodWallVerticalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iWoodWallVerticalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iWoodWallCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iWoodWallFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EPadButton )
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iPadButtonVerticalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iPadButtonVerticalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iPadButtonVerticalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iPadButtonVerticalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iPadButtonCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iPadButtonFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EEarthWall )
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iEarthWallVerticalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iEarthWallVerticalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iEarthWallVerticalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iEarthWallVerticalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iEarthWallCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iEarthWallFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if  (( object.m_id == Enigma::Object::ID::EBlockWall )
+|| ( object.m_id == Enigma::Object::ID::EStoneWall ))      
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iWallImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iWallImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iWallImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iWallImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}	
+else if ( object.m_id == Enigma::Object::ID::EBlocker )
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iBlockerImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iBlockerImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iBlockerImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iBlockerImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iBlockerHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EFlipper )
+{
+// Draw an image for a Flipper.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iSurfacerImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iFlipperImage ); 
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( object.m_id == Enigma::Object::ID::ESurfacer )
+|| ( object.m_id == Enigma::Object::ID::EEdger ))
+{
+// Draw images for Surfacers and Edgers.
+
+if  (( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))
+{
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iSurfacerImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iSurfacerImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else
+{
+switch ( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+if ( object.m_rotation == Enigma::Object::Direction::WEST )
+draw_tile(context, x, y, 0, iCornerSurfacerImage );
+else if ( object.m_rotation == Enigma::Object::Direction::EAST )
+draw_tile(context, x, y, 90, iCornerSurfacerImage );
+else
+draw_tile(context, x, y, 0, iSurfacerImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+if ( object.m_rotation == Enigma::Object::Direction::WEST )
+draw_tile(context, x, y, 270, iCornerSurfacerImage );
+else if ( object.m_rotation == Enigma::Object::Direction::EAST )
+draw_tile(context, x, y, 180, iCornerSurfacerImage );
+else
+draw_tile(context, x, y, 180, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+if ( object.m_rotation == Enigma::Object::Direction::NORTH )
+draw_tile(context, x, y, 90, iCornerSurfacerImage );
+else if ( object.m_rotation == Enigma::Object::Direction::SOUTH )
+draw_tile(context, x, y, 180, iCornerSurfacerImage );
+else
+draw_tile(context, x, y, 90, iSurfacerImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+if ( object.m_rotation == Enigma::Object::Direction::NORTH )
+draw_tile(context, x, y, 0, iCornerSurfacerImage );
+else if ( object.m_rotation == Enigma::Object::Direction::SOUTH )
+draw_tile(context, x, y, 270, iCornerSurfacerImage );
+else
+draw_tile(context, x, y, 270, iSurfacerImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EMover )
+{
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iMoverImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iMoverImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iMoverImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iMoverImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iMoverAboveImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iMoverBelowImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::ETurner )
+{
+// Draw a turner.
+
+draw_tile(context, x, y, 0, iTurnerImage ); 
+}
+else if ( object.m_id == Enigma::Object::ID::ELadder )
+{
+if  (( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))	  
+{
+// Draw an Above/Below complete ladder.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iLadderImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iLadderImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iLadderImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iLadderImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( object.m_rotation == Enigma::Object::Direction::EAST )
+|| ( object.m_rotation == Enigma::Object::Direction::WEST ))
+{
+// Draw an East/West complete ladder.
+
+switch( aObject.iSurface )
+{  
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iLadderCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iLadderFloorImage );
+break;
+
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iLadderHorizontalImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iLadderHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( object.m_rotation == Enigma::Object::Direction::NORTH )
+|| ( object.m_rotation == Enigma::Object::Direction::SOUTH ))
+{
+// Draw a North/South complete ladder.
+
+switch( aObject.iSurface )
+{  
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 90, iLadderFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 90, iLadderCeilingImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iLadderHorizontalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iLadderHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}  
+}
+else if ( object.m_id == Enigma::Object::ID::ELadderEnd )
+{
+if  (( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))
+{
+// Draw an Above/Below ladder top.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iLadderEndImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iLadderEndImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iLadderEndImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iLadderEndImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_rotation == Enigma::Object::Direction::WEST )
+{
+// Draw a West ladder top.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iLadderEndHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 270, iLadderEndHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iLadderEndCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iLadderEndFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_rotation == Enigma::Object::Direction::EAST )
+{
+// Draw an East ladder top.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 90, iLadderEndHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iLadderEndHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 180, iLadderEndCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 180, iLadderEndFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_rotation == Enigma::Object::Direction::NORTH )
+{
+// Draw a North ladder top.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 0, iLadderEndHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iLadderEndHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 90, iLadderEndFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 90, iLadderEndCeilingImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_rotation == Enigma::Object::Direction::SOUTH )
+{
+// Draw a South ladder top.
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iLadderEndHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 180, iLadderEndHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 270, iLadderEndFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 270, iLadderEndCeilingImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else
+Drawn = FALSE;
+}
+else if ( object.m_id == Enigma::Object::ID::ETree )
+{
+if  (( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))	  
+{
+// Draw an tree growing on the Above/Below surface.
+
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iTreeImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iTreeImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iTreeImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iTreeImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( aObject.iSurface == Enigma::Object::Direction::EAST )
+|| ( aObject.iSurface == Enigma::Object::Direction::WEST ))
+{
+// Draw a tree growing on the East/West surface.
+
+switch( object.m_rotation )
+{  
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iTreeCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iTreeFloorImage );
+break;
+
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iTreeHorizontalImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iTreeHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( aObject.iSurface == Enigma::Object::Direction::NORTH )
+|| ( aObject.iSurface == Enigma::Object::Direction::SOUTH ))
+{
+// Draw a tree growing on the North/South surface.
+
+switch( object.m_rotation )
+{  
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 90, iTreeFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 90, iTreeCeilingImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iTreeHorizontalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iTreeHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}  
+}
+else if ( object.m_id == Enigma::Object::ID::ETreeTop )
+{
+if  (( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))
+{
+// Draw a tree top on the Above/Below surface.
+
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iTreeTopImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iTreeTopImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iTreeTopImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iTreeTopImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( aObject.iSurface == Enigma::Object::Direction::WEST )
+{
+// Draw a tree top on the West surface.
+
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iTreeTopHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 270, iTreeTopHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iTreeTopCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iTreeTopFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( aObject.iSurface == Enigma::Object::Direction::EAST )
+{
+// Draw a tree top on the East surface.
+
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 90, iTreeTopHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iTreeTopHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 180, iTreeTopCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 180, iTreeTopFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( aObject.iSurface == Enigma::Object::Direction::NORTH )
+{
+// Draw a tree top on the North surface.
+
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 0, iTreeTopHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iTreeTopHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 90, iTreeTopFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 90, iTreeTopCeilingImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( aObject.iSurface == Enigma::Object::Direction::SOUTH )
+{
+// Draw a tree top on the South surface.
+
+switch( object.m_rotation )
+{
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iTreeTopHorizontalImage ); 
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 180, iTreeTopHorizontalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 270, iTreeTopFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 270, iTreeTopCeilingImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else
+Drawn = FALSE;
+}
+else if ( object.m_id == Enigma::Object::ID::ECatWalk )
+{
+if  (( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))	  
+{
+// Draw an Above/Below catwalk. 
+
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iCatWalkVerticalImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iCatWalkVerticalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iCatWalkVerticalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iCatWalkVerticalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( object.m_rotation == Enigma::Object::Direction::EAST )
+|| ( object.m_rotation == Enigma::Object::Direction::WEST ))
+{
+// Draw an East/West catwalk.
+
+switch( aObject.iSurface )
+{  
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iCatWalkCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iCatWalkFloorImage );
+break;
+
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iCatWalkHorizontalImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iCatWalkHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if (( object.m_rotation == Enigma::Object::Direction::NORTH )
+|| ( object.m_rotation == Enigma::Object::Direction::SOUTH ))
+{
+// Draw a North/South catwalk.
+
+switch( aObject.iSurface )
+{  
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 90, iCatWalkFloorImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 90, iCatWalkCeilingImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iCatWalkHorizontalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iCatWalkHorizontalImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}  
+}
+else if ( object.m_id == Enigma::Object::ID::EFern )
+{
+if ( object.m_rotation == Enigma::Object::Direction::BELOW )
+{
+switch( aObject.iSurface )
+{  
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iFernFloorImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iFernFloorImage );
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iFernFloorImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iFernFloorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else
+Drawn = FALSE;
+}
+else if ( object.m_id == Enigma::Object::ID::EHandHold )
+{
+if (((( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))  
+&& ( object.m_rotation == Enigma::Object::Direction::NORTH ))
+||
+((( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))
+&& ( aObject.iSurface == Enigma::Object::Direction::NORTH )))
+{
+draw_tile(context, x, y, 0, iHandHoldImage ); 
+}
+else if (((( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))  
+&& ( object.m_rotation == Enigma::Object::Direction::EAST ))
+||
+((( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))
+&& ( aObject.iSurface == Enigma::Object::Direction::EAST )))
+{
+draw_tile(context, x, y, 90, iHandHoldImage ); 
+}
+else if (((( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))  
+&& ( object.m_rotation == Enigma::Object::Direction::SOUTH ))
+||
+((( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))
+&& ( aObject.iSurface == Enigma::Object::Direction::SOUTH )))
+{
+draw_tile(context, x, y, 180, iHandHoldImage ); 
+}
+else if (((( aObject.iSurface == Enigma::Object::Direction::ABOVE )
+|| ( aObject.iSurface == Enigma::Object::Direction::BELOW ))  
+&& ( object.m_rotation == Enigma::Object::Direction::WEST ))
+||
+((( object.m_rotation == Enigma::Object::Direction::ABOVE )
+|| ( object.m_rotation == Enigma::Object::Direction::BELOW ))
+&& ( aObject.iSurface == Enigma::Object::Direction::WEST )))
+{
+draw_tile(context, x, y, 270, iHandHoldImage ); 
+}
+else if ((( aObject.iSurface == Enigma::Object::Direction::NORTH )
+&& ( object.m_rotation == Enigma::Object::Direction::WEST ))
+|| (( aObject.iSurface == Enigma::Object::Direction::WEST )
+&& ( object.m_rotation == Enigma::Object::Direction::NORTH )))
+{
+draw_tile(context, x, y, 0, iHandHoldHorizontalImage );
+}
+else if ((( aObject.iSurface == Enigma::Object::Direction::EAST )
+&& ( object.m_rotation == Enigma::Object::Direction::NORTH ))
+|| (( aObject.iSurface == Enigma::Object::Direction::NORTH )
+&& ( object.m_rotation == Enigma::Object::Direction::EAST )))
+{
+draw_tile(context, x, y, 90, iHandHoldHorizontalImage );
+}
+else if ((( aObject.iSurface == Enigma::Object::Direction::SOUTH )
+&& ( object.m_rotation == Enigma::Object::Direction::EAST ))
+|| (( aObject.iSurface == Enigma::Object::Direction::EAST )
+&& ( object.m_rotation == Enigma::Object::Direction::SOUTH )))
+{
+draw_tile(context, x, y, 180, iHandHoldHorizontalImage );
+}
+else if ((( aObject.iSurface == Enigma::Object::Direction::WEST )
+&& ( object.m_rotation == Enigma::Object::Direction::SOUTH ))
+|| (( aObject.iSurface == Enigma::Object::Direction::SOUTH )
+&& ( object.m_rotation == Enigma::Object::Direction::WEST )))
+{
+draw_tile(context, x, y, 270, iHandHoldHorizontalImage );
+}	  
+else
+Drawn = FALSE;
+}
+else if ( object.m_id == Enigma::Object::ID::EOutdoor )      
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iOutdoorVerticalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iOutdoorVerticalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iOutdoorVerticalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iOutdoorVerticalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iOutdoorCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iOutdoorFloorImage );
+break;
+
+case Enigma::Object::Direction::ECenter:
+draw_tile(context, x, y, 0, iOutdoorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EIndoor )      
+{
+switch( aObject.iSurface )
+{
+case Enigma::Object::Direction::NORTH:
+draw_tile(context, x, y, 0, iIndoorVerticalImage ); 
+break;
+
+case Enigma::Object::Direction::SOUTH:
+draw_tile(context, x, y, 180, iIndoorVerticalImage );
+break;
+
+case Enigma::Object::Direction::EAST:
+draw_tile(context, x, y, 90, iIndoorVerticalImage );
+break;
+
+case Enigma::Object::Direction::WEST:
+draw_tile(context, x, y, 270, iIndoorVerticalImage );
+break;
+
+case Enigma::Object::Direction::ABOVE:
+draw_tile(context, x, y, 0, iIndoorCeilingImage );
+break;
+
+case Enigma::Object::Direction::BELOW:
+draw_tile(context, x, y, 0, iIndoorFloorImage );
+break;
+
+case Enigma::Object::Direction::ECenter:
+draw_tile(context, x, y, 0, iIndoorImage );
+break;
+
+default:
+Drawn = FALSE;
+break;
+}
+}
+else if ( object.m_id == Enigma::Object::ID::EPerson )
+{
+if ( aObject.iActive )
+draw_tile(context, x, y, 0, iPlayerActiveImage );
+else
+draw_tile(context, x, y, 0, iPlayerIdleImage );
+}
+else
+Drawn = false;
+
+return Drawn;
 }
 

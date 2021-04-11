@@ -1,27 +1,35 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 5.1 for Linux OS                    *
- * File:    HelpView.cpp                        *
- * Date:    October 8, 2017                     *
- * Author:  Chris Sterne                        *
- *                                              *
- * HelpView class.                              *
- *----------------------------------------------*
- * This class displays program instructions.    *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the HelpView class implementation.  The HelpView class displays
+// information on how to use the application.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
+#include <gtkmm/textview.h>
 #include "HelpView.h"
 
-//*-----------------------------*
-//* Local declarations and data *
-//*-----------------------------*
+//-----------------------------
+// Local declarations and data.
+//-----------------------------
 
-const char* KHelpText =_("\
-MAP MAKER for ENIGMA IN THE WINE CELLAR\n\
-Version 5.1 for Linux OS\n\
+const char* help_text =_("\
+WORLD CREATOR for ENIGMA IN THE WINE CELLAR\n\
+Version 1.0 for Linux OS\n\
 By: Chris Sterne\n\
-Date: September, 2017\n\
+Date: April, 2021\n\
 \n\
 FUNCTION KEYS\n\
 Toggle between Level viewer and other viewers.\n\
@@ -155,26 +163,25 @@ WineLock: wilk\n\
 WoodDoor: dor\n\
 WoodWall: wdw");
 
-//*--------------------------*
-//* C++ default constructor. *
-//*--------------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CHelpView::CHelpView()
+Enigma::HelpView::HelpView()
 {
   // Prepare the TextView widget.
 
-  Gtk::TextView* TextView = Gtk::manage( new Gtk::TextView );
-  add( *TextView );
+  Gtk::TextView* textview = Gtk::manage(new Gtk::TextView);
+  add(*textview);
 	
-  TextView->set_wrap_mode( Gtk::WRAP_WORD );
-  TextView->set_editable(FALSE);
-  TextView->set_cursor_visible(FALSE);
-  TextView->set_hexpand(TRUE);
-  TextView->set_vexpand(TRUE);
+  textview->set_wrap_mode(Gtk::WRAP_WORD);
+  textview->set_editable(false);
+  textview->set_cursor_visible(false);
+  textview->set_hexpand(true);
+  textview->set_vexpand(true);
 
   // Add help text to the TextView built-in buffer.
 	
- 	Glib::RefPtr<Gtk::TextBuffer> Buffer = TextView->get_buffer();
-  Buffer->set_text( KHelpText );
-  return;
+ 	Glib::RefPtr<Gtk::TextBuffer> buffer = textview->get_buffer();
+  buffer->set_text(help_text);
 }

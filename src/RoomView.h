@@ -1,8 +1,8 @@
 // "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
-// This file is the RoomView class header.  The RoomView class displays and
-// allows editing objects in a world room.
+// This file is the RoomView class header.  The RoomView class displays
+// room objects in a list for editing.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -25,7 +25,7 @@
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 #include <gtkmm/cellrenderer.h>
-#include "Position.h"
+#include "Object.h"
 
 namespace Enigma
 {
@@ -33,7 +33,7 @@ namespace Enigma
 	
 	class RoomView : public Gtk::ScrolledWindow
 	{
-		/*public:
+		public:
 			// Public methods.
 
 			RoomView();
@@ -62,7 +62,7 @@ namespace Enigma
 
 			// Private methods.
 
-			void Object_Data_Function(Gtk::CellRenderer* const& cell_renderer,
+			void object_data_function(Gtk::CellRenderer* const& cell_renderer,
 			                          const Gtk::TreeIter& tree_iterator);
 
 			// Private data.
@@ -74,7 +74,7 @@ namespace Enigma
 			std::shared_ptr<Enigma::World> m_world;      // Game world.
 			Enigma::Position m_position;                 // Position of room.
 			std::unique_ptr<Gtk::TreeView> m_treeview;   // Room object list viewer.
-			Glib::RefPtr<Gtk::ListStore> m_liststore;    // Storage for data entries.*/
+			Glib::RefPtr<Gtk::ListStore> m_liststore;    // Storage for data entries.
 	};
 }
 

@@ -21,19 +21,19 @@
 #ifndef __OBJECTLIST_H__
 #define __OBJECTLIST_H__
 
-//#include <list>
-//#include "Volume.h"
-//#include "Object.h"
+#include <list>
+#include "Volume.h"
+#include "Object.h"
 
 namespace Enigma
 {
 	class ObjectList : public std::list<Enigma::Object>
 	{
-		/*public:
+		public:
 			// Public methods.
 
 			ObjectList();
-			void clear() override;
+			void clear();
 			void insert(Enigma::Object& object);
 			void insert(std::list<Enigma::Object>& buffer);
 
@@ -48,8 +48,11 @@ namespace Enigma
 			void read(Enigma::Volume& volume,
 			          std::list<std::list<Enigma::Object>::iterator>& buffer);
 
-			void copy(Enigma::Position& volume, std::list<Enigma::Object>& buffer );
-			void copy(Enigma::Volume& volume, std::list<Enigma::Object>& buffer );
+			void copy(Enigma::Position& position,
+			          std::list<Enigma::Object>& buffer);
+			          
+			void copy(Enigma::Volume& volume,
+			          std::list<Enigma::Object>& buffer);
 
 		private:
 			// Private methods.
@@ -58,7 +61,7 @@ namespace Enigma
 
 			// Private data.
 
-			std::list<Enigma::Object>::iterator m_iterator;    // Cached list iterator.*/
+			std::list<Enigma::Object>::iterator m_iterator;  // Cached iterator.
 	};
 }
 

@@ -2,7 +2,7 @@
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
 // This file is the RoomView class implementation.  The RoomView class displays
-// and allows editing objects in a world room.
+// room objects in a list for editing.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -21,55 +21,53 @@
 #include "RoomView.h"
 #include "World.h"
 
-//*----------------------*
-//* Default constructor. *
-//*----------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CRoomView::CRoomView()
+Enigma::RoomView::RoomView()
 {
-	add_events( Gdk::KEY_PRESS_MASK );
-	
-	iTreeView = std::unique_ptr<Gtk::TreeView>( new Gtk::TreeView );
-	add( *iTreeView );
-	iTreeView->set_headers_visible( FALSE );
-  iTreeView->set_hexpand(TRUE);
-  iTreeView->set_vexpand(TRUE);
-	iTreeView->set_can_focus(TRUE);
+	add_events(Gdk::KEY_PRESS_MASK);
+		
+	m_treeview = std::make_unique<Gtk::TreeView>();
+	add(*m_treeview);
+	m_treeview->set_headers_visible(false);
+  m_treeview->set_hexpand(true);
+  m_treeview->set_vexpand(true);
+	m_treeview->set_can_focus(true);
 
-	Glib::RefPtr<Gtk::TreeSelection> TreeSelection = iTreeView->get_selection();
-	TreeSelection->set_mode(Gtk::SELECTION_BROWSE);
+	Glib::RefPtr<Gtk::TreeSelection> selection = m_treeview->get_selection();
+	selection->set_mode(Gtk::SELECTION_BROWSE);
 
 	// Create the TreeView model, but do not attach it to the TreeView.
 	// This will be done later after the model has been filled.
 	
-	iListStore = Gtk::ListStore::create( iColumnRecord );
+	m_liststore = Gtk::ListStore::create(m_columnrecord);
 
-	// Create TreeView view.  The column cell has a function added for determining
-	// how to display the column data.
+	// Create TreeView view, and add a column cell function to control
+	// how the column data is displayed in the TreeView.
 	
-  Gtk::TreeViewColumn* ObjectColumn = Gtk::manage( new Gtk::TreeViewColumn );
-	iTreeView->append_column( *ObjectColumn );
-	Gtk::CellRendererText* ObjectCell = Gtk::manage( new Gtk::CellRendererText );
-  ObjectColumn->pack_start( *ObjectCell, TRUE );
-	ObjectColumn->set_cell_data_func( *ObjectCell,
-	                                   sigc::mem_fun( *this,
-	                                   &CRoomView::Object_Data_Function )); 
+  Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
+	m_treeview->append_column(*column);
+	
+	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
+  column->pack_start(*cell, true);
+	column->set_cell_data_func(*cell,
+	                           sigc::mem_fun(*this,
+	                           &Enigma::RoomView::object_data_function)); 
 
 	// Connect a key press event handler to the RoomView, but place it before
 	// its default handler.  This allows capturing general key press events.
 	
-	signal_key_press_event().connect( sigc::mem_fun( *this,
-	                         &CRoomView::On_Key_Press ),
-	                         FALSE );
-
-	return;
+	signal_key_press_event()
+		.connect(sigc::mem_fun(*this, &Enigma::RoomView::on_key_press), false);
 }
 
-//*-------------------------------------------------------------*
-//* This method is called when the widget is about to be shown. *
-//*-------------------------------------------------------------*
+//------------------------------------------------------------
+// This method is called when the widget is about to be shown.
+//------------------------------------------------------------
 
-void CRoomView::on_map()
+void Enigma::RoomView::on_map()
 {
 	// Pass the method to the base class.
 
@@ -77,154 +75,152 @@ void CRoomView::on_map()
 	
 	// Update the list contents.
 
-	Update();
-	return;
+	update();
 }
 
-//*----------------------------------------------------------------*
-//* This method is called when MapObject cells are to be rendered. *
-//* Data is read from the model and converted into an appropriate  *
-//* content for display.                                           *
-//*----------------------------------------------------------------*
+//--------------------------------------------------------------
+// This method is called when object cells are to be rendered.  
+// Data is read from the model and converted into an appropriate
+// content for display.
+//--------------------------------------------------------------
 
-void CRoomView::Object_Data_Function( Gtk::CellRenderer* const& aCellRenderer,
-                         				          const Gtk::TreeIter& aTreeIterator )
+void Enigma::RoomView::object_data_function(
+	Gtk::CellRenderer* const& cell_renderer,
+	const Gtk::TreeIter& tree_iterator)
 {	
 	// Exit if there is no iterator.
 
-	if ( !aTreeIterator )
+	if (!tree_iterator)
 		return;
+
+	Gtk::TreeModel::Row row = *tree_iterator;
+	Gtk::CellRendererText* renderer = (Gtk::CellRendererText*)(cell_renderer);
+
+	std::list<Enigma::Object>::iterator object;
+	object = row[m_columnrecord.m_iterator];
+
+	Glib::ustring description;
+	(*object).get_description(description);
+
+	// Render the object description.
 	
-	Gtk::TreeModel::Row Row = *aTreeIterator;
-	Gtk::CellRendererText* CellRenderer = (Gtk::CellRendererText*)( aCellRenderer );
-
-	std::list<CMapObject>::iterator Object;
-	Object = Row[ iColumnRecord.iIterator ];
-
-	Glib::ustring Description;
-	(*Object).GetDescription( Description );
-	
-	CellRenderer->property_text() = Description;
-	return;
+	renderer->property_text() = description;
 }
 
-//*---------------------------------------------*
-//* This method sets the game map to be viewed. *
-//*---------------------------------------------*
-//* aMap: Game map.                             *
-//*---------------------------------------------*
+//--------------------------------------------
+// This method sets the game map to be viewed.
+//--------------------------------------------
+// world: Game world.
+//--------------------------------------------
 
-void CRoomView::SetMap( std::shared_ptr<CMap> aMap )
+void Enigma::RoomView::set_world(std::shared_ptr<Enigma::World> world)
 {
-	iMap = aMap;
-	return;
+	m_world = world;
 }
 
-//*------------------------------------------------*
-//* This method sets the map location of the room. *
-//*------------------------------------------------*
-//* aLocation: Map location of room.               *
-//*------------------------------------------------*
+//-------------------------------------------------
+// This method sets the world position of the room.
+//-------------------------------------------------
+// position: World position of room.
+//-------------------------------------------------
 
-void CRoomView::SetLocation( const CMapLocation& aLocation )
+void Enigma::RoomView::set_position(const Enigma::Position& position)
 {
-  // Update the room location.
+  // Update the room position.
 
-  iLocation = aLocation;
-  return;
+  m_position = position;
 }
 
-//*------------------------------------------------------*
-//* Method to handle key press events from the RoomView. *
-//*------------------------------------------------------*
-//* key_event: Pointer to GdkEventKey.                   *
-//* RETURN:    TRUE if key press was handled.            *
-//*------------------------------------------------------*
+//-----------------------------------------------------
+// Method to handle key press events from the RoomView.
+//-----------------------------------------------------
+// key_event: Pointer to GdkEventKey.
+// RETURN:    TRUE if key press was handled.
+//-----------------------------------------------------
 
-gboolean CRoomView::On_Key_Press( GdkEventKey* key_event )
+bool Enigma::RoomView::on_key_press(GdkEventKey* key_event)
 {
   // Exit immediately if the event is not due to a key press.
   // The event is allowed to propagate to other handlers.
 
-  if ( key_event->type != GDK_KEY_PRESS )
-    return FALSE;
+  if (key_event->type != GDK_KEY_PRESS)
+    return false;
 
-  gboolean Handled = TRUE;	
-  int KeyValue     = key_event->keyval;
+  bool handled  = true;	
+  int key_value = key_event->keyval;
 
-  if ( KeyValue == GDK_KEY_Delete )
+  if (key_value == GDK_KEY_Delete)
   {		
-    Glib::RefPtr<Gtk::TreeSelection> TreeSelection = iTreeView->get_selection();
-    Gtk::TreeModel::iterator TreeIterator = TreeSelection->get_selected();
+    Glib::RefPtr<Gtk::TreeSelection> selection = m_treeview->get_selection();
+    Gtk::TreeModel::iterator iterator = selection->get_selected();
 
-    if ( TreeIterator )
+    if (iterator)
     {
       // An iterator for a selected object entry is available.
 
-      Gtk::TreeModel::Row Row = *TreeIterator;
-      std::list<CMapObject>::iterator Object;
-      Object = Row[ iColumnRecord.iIterator ];
+      Gtk::TreeModel::Row row = *iterator;
+      std::list<Enigma::Object>::iterator object;
+      object = row[m_columnrecord.m_iterator];
 
       // Erase the selected entry from the ListStore before erasing the object
-      // from the map.  This ensures the iterator in the ListStore entry remains
-      // valid while the entry is being erased.  Erasing the ListStore entry
-      // will result in an update to the TreeView.
+      // from the world.  This ensures the iterator in the ListStore entry
+      // remains valid while the entry is being erased.  Erasing the ListStore
+      // entry will result in an update to the TreeView.
       
-      iListStore->erase( Row );
+      m_liststore->erase(row);
 
       // Erase the selected object from the correct list in the map.
 			
-      if ( (*Object).iType == CMapObject::Type::EItem )
-        iMap->iItems.Erase( Object );
-      else if ( (*Object).iType == CMapObject::Type::EPlayer )
-        iMap->iPlayers.Erase( Object );
-      else if ( (*Object).iType == CMapObject::Type::ETeleporter )
-        iMap->iTeleporters.Erase( Object );
+      if ((*object).m_type == Enigma::Object::Type::ITEM)
+        m_world->m_items.erase(object);
+      else if ((*object).m_type == Enigma::Object::Type::PLAYER)
+        m_world->m_players.erase(object);
+      else if ((*object).m_type == Enigma::Object::Type::TELEPORTER)
+        m_world->m_teleporters.erase(object);
       else
-        iMap->iObjects.Erase( Object );
+        m_world->m_objects.erase(object);
     }
   }
   else
-    Handled = FALSE;
+    handled = false;
 
-  return Handled;
+  return handled;
 }
 
-//*-------------------------------*
-//* This method updates the view. *
-//*-------------------------------*
+//------------------------------
+// This method updates the view.
+//------------------------------
 
-void CRoomView::Update()
+void Enigma::RoomView::update()
 {
   // Detach the model from the TreeView and clear all old entries.
 
-  iTreeView->unset_model();
-  iListStore->clear();
+  m_treeview->unset_model();
+  m_liststore->clear();
 
-  // Read iterators to MapObjects in the room from all lists.
+  // Read iterators from all lists to world objects in the room.
 
-  std::list<std::list<CMapObject>::iterator> Buffer;
+  std::list<std::list<Enigma::Object>::iterator> buffer;
   
-  iMap->iObjects.Read( iLocation, Buffer );
-  iMap->iTeleporters.Read( iLocation, Buffer );
-  iMap->iItems.Read( iLocation, Buffer );
-  iMap->iPlayers.Read( iLocation, Buffer );
+  m_world->m_objects.read(m_position, buffer);
+  m_world->m_teleporters.read(m_position, buffer);
+  m_world->m_items.read(m_position, buffer);
+  m_world->m_players.read(m_position, buffer);
 
   // Populate the ListStore.
 
-  std::list<std::list<CMapObject>::iterator>::iterator Object;
-  Gtk::TreeModel::Row Row;
+  std::list<std::list<Enigma::Object>::iterator>::iterator object;
+  Gtk::TreeModel::Row row;
 	
-  for ( Object = Buffer.begin();
-        Object != Buffer.end();
-        ++ Object )
+  for (object = buffer.begin();
+       object != buffer.end();
+       ++ object)
   {
-    Row = *( iListStore->append() );
-    Row[ iColumnRecord.iIterator ] = *Object;
+    row = *(m_liststore->append());
+    row[m_columnrecord.m_iterator] = *object;
   }
 
   // Attach the filled model to the TreeView.
 
-  iTreeView->set_model( iListStore );
-  return;
+  m_treeview->set_model(m_liststore);
 }

@@ -1,26 +1,37 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 2.0 for Linux OS                    *
- * File:    MainWindow.h                        *
- * Date:    February 10, 2016                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * MainWindow class header.                     *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the MainWindow class header.  The MainWindow class is the
+// main window of the application.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
  
 #ifndef __MAINWINDOW_H__
 #define __MAINWINDOW_H__
 
-#include <gtkmm.h>
-#include "MainWindow.h"
+#include <gtkmm/applicationwindow.h>
 
-class CMainWindow : public Gtk::ApplicationWindow
+namespace Enigma
 {
-  public:
-    // Public methods.
-    
-    CMainWindow();
-    void SetTitleMessage( const Glib::ustring aMessage );		
-};
+	class MainWindow : public Gtk::ApplicationWindow
+	{
+		public:
+			// Public methods.
+
+			MainWindow();
+			void set_title_message(const Glib::ustring message);		
+	};
+}
 
 #endif // __MAINWINDOW_H__

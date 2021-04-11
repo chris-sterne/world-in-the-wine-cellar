@@ -24,7 +24,6 @@
 #include <cairomm/surface.h>
 #include <gtkmm/widget.h>
 #include "Object.h"
-#include "Volume.h"
 
 namespace Enigma
 {
@@ -143,5 +142,6 @@ namespace Enigma
 		Cairo::RefPtr<Cairo::ImageSurface> m_padbutton_ceiling;
 		Cairo::RefPtr<Cairo::ImageSurface> m_padbutton_floor;   
 	};
+}
 
-#endif // __IMAGETILES_H__
+#endif // __TILES_H__

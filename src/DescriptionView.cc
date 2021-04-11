@@ -20,86 +20,78 @@
 #include <glibmm/i18n.h>
 #include "DescriptionView.h"
 
-//*--------------------------*
-//* C++ default constructor. *
-//*--------------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CDescriptionView::CDescriptionView()
+Enigma::DescriptionView::DescriptionView()
 {
-	// Prepare the TextView widget.
+// Prepare the TextView widget.
 
-  iTextView = std::unique_ptr<Gtk::TextView>( new Gtk::TextView );
-	add( *iTextView );
-	
-	iTextView->set_wrap_mode( Gtk::WRAP_WORD );
-  iTextView->set_editable(TRUE);
-  iTextView->set_cursor_visible(TRUE);
-  iTextView->set_hexpand(TRUE);
-  iTextView->set_vexpand(TRUE);
+m_textview = std::make_unique<Gtk::TextView>();
+add(*m_textview);
 
-  // Connect signal for text buffer changes.
-  
-  iTextBufferConnection =  
-    iTextView->get_buffer()->signal_changed().connect( sigc::mem_fun( *this,
-                                             &CDescriptionView::On_Changed ));
+m_textview->set_wrap_mode( Gtk::WRAP_WORD );
+m_textview->set_editable(true);
+m_textview->set_cursor_visible(true);
+m_textview->set_hexpand(true);
+m_textview->set_vexpand(true);
 
-	return;
+// Connect signal for text buffer changes.
+
+m_textbuffer_connection = m_textview->get_buffer()->signal_changed()
+	.connect(sigc::mem_fun(*this, &Enigma::DescriptionView::on_changed));
 }
 
-//*-------------------------------------------------------------*
-//* This method is called when the widget is about to be shown. *
-//*-------------------------------------------------------------*
+//------------------------------------------------------------
+// This method is called when the widget is about to be shown.
+//------------------------------------------------------------
 
-void CDescriptionView::on_map()
+void Enigma::DescriptionView::on_map()
 {
-  // Pass the method to the base class.
+	// Pass the method to the base class.
 
-  Gtk::ScrolledWindow::on_map();
-  
-  // Update the TextView buffer.
-  
-  Update();
-  return;
+	Gtk::ScrolledWindow::on_map();
+
+	// Update the TextView buffer.
+
+	update();
 }
 
-//*---------------------------------------------*
-//* This method sets the game map to be viewed. *
-//*---------------------------------------------*
-//* aMap: Game map.                             *
-//*---------------------------------------------*
+//----------------------------------------------
+// This method sets the game world to be viewed.
+//----------------------------------------------
+// world: Game world.
+//----------------------------------------------
 
-void CDescriptionView::SetMap( std::shared_ptr<CMap> aMap )
+void Enigma::DescriptionView::set_world(std::shared_ptr<Enigma::World> world)
 {                                          
-  iMap = aMap;
-  return;
+	m_world = world;
 }
 
-//*------------------------------------------------------------------*
-//* This method is called when the text buffer contents are changed. *
-//*------------------------------------------------------------------*
-//* aMap: Game map.                                                  *
-//*------------------------------------------------------------------*
+//-----------------------------------------------------------------
+// This method is called when the text buffer contents are changed.
+//-----------------------------------------------------------------
+// world: Game world.
+//-----------------------------------------------------------------
 
-void CDescriptionView::On_Changed()
+void Enigma::DescriptionView::on_changed()
 {
-  // Write the description to the game map.
+	// Write the description to the game map.
 
-  iMap->iDescription = iTextView->get_buffer()->get_text();
-  return;
+	m_world->m_description = m_textview->get_buffer()->get_text();
 }
 
-//*-------------------------------*
-//* This method updates the view. *
-//*-------------------------------*
+//------------------------------
+// This method updates the view.
+//------------------------------
 
-void CDescriptionView::Update()
+void Enigma::DescriptionView::update()
 {
 	// Read the description from the game map.  Block the TextBuffer signal
-	// to prevent On_Changed() from being called while this occurs.
+	// to prevent on_changed() from being called while this occurs.
 
-  iTextBufferConnection.block();
-  iTextView->get_buffer()->set_text( iMap->iDescription );
-  iTextBufferConnection.unblock();
-
-  return;
+	m_textbuffer_connection.block();
+	m_textview->get_buffer()->set_text(m_world->m_description);
+	m_textbuffer_connection.unblock();
 }

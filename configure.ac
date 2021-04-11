@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([world-in-the-wine-cellar], 0.0.2, [chris_sterne@hotmail.com])
+AC_INIT([world-in-the-wine-cellar], 0.0.3, [chris_sterne@hotmail.com])
 
 AC_CONFIG_HEADERS([config.h])
 

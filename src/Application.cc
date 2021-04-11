@@ -18,19 +18,20 @@
 // with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
-//#include "Application.h"
-//#include "MessageBar.h"
-//#include "MainWindow.h"
-//#include "LevelView.h"
+#include "MessageBar.h"
+#include "MainWindow.h"
+#include "LevelView.h"
 #include "RoomView.h"
 /*#include "ControllerView.h"
 #include "ControlView.h"
 #include "TeleporterView.h"
 #include "ItemView.h"
 #include "PlayerView.h"
-#include "DescriptionView.h"
+#include "DescriptionView.h"*/
 #include "HelpView.h"
 #include "CommandEntry.h"
+#include "Application.h"
+#include "World.h"
 
 //-------------------------
 // This is the constructor.
@@ -38,7 +39,7 @@
 
 Enigma::Application::Application() : Gtk::Application(G_APPLICATION_ID)
 {
-	// An application ID defined in MakeFile.am is set.
+	// The application ID defined in MakeFile.am is set.
 }
 
 //---------------------------------------------
@@ -71,32 +72,32 @@ void Enigma::Application::on_activate()
 	m_window->add(*m_grid);
 
 	m_command = std::make_unique<Enigma::CommandEntry>();
-	m_grid->attach(*m_command, 0, 0, 2, 1 );
+	m_grid->attach(*m_command, 0, 0, 2, 1);
 	m_command->signal_command()
-	.connect( sigc::mem_fun(*this, &Enigma::Application::on_command));
+		.connect( sigc::mem_fun(*this, &Enigma::Application::on_command));
 
 	m_view = std::make_unique<Gtk::Label>();
-	m_grid->attach( *m_view, 0, 1, 1, 1 );
+	m_grid->attach(*m_view, 0, 1, 1, 1);
 	m_view->set_halign(Gtk::ALIGN_START);
 	m_view->set_hexpand(false);
 
 	Enigma::MessageBar* message = Gtk::manage(new Enigma::MessageBar);
 	m_grid->attach(*message, 1, 1, 1, 1);
-	MessageBar->set_padding(0, 3);
-	MessageBar->set_hexpand(true);
+	message->set_padding(0, 3);
+	message->set_hexpand(true);
 
-	m_notebook = std::make_unique<Gtk::Notebook>();
-	m_grid->attach(*m_notebook, 0, 2, 2, 1);
-	m_notebook->set_show_tabs(false);
-	m_notebook->set_show_border(false);
+	m_viewbook = std::make_unique<Gtk::Notebook>();
+	m_grid->attach(*m_viewbook, 0, 2, 2, 1);
+	m_viewbook->set_show_tabs(false);
+	m_viewbook->set_show_border(false);
 
 	// Add viewer pages to the view notebook.
 
 	m_levelview       = std::make_unique<Enigma::LevelView>();
 	m_levelviewNumber = m_notebook->append_page(*m_levelview);
 
-	m_roomview       = std::make_unique<Enigma::RoomView>();
-	m_roomviewNumber = m_notebook->append_page(*m_roomview);
+	m_roomview        = std::make_unique<Enigma::RoomView>();
+	m_roomview_number = m_viewbook->append_page(*m_roomview);
 
 	m_teleporterview        = std::make_unique<Enigma::TeleporterView>();
 	m_teleporterview_number = m_notebook->append_page(*m_teleporterview);
@@ -117,63 +118,64 @@ void Enigma::Application::on_activate()
 	m_descriptionview_number = m_notebook->append_page(*m_descriptionview);
 
 	m_helpview        = std::make_unique<Enigma::HelpView>();
-	m_helpview_number = m_notebook->append_page(*m_helpview);
+	m_helpview_number = m_viewbook->append_page(*m_helpview);
 
-	// Create a game map and provided it to the viewers.
+	// Create a game world and provided it to all viewers.
 
-	iMap = std::shared_ptr<CMap>( new CMap );
+	m_world = std::make_shared<Enigma::World>();
 
-	m_levelview->SetMap( iMap );
-	m_roomview->SetMap( iMap );
-	m_teleporterview->SetMap( iMap );  
-	m_itemview->SetMap( iMap );
-	m_playerview->SetMap( iMap );
-	m_controllerview->SetMap( iMap );
-	m_controlview->SetMap( iMap );
-	m_descriptionview->SetMap( iMap );
+	m_levelview->set_world(m_world);
+	m_roomview->set_world(m_world);
+	m_teleporterview->set_world(m_world;  
+	m_itemview->set_world(m_world);
+	m_playerview->set_world(m_world);
+	m_controllerview->set_world(m_world);
+	m_controlview->set_world(m_world);
+	m_descriptionview->set_world(m_world);
 
 	// Connect the LevelView widget to the MessageBar widget so it will
 	// display the current map location.
 
 	m_levelview->signal_location()
-		.connect(sigc::mem_fun(*MessageBar, &CMessageBar::SetLocation));
+		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the LevelView widget to the RoomView widget to update
 	// its current map location.
 
 	m_levelview->signal_location()
-		.connect( sigc::mem_fun(*m_roomview, &CRoomView::SetLocation));
+		.connect(sigc::mem_fun(*m_roomview, &Enigma::RoomView::set_position));
 
 	// Connect the TeleporterView widget to the MessageBar widget so it will
 	// display the teleporter's map location.
 
 	m_teleporterview->signal_location()
-		.connect( sigc::mem_fun(*MessageBar, &CMessageBar::SetLocation));
+		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the ItemView widget to the MessageBar widget so it will
 	// display the item's map location.
 
 	m_itemview->signal_location()
-		.connect( sigc::mem_fun(*MessageBar, &CMessageBar::SetLocation));
+		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the PlayerView widget to the MessageBar widget so it will
 	// display the player's map location.
 
 	m_playerview->signal_location()
-		.connect( sigc::mem_fun(*MessageBar, &CMessageBar::SetLocation));
+		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the ControllerView widget to the MessageBar widget so it will
 	// display the current controller name.
 
 	m_controllerview->signal_name()
-		.connect( sigc::mem_fun( *MessageBar, &CMessageBar::set_label));
-		                          	
+		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_label));
+	                          	
 	// Open the main window showing the help viewer.
 
 	m_window->maximize();
 	m_window->show_all();
-	m_view->set_label( _("[ Help ]"));
-	m_notebook->set_current_page(m_helpviewNumber);
+	
+	m_view->set_label(_("[ Help ]"));
+	m_viewbook->set_current_page(m_helpview_number);
 }
 
 //------------------------------------------------------
@@ -182,10 +184,10 @@ void Enigma::Application::on_activate()
 // command: Command line.
 //------------------------------------------------------
 
-void Enigma::Application::on_command const Glib::ustring& command)
+void Enigma::Application::on_command(const Glib::ustring& command)
 {
-  std::vector<Glib::ustring> Arguments;
-  std::vector<Glib::ustring> Parts;
+  std::vector<Glib::ustring> arguments;
+  std::vector<Glib::ustring> parts;
 
   // Split the command line into parts separated by one or more white spaces.
 
@@ -201,20 +203,20 @@ void Enigma::Application::on_command const Glib::ustring& command)
 
       Enigma::Object object;
 
-      object.m_type     = Enigma::World::Type::OBJECT;
+      object.m_type     = Enigma::Object::Type::OBJECT;
       object.m_id       = Enigma::Object::ID::BLOCKWALL;
-      object.m_surface  = Enigma::World::Direction::BELOW;
-      object.m_rotation = Enigma::World::Direction::NORTH;
-      object.m_location = m_levelview->GetCursor();
+      object.m_surface  = Enigma::Object::Direction::BELOW;
+      object.m_rotation = Enigma::Object::Direction::NORTH;
+      object.m_position = m_levelview->get_cursor();
       object.m_active   = false;
-      object.m_category = World::Category::OPTIONAL;
+      object.m_category = Enigma::Object::Category::OPTIONAL;
       
-      object.m_location_arrival.m_East  = G_MAXUINT16;
-      object.m_location_arrival.m_Above = G_MAXUINT16;
-      object.m_location_arrival.m_North = G_MAXUINT16;
+      object.m_position_arrival.m_east  = 65535;
+      object.m_position_arrival.m_above = 65535;
+      object.m_position_arrival.m_north = 65535;
       
-      object.m_surface_arrival  = Enigma::World::Direction::NONE;
-      object.m_rotation_arrival = Enigma::World::Direction::NONE;
+      object.m_surface_arrival  = Enigma::Object::Direction::NONE;
+      object.m_rotation_arrival = Enigma::Object::Direction::NONE;
 
       // Examine all arguments for a new MapObject.
 
@@ -418,16 +420,16 @@ void Enigma::Application::on_command const Glib::ustring& command)
             }
             else if (parts.at(1).compare(_("actp")) == 0)
             {
-              object.m_type     = CMapObject::Type::PLAYER;
-              MapObject.iActive = true;
+              object.m_type  = Enigma::Object::Type::PLAYER;
+              object.m_active = true;
             }
             else if (parts.at(1).compare(_("idlp")) == 0)
             {
-              object.m_type     = CMapObject::Type::PLAYER;
-              MapObject.iActive = false;
+              object.m_type   = Enigma::Object::Type::PLAYER;
+              object.m_active = false;
             }
             else
-              Valid = false;
+              valid = false;
           }
 					else if (parts.at( 0).compare(_("surf")) == 0)
 					{
@@ -448,7 +450,7 @@ void Enigma::Application::on_command const Glib::ustring& command)
 						else if (parts.at(1).compare(_("c")) == 0)
 							object.m_surface = Enigma::Object::Direction::CENTER;
 						else
-							Valid = false;
+							valid = false;
 					}
           else if (parts.at(0).compare(_("rot")) == 0)
           {
@@ -469,7 +471,7 @@ void Enigma::Application::on_command const Glib::ustring& command)
 						else if (parts.at(1).compare(_("b")) == 0)
 							object.m_rotation = Enigma::Object::Direction::BELOW;
 						else if (parts.at(1).compare(_("c")) == 0)
-							object.m_rotation = Enigma::Object::Direction::ECenter;
+							object.m_rotation = Enigma::Object::Direction::CENTER;
 						else if (parts.at(1).compare(_("0")) == 0)
 							object.m_rotation = (Enigma::Object::Direction)0;
 						else if (parts.at(1).compare(_("90")) == 0)
@@ -481,7 +483,7 @@ void Enigma::Application::on_command const Glib::ustring& command)
 						else if (parts.at(1).compare(_("-90")) == 0)
 							object.m_rotation = (Enigma::Object::Direction)3;
 						else
-							Valid = false;
+							valid = false;
           }
 					else if (parts.at( 0).compare(_("stel")) == 0)
           {
@@ -502,7 +504,7 @@ void Enigma::Application::on_command const Glib::ustring& command)
 						else if (parts.at(1).compare(_("p")) == 0)
 							object.m_surface_arrival = Enigma::Object::Direction::NONE;
 						else
-							Valid = false;
+							valid = false;
 
 						object.m_type = Enigma::Object::Type::TELEPORTER;
           }
@@ -511,21 +513,21 @@ void Enigma::Application::on_command const Glib::ustring& command)
 						// Choose Teleporter object arrival rotation on surface.
 
 						if (parts.at(1).compare(_("n")) == 0)
-							object.m_rotationArrival = Enigma::Object::Direction::NORTH;
+							object.m_rotation_arrival = Enigma::Object::Direction::NORTH;
 						else if (parts.at(1).compare(_("s")) == 0)
-							object.m_rotationArrival = Enigma::Object::Direction::SOUTH;
+							object.m_rotation_arrival = Enigma::Object::Direction::SOUTH;
 						else if (parts.at(1).compare(_("e")) == 0)
-							object.m_rotationArrival = Enigma::Object::Direction::EAST;
+							object.m_rotation_arrival = Enigma::Object::Direction::EAST;
 						else if (parts.at(1).compare(_("w")) == 0)
-							object.m_rotationArrival = Enigma::Object::Direction::WEST;
+							object.m_rotation_arrival = Enigma::Object::Direction::WEST;
 						else if (parts.at(1).compare(_("a")) == 0)
-							object.m_rotationArrival = Enigma::Object::Direction::ABOVE;
+							object.m_rotation_arrival = Enigma::Object::Direction::ABOVE;
 						else if (parts.at(1).compare(_("b")) == 0)
-							object.m_rotationArrival = Enigma::Object::Direction::BELOW;
+							object.m_rotation_arrival = Enigma::Object::Direction::BELOW;
 						else if (parts.at(1).compare(_("p")) == 0)
-							object.m_surfaceArrival = Enigma::Object::Direction::NONE;
+							object.m_surface_arrival = Enigma::Object::Direction::NONE;
 						else
-							Valid = false;
+							valid = false;
 							
 						object.m_type = Enigma::Object::Type::TELEPORTER;
           }
@@ -533,70 +535,70 @@ void Enigma::Application::on_command const Glib::ustring& command)
           {
 						// Set teleporter object arrival East coordinate.
 
-						object.m_location_arrival.m_east = std::stoi(parts.at(1));
+						object.m_position_arrival.m_east = std::stoi(parts.at(1));
 						object.m_type = Enigma::Object::Type::TELEPORTER;
           }
           else if (parts.at( 0).compare(_("ntel")) == 0)
           {
             // Set teleporter object arrival North coordinate.
             
-            object.m_location_arrival.m_north = std::stoi(parts.at(1));
+            object.m_position_arrival.m_north = std::stoi(parts.at(1));
             object.m_type = Enigma::Object::Type::TELEPORTER;
           }
           else if (parts.at( 0).compare(_("atel")) == 0)
           {
             // Set teleporter object arrival Above coordinate.
             
-            object.m_location_arrival.m_above = std::stoi(parts.at(1));
+            object.m_position_arrival.m_above = std::stoi(parts.at(1));
             object.m_type = Enigma::Object::Type::TELEPORTER;
           }
           else if (parts.at( 0).compare(_("sens")) == 0)
           {
             // Add object sense state or signal.
             
-            object.iSense = parts.at(1);
+            object.m_sense = parts.at(1);
           }
           else if (parts.at( 0).compare(_("stat")) == 0)
           {
             // Add object functional state or signal.
             
-            object.iState = parts.at(1);
+            object.m_state = parts.at(1);
           }
           else if (parts.at( 0).compare(_("visi")) == 0)
           {
             // Add object visibility state or signal.
             
-            object.iVisibility = parts.at(1);
+            object.m_visibility = parts.at(1);
           }
           else if (parts.at( 0).compare(_("pres")) == 0)
           {
             // Add object presence state or signal.
             
-            object.iPresence = parts.at(1);
+            object.m_presence = parts.at(1);
           }
         }
       }
 
-      if ( Valid )
+      if (valid)
       {
         // Add the object to the correct list in the game map.
 			
         if (object.m_type == Enigma::Object::Type::ITEM)
-          m_world->m_items.Insert( MapObject );
+          m_world->m_items.insert(object);
         else if (object.m_type == Enigma::Object::Type::PLAYER)
-          m_world->m_players.Insert( MapObject );
+          m_world->m_players.insert(object);
         else if (object.m_type == Enigma::Object::Type::TELEPORTER)
-          m_world->m_teleporters.Insert(object);
+          m_world->m_teleporters.insert(object);
         else
-          m_world->m_objects.Insert(object);
+          m_world->m_objects.insert(object);
 
         // Update the appropriate view.
 			
-        if (m_notebook->get_current_page() == m_levelview_number)
+        if (m_viewbook->get_current_page() == m_levelview_number)
           m_levelview->update();
-        else if (m_notebook->get_current_page() == m_roomview_number)
+        else if (m_viewbook->get_current_page() == m_roomview_number)
           m_roomview->update();
-        else if (m_notebook->get_current_page() == m_itemview_number)
+        else if (m_viewbook->get_current_page() == m_itemview_number)
           m_itemview->update();
       }
     }
@@ -613,7 +615,7 @@ void Enigma::Application::on_command const Glib::ustring& command)
         
         // Update the Controller view if showing.
         
-        if (m_notebook->get_current_page() == m_controllerview_number)
+        if (m_viewbook->get_current_page() == m_controllerview_number)
           m_controllerview->update();
       }
     }
@@ -626,7 +628,7 @@ void Enigma::Application::on_command const Glib::ustring& command)
         
         m_world->load();
       }
-      else if ( Total == 2 )
+      else if (total == 2)
       {
         // A filename is provided, so update the world's internal name
         // to be used for loading.
@@ -646,8 +648,8 @@ void Enigma::Application::on_command const Glib::ustring& command)
       // Switch to the LevelView.
       
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page( m_levelview_number);
-      m_levelview->Home();
+      m_viewbook->set_current_page( m_levelview_number);
+      m_levelview->home();
     }
     else if (arguments.at(0).compare(_("s")) == 0)
     {
@@ -698,176 +700,176 @@ void Enigma::Application::on_command const Glib::ustring& command)
       m_window->set_title_message(m_world->m_filename); 
       
       // Switch to the LevelView view.  This will show an empty map with
-      // the cursor located at 0, 0, 0.
+      // the cursor located at (0, 0, 0).
       
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page(m_levelview_number);
+      m_viewbook->set_current_page(m_levelview_number);
       m_levelview->home();
     }
     else if (arguments.at(0).compare(_("f")) == 0)
     {
       // View only filter certain objects in the LevelView.
       
-      Enigma::Object::ID Filter = Enigma::Object::ID::NONE;      
+      Enigma::Object::ID filter = Enigma::Object::ID::NONE;      
       
-      if ( Total == 2 )
+      if (total == 2)
       {
         if (arguments.at(1).compare(_("cellar")) == 0)
-          Filter = Enigma::Object::ID::WINECELLAR;
+          filter = Enigma::Object::ID::WINECELLAR;
         else if (arguments.at(1).compare(_("bkw")) == 0)
-          Filter = Enigma::Object::ID::BLOCKWALL;
+          filter = Enigma::Object::ID::BLOCKWALL;
         else if (arguments.at(1).compare(_("snw")) == 0)
-          Filter = Enigma::Object::ID::STONEWALL;
+          filter = Enigma::Object::ID::STONEWALL;
         else if (arguments.at(1).compare(_("lad")) == 0)
-          Filter = Enigma::Object::ID::LADDER;
+          filter = Enigma::Object::ID::LADDER;
         else if (arguments.at(1).compare(_("lnd")) == 0)
-          Filter = Enigma::Object::ID::LADDEREND;
+          filter = Enigma::Object::ID::LADDEREND;
         else if (arguments.at(1).compare(_("person")) == 0)
-          Filter = Enigma::Object::ID::PERSON;
+          filter = Enigma::Object::ID::PERSON;
         else if (arguments.at(1).compare(_("blkr")) == 0)
-          Filter = Enigma::Object::ID::BLOCKER;
+          filter = Enigma::Object::ID::BLOCKER;
         else if (arguments.at(1).compare(_("mov")) == 0)
-          Filter = Enigma::Object::ID::MOVER;
+          filter = Enigma::Object::ID::MOVER;
         else if (arguments.at(1).compare(_("turn")) == 0)
-          Filter = Enigma::Object::ID::TURNER;
+          filter = Enigma::Object::ID::TURNER;
         else if (arguments.at(1).compare(_("face")) == 0)
-          Filter = Enigma::Object::ID::FACER;
+          filter = Enigma::Object::ID::FACER;
         else if (arguments.at(1).compare(_("surf")) == 0)
-          Filter = Enigma::Object::ID::SURFACER;	
+          filter = Enigma::Object::ID::SURFACER;	
         else if (arguments.at(1).compare(_("mush")) == 0)
-          Filter = Enigma::Object::ID::MUSHROOMS;
+          filter = Enigma::Object::ID::MUSHROOMS;
         else if (arguments.at(1).compare(_("corkscrew")) == 0)
-          Filter = Enigma::Object::ID::CORKSCREW;
+          filter = Enigma::Object::ID::CORKSCREW;
         else if (arguments.at(1).compare(_("winebottle")) == 0)
-          Filter = Enigma::Object::ID::WINEBOTTLE;
+          filter = Enigma::Object::ID::WINEBOTTLE;
         else if (arguments.at(1).compare(_("bread")) == 0)
-          Filter = Enigma::Object::ID::BREAD;
+          filter = Enigma::Object::ID::BREAD;
         else if (arguments.at(1).compare(_("cheese")) == 0)
-          Filter = Enigma::Object::ID::CHEESE;
+          filter = Enigma::Object::ID::CHEESE;
         else if (arguments.at(1).compare(_("knife")) == 0)
-          Filter = Enigma::Object::ID::KNIFE;
+          filter = Enigma::Object::ID::KNIFE;
         else if (arguments.at(1).compare(_("apple")) == 0)
-          Filter = Enigma::Object::ID::APPLE;
+          filter = Enigma::Object::ID::APPLE;
         else if (arguments.at(1).compare(_("wineglass")) == 0)
-          Filter = Enigma::Object::ID::WINEGLASS;
+          filter = Enigma::Object::ID::WINEGLASS;
         else if (arguments.at(1).compare(_("placemat")) == 0)
-          Filter = Enigma::Object::ID::PLACEMAT;
+          filter = Enigma::Object::ID::PLACEMAT;
         else if (arguments.at(1).compare(_("grapes")) == 0)
-          Filter = Enigma::Object::ID::GRAPES;
+          filter = Enigma::Object::ID::GRAPES;
         else if (arguments.at(1).compare(_("skull")) == 0)
-          Filter = Enigma::Object::ID::SKULL;
+          filter = Enigma::Object::ID::SKULL;
         else if (arguments.at(1).compare(_("egdn")) == 0)
-          Filter = Enigma::Object::ID::EDGEDRAIN;
+          filter = Enigma::Object::ID::EDGEDRAIN;
         else if (arguments.at(1).compare(_("vent")) == 0)
-          Filter = Enigma::Object::ID::AIRVENT;
+          filter = Enigma::Object::ID::AIRVENT;
         else if (arguments.at(1).compare(_("easteregg")) == 0)
-          Filter = Enigma::Object::ID::EASTEREGG;
+          filter = Enigma::Object::ID::EASTEREGG;
         else if (arguments.at(1).compare(_("flip")) == 0)
-          Filter = Enigma::Object::ID::FLIPPER;
+          filter = Enigma::Object::ID::FLIPPER;
         else if (arguments.at(1).compare(_("eger")) == 0)
-          Filter = Enigma::Object::ID::EDGER;
+          filter = Enigma::Object::ID::EDGER;
         else if (arguments.at(1).compare(_("str")) == 0)
-          Filter = Enigma::Object::ID::STAIRS;
+          filter = Enigma::Object::ID::STAIRS;
         else if (arguments.at(1).compare(_("stp")) == 0)
-          Filter = Enigma::Object::ID::STAIRSTOP;
+          filter = Enigma::Object::ID::STAIRSTOP;
         else if (arguments.at(1).compare(_("sens")) == 0)
-          Filter = Enigma::Object::ID::SENSOR;
+          filter = Enigma::Object::ID::SENSOR;
         else if (arguments.at(1).compare(_("hold")) == 0)
-          Filter = Enigma::Object::ID::HANDHOLD;
+          filter = Enigma::Object::ID::HANDHOLD;
         else if (arguments.at(1).compare(_("m0")) == 0)
-          Filter = Enigma::Object::ID::MOSS0;
+          filter = Enigma::Object::ID::MOSS0;
         else if (arguments.at(1).compare(_("m90")) == 0)
-          Filter = Enigma::Object::ID::MOSS90;
+          filter = Enigma::Object::ID::MOSS90;
         else if (arguments.at(1).compare(_("m180")) == 0)
-          Filter = Enigma::Object::ID::MOSS180;
+          filter = Enigma::Object::ID::MOSS180;
         else if (arguments.at(1).compare(_("m270")) == 0)
-          Filter = Enigma::Object::ID::MOSS270;
+          filter = Enigma::Object::ID::MOSS270;
         else if (arguments.at(1).compare(_("m360")) == 0)
-          Filter = Enigma::Object::ID::MOSS360;
+          filter = Enigma::Object::ID::MOSS360;
         else if (arguments.at(1).compare(_("aballoon")) == 0)
-          Filter = Enigma::Object::ID::AIRBALLOON;
+          filter = Enigma::Object::ID::AIRBALLOON;
         else if (arguments.at(1).compare(_("plate")) == 0)
-          Filter = Enigma::Object::ID::PLATE;
+          filter = Enigma::Object::ID::PLATE;
         else if (arguments.at(1).compare(_("fork")) == 0)
-          Filter = Enigma::Object::ID::FORK;
+          filter = Enigma::Object::ID::FORK;
         else if (arguments.at(1).compare(_("cake")) == 0)
-          Filter = Enigma::Object::ID::CAKE;
+          filter = Enigma::Object::ID::CAKE;
         else if (arguments.at(1).compare(_("snp")) == 0)
-          Filter = Enigma::Object::ID::STONEPOST;
+          filter = Enigma::Object::ID::STONEPOST;
         else if (arguments.at(1).compare(_("snb")) == 0)
-          Filter = Enigma::Object::ID::STONEBUTTON;
+          filter = Enigma::Object::ID::STONEBUTTON;
         else if (arguments.at(1).compare(_("eyes")) == 0)
-          Filter = Enigma::Object::ID::WALLEYES;
+          filter = Enigma::Object::ID::WALLEYES;
         else if (arguments.at(1).compare(_("out")) == 0)
-          Filter = Enigma::Object::ID::OUTDOOR;
+          filter = Enigma::Object::ID::OUTDOOR;
         else if (arguments.at(1).compare(_("in")) == 0)
-          Filter = Enigma::Object::ID::INDOOR;
+          filter = Enigma::Object::ID::INDOOR;
         else if (arguments.at(1).compare(_("arch")) == 0)
-          Filter = Enigma::Object::ID::ARCHWAY;
+          filter = Enigma::Object::ID::ARCHWAY;
         else if (arguments.at(1).compare(_("dor")) == 0)
-          Filter = Enigma::Object::ID::WOODDOOR;
+          filter = Enigma::Object::ID::WOODDOOR;
         else if (arguments.at(1).compare(_("wdw")) == 0)
-          Filter = Enigma::Object::ID::WOODWALL;
+          filter = Enigma::Object::ID::WOODWALL;
         else if (arguments.at(1).compare(_("ring")) == 0)
-          Filter = Enigma::Object::ID::PULLRING;
+          filter = Enigma::Object::ID::PULLRING;
         else if (arguments.at(1).compare(_("culk")) == 0)
-          Filter = Enigma::Object::ID::CUBELOCK;
+          filter = Enigma::Object::ID::CUBELOCK;
         else if (arguments.at(1).compare(_("splk")) == 0)
-          Filter = Enigma::Object::ID::SPHEREKEY;
+          filter = Enigma::Object::ID::SPHERELOCK;
         else if (arguments.at(1).compare(_("cube")) == 0)
-          Filter = Enigma::Object::ID::CUBE;
+          filter = Enigma::Object::ID::CUBE;
         else if (arguments.at(1).compare(_("sphere")) == 0)
-          Filter = Enigma::Object::ID::SPHERE;
+          filter = Enigma::Object::ID::SPHERE;
         else if (arguments.at(1).compare(_("watl")) == 0)
-          Filter = Enigma::Object::ID::WATERLAYER;
+          filter = Enigma::Object::ID::WATERLAYER;
         else if (arguments.at(1).compare(_("lbm")) == 0)
-          Filter = Enigma::Object::ID::LIGHTBEAM;
+          filter = Enigma::Object::ID::LIGHTBEAM;
         else if (arguments.at(1).compare(_("egg")) == 0)
-          Filter = Enigma::Object::ID::EGG;
+          filter = Enigma::Object::ID::EGG;
         else if (arguments.at(1).compare(_("web")) == 0)
-          Filter = Enigma::Object::ID::WEB;
+          filter = Enigma::Object::ID::WEB;
         else if (arguments.at(1).compare(_("orange")) == 0)
-          Filter = Enigma::Object::ID::ORANGE;
+          filter = Enigma::Object::ID::ORANGE;
         else if (arguments.at(1).compare(_("fish")) == 0)
-          Filter = Enigma::Object::ID::FISH;
+          filter = Enigma::Object::ID::FISH;
         else if (arguments.at(1).compare(_("waterbottle")) == 0)
-          Filter = Enigma::Object::ID::WATERBOTTLE;
+          filter = Enigma::Object::ID::WATERBOTTLE;
         else if (arguments.at(1).compare(_("fertilizer")) == 0)
-          Filter = Enigma::Object::ID::FERTILIZER;
+          filter = Enigma::Object::ID::FERTILIZER;
         else if (arguments.at(1).compare(_("tre")) == 0)
-          Filter = Enigma::Object::ID::TREE;
+          filter = Enigma::Object::ID::TREE;
         else if (arguments.at(1).compare(_("ttp")) == 0)
-          Filter = Enigma::Object::ID::TREETOP;
+          filter = Enigma::Object::ID::TREETOP;
         else if (arguments.at(1).compare(_("cat")) == 0)
-          Filter = Enigma::Object::ID::CATWALK;
+          filter = Enigma::Object::ID::CATWALK;
         else if (arguments.at(1).compare(_("tel")) == 0)
-          Filter = Enigma::Object::ID::TELEPORTER;
+          filter = Enigma::Object::ID::TELEPORTER;
         else if (arguments.at(1).compare(_("innertube")) == 0)
-          Filter = Enigma::Object::ID::INNERTUBE;
+          filter = Enigma::Object::ID::INNERTUBE;
         else if (arguments.at(1).compare(_("hballoon")) == 0)
-          Filter = Enigma::Object::ID::HYDROGENBALLOON;
+          filter = Enigma::Object::ID::HYDROGENBALLOON;
         else if (arguments.at(1).compare(_("wed")) == 0)
-          Filter = Enigma::Object::ID::WEED;
+          filter = Enigma::Object::ID::WEED;
         else if (arguments.at(1).compare(_("frn")) == 0)
-          Filter = Enigma::Object::ID::FERN;
+          filter = Enigma::Object::ID::FERN;
         else if (arguments.at(1).compare(_("vin")) == 0)
-          Filter = Enigma::Object::ID::VINE;
+          filter = Enigma::Object::ID::VINE;
         else if (arguments.at(1).compare(_("walk")) == 0)
-          Filter = Enigma::Object::ID::WATERLOCK;
+          filter = Enigma::Object::ID::WATERLOCK;
         else if (arguments.at(1).compare(_("aplk")) == 0)
-          Filter = Enigma::Object::ID::APPLELOCK;
+          filter = Enigma::Object::ID::APPLELOCK;
         else if (arguments.at(1).compare(_("orlk")) == 0)
-          Filter = Enigma::Object::ID::ORANGELOCK;
+          filter = Enigma::Object::ID::ORANGELOCK;
         else if (arguments.at(1).compare(_("wilk")) == 0)
-          Filter = Enigma::Object::ID::WINELOCK;
+          filter = Enigma::Object::ID::WINELOCK;
         else if (arguments.at(1).compare(_("pab")) == 0)
-          Filter = Enigma::Object::ID::PADBUTTON;
+          filter = Enigma::Object::ID::PADBUTTON;
         else if (arguments.at(1).compare(_("fenc")) == 0)
-          Filter = Enigma::Object::ID::FENCE;
+          filter = Enigma::Object::ID::FENCE;
         else if (arguments.at(1).compare(_("erw")) == 0)
-          Filter = Enigma::Object::ID::EARTHWALL;
+          filter = Enigma::Object::ID::EARTHWALL;
         else if (arguments.at(1).compare(_("watr")) == 0)
-          Filter = Enigma::Object::ID::WATER;          
+          filter = Enigma::Object::ID::WATER;          
       }
 
       m_levelview->set_filter(filter);          
@@ -875,14 +877,6 @@ void Enigma::Application::on_command const Glib::ustring& command)
     else if (arguments.at(0).compare(_("q")) == 0)
       quit();
   }
-}
-
-//-------------------------------------------------
-// Method called when application is shutting down.
-//-------------------------------------------------
-
-void Enigma::Application::do_shutdown()
-{
 }
 
 //-------------------------------------------------------
@@ -900,115 +894,123 @@ bool Enigma::Application::on_key_press(GdkEventKey* key_event)
   if (key_event->type != GDK_KEY_PRESS)
     return false;
 
-  bool handled = true;	
-  int keyvalue = key_event->keyval;
+  bool handled  = true;	
+  int key_value = key_event->keyval;
 
-  if (keyvalue == GDK_KEY_F1)
+  if (key_value == GDK_KEY_F1)
   {
-    if (m_notebook->get_current_page() == m_roomviewNumber)
+    if (m_viewbook->get_current_page() == m_roomview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page( m_levelviewNumber);
+      m_viewbook->set_current_page( m_levelview_number);
     }    
     else
     {
       m_view->set_label(_("[ Map Room Contents ]"));
-      m_notebook->set_current_page( m_roomviewNumber);
+      m_viewbook->set_current_page( m_roomview_number);
     }
   }
-  else if (keyvalue == GDK_KEY_F2)
+  else if (key_value == GDK_KEY_F2)
   {
-    if (m_notebook->get_current_page() == m_teleporterviewNumber)
+    if (m_viewbook->get_current_page() == m_teleporterview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page( m_levelviewNumber);
+      m_viewbook->set_current_page( m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Map Teleporters ]"));
-      m_notebook->set_current_page( m_teleporterviewNumber);
+      m_viewbook->set_current_page( m_teleporterview_number);
     }
   }  
-  else if (KeyValue == GDK_KEY_F3)
+  else if (key_value == GDK_KEY_F3)
   {
-    if (m_notebook->get_current_page() == m_itemviewNumber)
+    if (m_viewbook->get_current_page() == m_itemview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page( m_levelviewNumber );
+      m_viewbook->set_current_page(m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Map Items ]"));
-      m_notebook->set_current_page( m_itemviewNumber);
+      m_viewbook->set_current_page(m_itemview_number);
     }
   }
-  else if (keyvalue == GDK_KEY_F4)
+  else if (key_value == GDK_KEY_F4)
   {
-    if (m_notebook->get_current_page() == m_playerviewNumber)
+    if (m_viewbook->get_current_page() == m_playerview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page(m_levelviewNumber);
+      m_viewbook->set_current_page(m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Map Players ]"));
-      m_notebook->set_current_page(m_playerviewNumber);
+      m_viewbook->set_current_page(m_playerview_number);
     }
   }
-  else if (keyvalue == GDK_KEY_F5)
+  else if (key_value == GDK_KEY_F5)
   {
-    if (m_notebook->get_current_page() == m_controllerviewNumber)
+    if (m_viewbook->get_current_page() == m_controllerview_number)
     {
       m_view->set_label( _("[ Map Level ]"));
-      m_notebook->set_current_page(m_levelviewNumber);
+      m_viewbook->set_current_page(m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Map Controllers ]"));
-      m_notebook->set_current_page(m_controllerviewNumber);
+      m_viewbook->set_current_page(m_controllerview_number);
     }
   }
-  else if (keyvalue == GDK_KEY_F6)
+  else if (key_value == GDK_KEY_F6)
   {
-    if ( m_notebook->get_current_page() == m_controlviewNumber )
+    if (m_viewbook->get_current_page() == m_controlview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page(m_levelview_number);
+      m_viewbook->set_current_page(m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Map Control ]"));
-      m_notebook->set_current_page(m_controlview_number);
+      m_viewbook->set_current_page(m_controlview_number);
     }
   }
-  else if (keyvalue == GDK_KEY_F7)
+  else if (key_value == GDK_KEY_F7)
   {
-    if (m_notebook->get_current_page() == m_descriptionviewNumber)
+    if (m_viewbook->get_current_page() == m_descriptionview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page(m_levelviewNumber);
+      m_viewbook->set_current_page(m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Map Description ]"));
-      m_notebook->set_current_page(m_descriptionview_number);
+      m_viewbook->set_current_page(m_descriptionview_number);
     }
   }
-  else if (keyvalue == GDK_KEY_F8)
+  else if (key_value == GDK_KEY_F8)
   {
-    if (m_notebook->get_current_page() == m_helpview_number)
+    if (m_viewbook->get_current_page() == m_helpview_number)
     {
       m_view->set_label(_("[ Map Level ]"));
-      m_notebook->set_current_page(m_levelview_number);
+      m_viewbook->set_current_page(m_levelview_number);
     }
     else
     {
       m_view->set_label(_("[ Help ]"));
-      m_notebook->set_current_page(m_helpview_number);
+      m_viewbook->set_current_page(m_helpview_number);
     }
   }
   else
     handled = false;
 		
 	return handled;
-}*/
+}
+
+//-------------------------------------------------
+// Method called when application is shutting down.
+//-------------------------------------------------
+
+void Enigma::Application::do_shutdown()
+{
+}

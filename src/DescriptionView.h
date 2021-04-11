@@ -22,16 +22,17 @@
 
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/textview.h>
-#include "World.h"
 
 namespace Enigma
 {
-	class DescriptionView : public Gtk::ScrolledWindow
-	{
-		public:
+	class World;
+
+		class DescriptionView : public Gtk::ScrolledWindow
+		{
+			public:
 			// Public methods.
 
-			CDescriptionView();
+			DescriptionView();
 			void set_world(std::shared_ptr<Enigma::World> world);
 			void on_changed();
 			void update();
@@ -40,12 +41,12 @@ namespace Enigma
 
 			void on_map() override;
 
-			private:
-				// Private data.
+		private:
+			// Private data.
 
-				std::shared_ptr<Enigma::World> m_world;      // Game world.
-				std::unique_ptr<Gtk::TextView> m_textview;   // TextView widget.
-				sigc::connection m_textbuffer_connection;    // Signal connection.
+			std::shared_ptr<Enigma::World> m_world;      // Game world.
+			std::unique_ptr<Gtk::TextView> m_textview;   // TextView widget.
+			sigc::connection m_textbuffer_connection;    // Signal connection.
 	};
 }
 
