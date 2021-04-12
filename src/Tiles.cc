@@ -30,7 +30,7 @@
 //--------------------------------
 
 Enigma::Tiles::Tiles()
-{ 
+{ 	
 	// Load image tiles from files.
 	
 	m_cursor =

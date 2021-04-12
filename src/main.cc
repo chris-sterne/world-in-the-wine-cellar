@@ -24,8 +24,8 @@
 // Local declarations
 //-------------------
 
-static const std::string program_name     = "Mapper in the Wine Cellar";
-static const std::string application_name =_("Mapper in the Wine Cellar");
+static const std::string program_name     = "World in the Wine Cellar";
+static const std::string application_name =_("World in the Wine Cellar");
 
 int main(int argc, char *argv[])
 {
