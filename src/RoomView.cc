@@ -52,9 +52,9 @@ Enigma::RoomView::RoomView()
 	
 	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
   column->pack_start(*cell, true);
+	
 	column->set_cell_data_func(*cell,
-	                           sigc::mem_fun(*this,
-	                           &Enigma::RoomView::object_data_function)); 
+		sigc::mem_fun(*this, &Enigma::RoomView::object_data_function)); 
 
 	// Connect a key press event handler to the RoomView, but place it before
 	// its default handler.  This allows capturing general key press events.

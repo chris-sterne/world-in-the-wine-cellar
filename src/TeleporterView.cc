@@ -1,12 +1,21 @@
-/*--------------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker     *
- * Version: 5.0 for Linux OS                        *
- * File:    TeleporterView.cpp                      *
- * Date:    September 13, 2016                      *
- * Author:  Chris Sterne                            *
- *                                                  *
- * This class displays all teleporters in the map.  *
- *--------------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the TeleporterView class implementation.  The TeleporterView
+// class displays and allows editing teleporter objects.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
 #include "TeleporterView.h"
@@ -33,7 +42,7 @@ Enigma::TeleporterView::TeleporterView()
 	// Create the TreeView model, but do not attach it to the TreeView.
 	// This will be done later after the model has been filled.
 
-	m_liststore = Gtk::ListStore::create( iColumnRecord );
+	m_liststore = Gtk::ListStore::create(m_columnrecord);
 
 	// Create TreeView view.  The column cell has a function added for
 	// determining how to display the column data.
@@ -41,10 +50,10 @@ Enigma::TeleporterView::TeleporterView()
 	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
 	m_treeview->append_column(*column);
 	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
-	ObjectColumn->pack_start(cell, true);
+	column->pack_start(*cell, true);
 	
-	ObjectColumn->set_cell_data_func(*cell,
-		sigc::mem_fun(*this, &Enigma::PlayerView::object_data_function)); 
+	column->set_cell_data_func(*cell,
+		sigc::mem_fun(*this, &Enigma::TeleporterView::object_data_function)); 
 
 	// Connect a key press event handler to the PlayerView, but place it before
 	// its default handler.  This allows capturing general key press events.
@@ -82,7 +91,7 @@ void Enigma::TeleporterView::on_map()
 // content for display.
 //--------------------------------------------------------------
 
-void Enigma::PlayerView::object_data_function(
+void Enigma::TeleporterView::object_data_function(
 	Gtk::CellRenderer* const& cell_renderer,
 	const Gtk::TreeIter& tree_iterator)
 {	
@@ -94,15 +103,15 @@ void Enigma::PlayerView::object_data_function(
 	Gtk::TreeModel::Row row = *tree_iterator;
 	Gtk::CellRendererText* renderer = (Gtk::CellRendererText*)(cell_renderer);
 
-	// Get the text to be rendered from the object.
+	// Get the text to be rendered from the teleporter object.
 
-	std::list<CMapObject>::iterator object;
+	std::list<Enigma::Object>::iterator object;
 	object = row[m_columnrecord.m_iterator];
 
 	Glib::ustring description;
 	(*object).get_description(description);
 
-	// Render object description text.
+	// Render teleporter description text.
 	
 	renderer->property_text() = description;
 }
@@ -171,7 +180,7 @@ bool Enigma::TeleporterView::on_key_press(GdkEventKey* key_event)
 // This signal handler is called when the cursor changes row.
 //-----------------------------------------------------------
 
-void Enigma::PlayerView::on_cursor_changed()
+void Enigma::TeleporterView::on_cursor_changed()
 {
 	// Get an iterator to the highlighted (selected) entry.
 
@@ -181,8 +190,8 @@ void Enigma::PlayerView::on_cursor_changed()
 	if (iterator)
 	{
 		Gtk::TreeModel::Row row = *iterator;
-		std::list<CMapObject>::iterator object;
-		object = Row[m_columnrecord.m_iterator];
+		std::list<Enigma::Object>::iterator object;
+		object = row[m_columnrecord.m_iterator];
 
 		// Emit the teleporter's position in a signal.
 
@@ -204,7 +213,7 @@ void Enigma::TeleporterView::update()
 	// Populate the ListStore with iterators to all teleporters in the world.
 
 	Gtk::TreeModel::Row row;	
-	std::list<CMapObject>::iterator object;
+	std::list<Enigma::Object>::iterator object;
 
 	for (object = m_world->m_players.begin();
 	     object != m_world->m_players.end();
@@ -236,3 +245,4 @@ Enigma::TeleporterView::type_signal_position
 void Enigma::TeleporterView::do_position(Enigma::Position position)
 {	  
 	m_signal_position.emit(position);
+}

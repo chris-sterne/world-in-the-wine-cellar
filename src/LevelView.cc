@@ -54,37 +54,39 @@ Enigma::LevelView::LevelView()
   m_filter = Enigma::Object::ID::NONE;
 }
 
-//----------------------------------------------------
-// Method to get preferred width of PlayerView widget.
-//----------------------------------------------------
+//---------------------------------------------------
+// Method to get preferred width of LevelView widget.
+//---------------------------------------------------
 
-void Enigma::LevelView::get_preferred_width_vfunc(int& minimum_width,
-                                                  int& natural_width) const
+void Enigma::LevelView::get_preferred_width_vfunc(
+	int& minimum_width,
+	int& natural_width) const
 {
-  minimum_width = m_imagetiles.get_tile_size() * 3;
+  minimum_width = m_tiles.get_tile_size() * 3;
   natural_width = minimum_width;
 }
 
-//*------------------------------------------------------*
-//* Method to get preferred height of PlayerView widget. *
-//*------------------------------------------------------*
+//-----------------------------------------------------------
+// This method gets the preferred height of LevelView widget.
+//-----------------------------------------------------------
 
-void CLevelView::get_preferred_height_vfunc(int& minimum_height,
-                                            int& natural_height) const
+void Enigma::LevelView::get_preferred_height_vfunc(
+	int& minimum_height,
+	int& natural_height) const
 {
-  minimum_height = m_imagetiles.get_tile_size() * 3;
+  minimum_height = m_tiles.get_tile_size() * 3;
   natural_height = minimum_height;
 }
 
-//*---------------------------------------------------------------*
-//* This private function adjusts a number range in order to keep *
-//* a particular number within the range, and is used to keep     *
-//* the cursor visible if it leaves the view range.               *
-//*---------------------------------------------------------------*
-//* number: Number to be kept within range.                       *
-//* lower:  Lower limit of range.                                 *
-//* upper:  Upper limit of range.                                 *
-//*---------------------------------------------------------------*
+//--------------------------------------------------------------
+// This private function adjusts a number range in order to keep
+// a particular number within the range, and is used to keep    
+// the cursor visible if it leaves the view range.              
+//--------------------------------------------------------------
+// number: Number to be kept within range.
+// lower:  Lower limit of range.
+// upper:  Upper limit of range.
+//--------------------------------------------------------------
 
 void align_range(unsigned short number,
                  unsigned short& lower,
@@ -162,10 +164,10 @@ void Enigma::LevelView::on_size_allocate(Gtk::Allocation& allocation)
 	Gtk::Widget::on_size_allocate(allocation);
 	
 	unsigned short width  =
-		allocation.get_width() / m_imagetiles.get_tile_size();
+		allocation.get_width() / m_tiles.get_tile_size();
 	
 	unsigned short height =
-		allocation.get_height() / m_imagetiles.get_tile_size();
+		allocation.get_height() / m_tiles.get_tile_size();
 
 	// Set initial view row and column ranges with correct lengths.
 
@@ -192,7 +194,7 @@ void Enigma::LevelView::on_map()
 	
 	// Update cursor location information.
 	
-	do_location();
+	do_position();
 }
 
 //----------------------------------
@@ -248,20 +250,20 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 					|| ((*(*object)).m_id == Enigma::Object::ID::INDOOR))
 				{
 					if  ((m_filter == Enigma::Object::ID::NONE)
-						|| (m_filter == (*(*object)).m_ID))
+						|| (m_filter == (*(*object)).m_id))
 					{
-						drawn = m_imagetiles.draw_object(context,
-						                                 allocation,
-						                                 column,
-						                                 row,
-						                                 *(*object));					
+						drawn = m_tiles.draw_object(context,
+						                            allocation,
+						                            column,
+						                            row,
+						                            *(*object));					
 						if (!drawn)
-							m_imagetiles.draw_generic(context, allocation, column, row);
+							m_tiles.draw_generic(context, allocation, column, row);
 					}
 
 					// Erase environment object so it will not drawn again.
 
-					Object = buffer.erase( Object );
+					object = buffer.erase(object);
 				}
 			}
 
@@ -280,13 +282,13 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 					if  ((m_filter == Enigma::Object::ID::NONE)
 					  || (m_filter == (*(*object)).m_id))
 					{
-						drawn = m_imagetiles.draw_object(context,
-						                                 allocation,
-						                                 column,
-						                                 row,
-						                                 *(*object));
+						drawn = m_tiles.draw_object(context,
+						                            allocation,
+						                            column,
+						                            row,
+						                            *(*object));
 						if (!drawn)
-							m_imagetiles.draw_generic(context, allocation, column, row);
+							m_tiles.draw_generic(context, allocation, column, row);
 					}
 
 					// Erase floor object so it will not drawn again.
@@ -300,16 +302,16 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 			for (object = buffer.begin(); object != buffer.end(); ++ object)
 			{
 				if  ((m_filter == Enigma::Object::ID::NONE)
-				  || ( m_filter == (*(*Object)).iID ))
+				  || ( m_filter == (*(*object)).m_id))
 				{
-					drawn = m_imagetiles.draw_object(context,
-					                                 allocation,
-					                                 column,
-					                                 row,
-					                                 *(*object));                       
+					drawn = m_tiles.draw_object(context,
+					                            allocation,
+					                            column,
+					                            row,
+					                            *(*object));                       
 					
 					if (!drawn)
-						m_imagetiles.draw_generic(context, allocation, column, row);
+						m_tiles.draw_generic(context, allocation, column, row);
 				}
 			}
 
@@ -326,14 +328,14 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 			  && (room.m_east >= m_mark.m_WSB.m_east)
 			  && (room.m_east <= m_mark.m_ENA.m_east))
 			{
-				m_imagetiles.draw_marker(context, allocation, column, row);
+				m_tiles.draw_marker(context, allocation, column, row);
 			}
 		}
 	}
 
 	// Draw all teleporter arrival marks that fall within the view. 
 
-	std::list<Enigma::object>::iterator teleporter;
+	std::list<Enigma::Object>::iterator teleporter;
 
 	unsigned short east_arrival;
 	unsigned short north_arrival;
@@ -368,7 +370,7 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 			column = east_arrival - m_view.m_WSB.m_east;
 			row    = north_arrival - m_view.m_WSB.m_north;
 
-			m_imagetiles.draw_arrival(context, allocation, column, row);
+			m_tiles.draw_arrival(context, allocation, column, row);
 		}
 	}
 
@@ -377,7 +379,7 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 	column = m_cursor.m_east - m_view.m_WSB.m_east;
 	row    = m_cursor.m_north - m_view.m_WSB.m_north;
 
-	m_imagetiles.draw_cursor(context, allocation, column, row);
+	m_tiles.draw_cursor(context, allocation, column, row);
 
 	// Return TRUE to indicate all drawing has been done.
 
@@ -406,17 +408,17 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 			{
 				case GDK_KEY_x:
 					cut();
-					handled = TRUE;
+					handled = true;
 					break;
 
 				case GDK_KEY_c:
 					copy();
-					handled = TRUE;
+					handled = true;
 					break;
 
 				case GDK_KEY_v:
 					paste();
-					handled = TRUE;
+					handled = true;
 					break;
 
 				default:
@@ -431,7 +433,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					if (m_cursor.m_north < 65535)
 					{
 						++ m_cursor.m_north;
-						do_location();
+						do_position();
 
 						// Make sure the cursor falls within the visible rows.
 
@@ -457,7 +459,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					if ( m_cursor.m_north > 0 )
 					{           
 						-- m_cursor.m_north;
-						do_location();
+						do_position();
 
 						// Make sure the cursor falls within the visible rows.
 
@@ -483,7 +485,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					if (m_cursor.m_east > 0)
 					{
 						m_cursor.m_east --;
-						do_location();
+						do_position();
 
 						// Make sure the cursor falls within the visible columns.
 
@@ -509,13 +511,13 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					if (m_cursor.m_east < 65535)
 					{           
 						m_cursor.m_east ++;
-						do_location();
+						do_position();
 
 						// Make sure the cursor falls within the visible columns.
 
-						alignrange(m_cursor.m_east,
-							         m_view.m_WSB.m_east,
-							         m_view.m_ENA.m_east);
+						align_range(m_cursor.m_east,
+							          m_view.m_WSB.m_east,
+							          m_view.m_ENA.m_east);
 
 						// The cursor has now been moved.  Use its new location
 						// to update the marked volume.
@@ -535,7 +537,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					if (m_cursor.m_above > 0)
 					{          
 						m_cursor.m_above --;
-						do_location();
+						do_position();
 
 						// Make sure the cursor falls within the visible level.
 
@@ -560,7 +562,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					if (m_cursor.m_above < 65535)
 					{          
 						m_cursor.m_above ++;
-						do_location();
+						do_position();
 
 						// Make sure the cursor falls within the visible level.
 
@@ -720,7 +722,7 @@ void Enigma::LevelView::home()
 
 	// Report changes to the cursor location.
 
-	do_location();
+	do_position();
 
 	// Adjust the visible view volume so the cursor is visible.
 
@@ -813,14 +815,14 @@ void Enigma::LevelView::erase()
 
 	// Move all marked volume players to the buffer.
 
-	Marked.clear();
+	marked.clear();
 
 	m_world->m_players.read(m_mark, marked);
 	m_world->m_players.remove(marked, buffer);
 
 	// Move all marked volume teleporters to the buffer.
 
-	Marked.clear();
+	marked.clear();
 
 	m_world->m_teleporters.read(m_mark, marked);
 	m_world->m_teleporters.remove(marked, buffer);

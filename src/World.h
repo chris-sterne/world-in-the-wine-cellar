@@ -21,7 +21,7 @@
 #define __WORLD_H__
 
 #include "ObjectList.h"
-//#include "Controller.h"
+#include "Controller.h"
 
 namespace Enigma
 {
@@ -86,12 +86,7 @@ namespace Enigma
 
 			// List of logic controllers.
 
-			//std::list<Enigma::Controller> m_controllers;
-
-		private:
-			// Private methods.
-
-			void extract_world(std::string& filedata);
+			std::list<Enigma::Controller> m_controllers;
 	};
 }
 

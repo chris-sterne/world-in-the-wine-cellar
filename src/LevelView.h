@@ -62,7 +62,7 @@ namespace Enigma
 		private:
 			// Private methods.
 
-			void do_location();
+			void do_position();
 			void mark();
 			void erase();
 			void cut();

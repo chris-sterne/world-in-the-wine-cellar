@@ -19,6 +19,7 @@
 
 #include <glibmm/i18n.h>
 #include "DescriptionView.h"
+#include "World.h"
 
 //--------------------------------
 // This method is the constructor.

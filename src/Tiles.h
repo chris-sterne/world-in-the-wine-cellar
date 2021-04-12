@@ -87,7 +87,7 @@ namespace Enigma
 		Cairo::RefPtr<Cairo::ImageSurface> m_turner;
 		Cairo::RefPtr<Cairo::ImageSurface> m_item;
 		Cairo::RefPtr<Cairo::ImageSurface> m_surfacer;
-		Cairo::RefPtr<Cairo::ImageSurface> m_corner_surfacer;
+		Cairo::RefPtr<Cairo::ImageSurface> m_surfacer_corner;
 		Cairo::RefPtr<Cairo::ImageSurface> m_flipper;
 		Cairo::RefPtr<Cairo::ImageSurface> m_stairs;
 		Cairo::RefPtr<Cairo::ImageSurface> m_stairstop;
@@ -104,9 +104,9 @@ namespace Enigma
 		Cairo::RefPtr<Cairo::ImageSurface> m_archway_vertical;
 		Cairo::RefPtr<Cairo::ImageSurface> m_archway_ceiling;
 		Cairo::RefPtr<Cairo::ImageSurface> m_archway_floor;
-		Cairo::RefPtr<Cairo::ImageSurface> m_woodDoor_vertical;
+		Cairo::RefPtr<Cairo::ImageSurface> m_wooddoor_vertical;
 		Cairo::RefPtr<Cairo::ImageSurface> m_wooddoor_ceiling;
-		Cairo::RefPtr<Cairo::ImageSurface> m_Wooddoor_floor;
+		Cairo::RefPtr<Cairo::ImageSurface> m_wooddoor_floor;
 		Cairo::RefPtr<Cairo::ImageSurface> m_woodwall_vertical;
 		Cairo::RefPtr<Cairo::ImageSurface> m_woodwall_ceiling;
 		Cairo::RefPtr<Cairo::ImageSurface> m_woodwall_floor;
@@ -127,8 +127,8 @@ namespace Enigma
 		Cairo::RefPtr<Cairo::ImageSurface> m_treetop_horizontal;
 		Cairo::RefPtr<Cairo::ImageSurface> m_treetop_ceiling;
 		Cairo::RefPtr<Cairo::ImageSurface> m_treetop_floor; 
-		Cairo::RefPtr<Cairo::ImageSurface> m_catwalkCeiling;
-		Cairo::RefPtr<Cairo::ImageSurface> m_catwalkFloor;
+		Cairo::RefPtr<Cairo::ImageSurface> m_catwalk_ceiling;
+		Cairo::RefPtr<Cairo::ImageSurface> m_catwalk_floor;
 		Cairo::RefPtr<Cairo::ImageSurface> m_catwalk_horizontal;
 		Cairo::RefPtr<Cairo::ImageSurface> m_catwalk_vertical;
 		Cairo::RefPtr<Cairo::ImageSurface> m_teleporter_departure;

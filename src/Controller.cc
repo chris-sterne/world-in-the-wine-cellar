@@ -17,6 +17,8 @@
 // You should have received a copy of the GNU General Public License along
 // with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <vector>
+#include <glibmm/regex.h>
 #include "Controller.h"
 
 //--------------------------------
@@ -27,9 +29,11 @@ Enigma::Controller::Controller()
 {
 }
 
-//------------------------------------------------------------
-// This method is a constructor with controller name argument.
-//------------------------------------------------------------
+//--------------------------------------------------------------
+// This method is a constructor with a controller name argument.
+//--------------------------------------------------------------
+// name: Controller name to be copied.
+//--------------------------------------------------------------
 
 Enigma::Controller::Controller(const std::string& name)
 {
@@ -54,7 +58,7 @@ guint8 index_from_string(const std::string& array, const std::string& string)
 
 	do
 	{
-		terminator = array.find('\n', Position);
+		terminator = array.find('\n', position);
 
 		if (terminator != std::string::npos )
 		{
@@ -69,7 +73,7 @@ guint8 index_from_string(const std::string& array, const std::string& string)
 				++ index;
 			}
 			else
-				Found = true;
+				found = true;
 		}
 	}
 	while (!found && (terminator != std::string::npos));
@@ -167,7 +171,7 @@ void Enigma::Controller::compile(const Glib::ustring& sourcecode)
 
 		// Split a sourcecode line into parts separated by one or more spaces.
 
-		parts = Glib::Regex::split_simple("\\s+", lines.at(LineIndex));
+		parts = Glib::Regex::split_simple("\\s+", lines.at(line_index));
 
 		for (part_index = 0;
 		     part_index < parts.size();
@@ -204,7 +208,7 @@ void Enigma::Controller::compile(const Glib::ustring& sourcecode)
 
 				// Save an index to the jump offset for updating later.
 
-				if ( RestartCode )
+				if (restart_code)
 					jump_index = m_restart_code.size() + bytecode.size() - 1;
 				else
 					jump_index = m_main_code.size() + bytecode.size() - 1;
@@ -276,7 +280,7 @@ void Enigma::Controller::compile(const Glib::ustring& sourcecode)
 // sourcecode: Destination buffer for sourcecode.
 //----------------------------------------------------------------------
 
-void Emigma::Controller::uncompile(Glib::ustring& sourcecode)
+void Enigma::Controller::uncompile(Glib::ustring& sourcecode)
 {
 	sourcecode.append("[Restart]\n");
 	uncompile(m_restart_code, sourcecode);
@@ -295,115 +299,116 @@ void Emigma::Controller::uncompile(Glib::ustring& sourcecode)
 void Enigma::Controller::uncompile(std::string& bytecode,
                                    Glib::ustring& sourcecode)
 {
-   // Create sourcecode from the bytecode.
- 
-  bool pre_newline = false;
-  bool newline    =  pre_newline;
+	// Create sourcecode from the bytecode.
 
-  guint index;
-  guint block_end = 0;
+	bool pre_newline = false;
+	bool newline    =  pre_newline;
 
-  for (index = 0;
-       index < bytecode.size();
-       ++ index )
-  {  
-    switch ((Enigma::Controller::OpCode)bytecode.at(index))
-    {    
-      case Enigma::Controller::OpCode::AND:
-        aSourceCode.push_back('&');
-        break;
-        
-      case Enigma::Controller::OpCode::OR:
-        aSourceCode.push_back('|');
-        break;
-      
-      case Enigma::Controller::OpCode::NOT:
-        aSourceCode.push_back('!');
-        break;
-      
-      case Enigma::Controller::OpCode::XOR:
-        aSourceCode.push_back('^');
-        break;
-        
-      case Enigma::Controller::OpCode::STORE:
-        aSourceCode.push_back('>');
-        PreNewLine = true;
-        break;
+	guint index;
+	guint block_end = 0;
 
-      case Enigma::Controller::OpCode::FALSE0:
-        aSourceCode.push_back('F');
-        break;
-        
-      case Enigma::Controller::OpCode::TRUE1:
-        aSourceCode.push_back('T');
-        break;
-        
-      case Enigma::Controller::OpCode::RANDOM:
-        aSourceCode.push_back('#');
-        break;
-        
-      case Enigma::Controller::OpCode::CONDITIONAL:
-        // Add the beginning of a conditional bytecode block.
-      
-        aSourceCode.push_back('?');
-        newline = true;
+	for (index = 0;
+	     index < bytecode.size();
+	     ++ index )
+	{  
+		switch ((Enigma::Controller::OpCode)bytecode.at(index))
+		{
+			case Enigma::Controller::OpCode::AND:
+				sourcecode.push_back('&');
+				break;
 
-        // Skip forward to the relative jump instruction offset.
-        
-        index += 2;
-        
-        // Save the index to the end of the conditional bytecode block.
-        
-        if (index < bytecode.size())
-          block_end = index + (guint8)bytecode.at(index);
-          
-        break;
+			case Enigma::Controller::OpCode::OR:
+				sourcecode.push_back('|');
+				break;
 
-      case Enigma::Controller::OpCode::SIGNAL:
-        // Skip over the signal opcode to the index.
-        
-        ++ Index;
+			case Enigma::Controller::OpCode::NOT:
+				sourcecode.push_back('!');
+				break;
 
-        // Obtain the signal name using the index.
-        
-        if (index < bytecode.size())
-        {
-          sourcecode.append(
-            string_from_index(m_signal_names, (guint8)bytecode.at(index)));
-        }
+			case Enigma::Controller::OpCode::XOR:
+				sourcecode.push_back('^');
+				break;
 
-        newline = pre_newline;
-        break;
+			case Enigma::Controller::OpCode::STORE:
+				sourcecode.push_back('>');
+				pre_newline = true;
+				break;
 
-      default:
-        break;
-    }
+			case Enigma::Controller::OpCode::FALSE0:
+				sourcecode.push_back('F');
+				break;
 
-    if  ((index > 0)
-      && (index == block_end))
-    {
-      // The bytecode index has arrived at the end of the conditional block.
-      // Add the block end character, and start a new sourcecode line.
-      
-      sourcecode.append(" }\n");
-      pre_newline = false;
-      newline     = false;
-      block_end    = 0;      
-    }
-    else if (newline)
-    {
-      // Start a new sourcecode line.
-    
-      sourcecode.push_back('\n');
-      pre_newline = false;
-      newline     = false;
-    }
-    else
-    {
-      // The current sourcecode line is still being assembled.  Add a space
-      // after the current opcode character or signal name.
-      
-      sourcecode.push_back(' ');
-    }
-  }
+			case Enigma::Controller::OpCode::TRUE1:
+				sourcecode.push_back('T');
+				break;
+
+			case Enigma::Controller::OpCode::RANDOM:
+				sourcecode.push_back('#');
+				break;
+
+			case Enigma::Controller::OpCode::CONDITIONAL:
+				// Add the beginning of a conditional bytecode block.
+
+				sourcecode.push_back('?');
+				newline = true;
+
+				// Skip forward to the relative jump instruction offset.
+
+				index += 2;
+
+				// Save the index to the end of the conditional bytecode block.
+
+				if (index < bytecode.size())
+					block_end = index + (guint8)bytecode.at(index);
+
+				break;
+
+			case Enigma::Controller::OpCode::SIGNAL:
+				// Skip over the signal opcode to the index.
+
+				++ index;
+
+				// Obtain the signal name using the index.
+
+				if (index < bytecode.size())
+				{
+					sourcecode.append(
+						string_from_index(m_signal_names,
+						(guint8)bytecode.at(index)));
+				}
+
+				newline = pre_newline;
+				break;
+
+			default:
+				break;
+		}
+
+		if  ((index > 0)
+		  && (index == block_end))
+		{
+			// The bytecode index has arrived at the end of the conditional block.
+			// Add the block end character, and start a new sourcecode line.
+
+			sourcecode.append(" }\n");
+			pre_newline = false;
+			newline     = false;
+			block_end    = 0;      
+		}
+		else if (newline)
+		{
+			// Start a new sourcecode line.
+
+			sourcecode.push_back('\n');
+			pre_newline = false;
+			newline     = false;
+		}
+		else
+		{
+			// The current sourcecode line is still being assembled.  Add a space
+			// after the current opcode character or signal name.
+
+			sourcecode.push_back(' ');
+		}
+	}
 }

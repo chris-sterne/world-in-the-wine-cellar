@@ -42,7 +42,7 @@ Enigma::PlayerView::PlayerView()
 	// Create the TreeView model, but do not attach it to the TreeView.
 	// This will be done later after the model has been filled.
 
-	m_liststore = Gtk::ListStore::create( iColumnRecord );
+	m_liststore = Gtk::ListStore::create(m_columnrecord);
 
 	// Create TreeView view.  The column cell has a function added for
 	// determining how to display the column data.
@@ -50,9 +50,9 @@ Enigma::PlayerView::PlayerView()
 	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
 	m_treeview->append_column(*column);
 	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
-	ObjectColumn->pack_start(cell, true);
+	column->pack_start(*cell, true);
 	
-	ObjectColumn->set_cell_data_func(*cell,
+	column->set_cell_data_func(*cell,
 		sigc::mem_fun(*this, &Enigma::PlayerView::object_data_function)); 
 
 	// Connect a key press event handler to the PlayerView, but place it before
@@ -102,7 +102,7 @@ void Enigma::PlayerView::object_data_function(
 
 	// Get the text to be rendered from the object.
 
-	std::list<CMapObject>::iterator object;
+	std::list<Enigma::Object>::iterator object;
 	object = row[m_columnrecord.m_iterator];
 
 	Glib::ustring description;
@@ -187,8 +187,8 @@ void Enigma::PlayerView::on_cursor_changed()
 	if (iterator)
 	{
 		Gtk::TreeModel::Row row = *iterator;
-		std::list<CMapObject>::iterator object;
-		object = Row[m_columnrecord.m_iterator];
+		std::list<Enigma::Object>::iterator object;
+		object = row[m_columnrecord.m_iterator];
 
 		// Emit the player's position in a signal.
 
@@ -210,7 +210,7 @@ void Enigma::PlayerView::update()
 	// Populate the ListStore with iterators to all players in the world.
 
 	Gtk::TreeModel::Row row;	
-	std::list<CMapObject>::iterator object;
+	std::list<Enigma::Object>::iterator object;
 
 	for (object = m_world->m_players.begin();
 	     object != m_world->m_players.end();

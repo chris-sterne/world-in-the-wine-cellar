@@ -23,17 +23,18 @@ world_in_the_wine_cellar_SOURCES = \
 	MainWindow.cc \
 	CommandEntry.cc \
 	MessageBar.cc \
-	##ControllerView.cc \
+	ControllerView.cc \
+	ControlView.cc \
 	DescriptionView.cc \
-	##PlayerView.cc \
+	PlayerView.cc \
 	RoomView.cc \
-	##TeleporterView.cc \
-	##ItemView.cc \
+	TeleporterView.cc \
+	ItemView.cc \
 	LevelView.cc \
 	HelpView.cc \
 	World.cc \
 	Tiles.cc \
-	##Controller.cc \
+	Controller.cc \
 	ObjectList.cc \
 	Object.cc
 

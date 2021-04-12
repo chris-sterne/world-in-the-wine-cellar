@@ -90,5 +90,5 @@ void Enigma::ControlView::update()
 
 	m_savable_connection.block();
 	m_savable->set_active(m_world->m_savable);
-	m_savableConnection.unblock();
+	m_savable_connection.unblock();
 }

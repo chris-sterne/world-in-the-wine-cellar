@@ -2,7 +2,7 @@
 // Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
 //
 // This file is the ControllerView class header.  The ControllerView class
-// displays and allows editing code for logic controllers.
+// displays and allows editing code of logic controllers.
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -75,12 +75,12 @@ namespace Enigma
 
 			// Private methods.
 
-			void data_function(Gtk::CellRenderer* const& cell_renderer,
-			                   const Gtk::TreeIter& tree_iterator);
+			void cell_data_function(Gtk::CellRenderer* const& cell_renderer,
+			                        const Gtk::TreeIter& tree_iterator);
 
 			// Private data.
 
-			Column m_column_record;
+			Column m_columnrecord;
 
 			// Private data.
 

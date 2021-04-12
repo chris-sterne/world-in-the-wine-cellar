@@ -30,23 +30,23 @@ namespace Enigma
 		class DescriptionView : public Gtk::ScrolledWindow
 		{
 			public:
-			// Public methods.
+				// Public methods.
 
-			DescriptionView();
-			void set_world(std::shared_ptr<Enigma::World> world);
-			void on_changed();
-			void update();
+				DescriptionView();
+				void set_world(std::shared_ptr<Enigma::World> world);
+				void on_changed();
+				void update();
 
-			// Overridden base class methods.
+				// Overridden base class methods.
 
-			void on_map() override;
+				void on_map() override;
 
-		private:
-			// Private data.
+			private:
+				// Private data.
 
-			std::shared_ptr<Enigma::World> m_world;      // Game world.
-			std::unique_ptr<Gtk::TextView> m_textview;   // TextView widget.
-			sigc::connection m_textbuffer_connection;    // Signal connection.
+				std::shared_ptr<Enigma::World> m_world;     // Game world.
+				std::unique_ptr<Gtk::TextView> m_textview;  // TextView widget.
+				sigc::connection m_textbuffer_connection;   // Signal connection.
 	};
 }
 

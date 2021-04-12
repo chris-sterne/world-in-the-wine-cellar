@@ -22,7 +22,11 @@
 
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treemodel.h>
+#include <gtkmm/treeviewcolumn.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/cellrenderer.h>
 #include <gdkmm/event.h>
+#include "Object.h"
 
 namespace Enigma
 {
@@ -76,7 +80,7 @@ namespace Enigma
 		// Private data.
 
 		std::shared_ptr<Enigma::World> m_world;     // Game map.
-		std::list<Engima::Object> m_buffer;         // List of all player objects.
+		std::list<Enigma::Object> m_buffer;         // List of all player objects.
 		std::unique_ptr<Gtk::TreeView> m_treeview;  // Room object list viewer.
 		Glib::RefPtr<Gtk::ListStore> m_liststore;   // Storage for data entries.
 		type_signal_position m_signal_position;     // Position signal server.

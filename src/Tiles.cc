@@ -17,7 +17,7 @@
 // You should have received a copy of the GNU General Public License along
 // with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "ImageTiles.h"
+#include "Tiles.h"
 
 //--------------------
 // Local declarations.
@@ -29,7 +29,7 @@
 // This method is the constructor.
 //--------------------------------
 
-Enigma::ImageTiles::ImageTiles()
+Enigma::Tiles::Tiles()
 { 
 	// Load image tiles from files.
 	
@@ -42,13 +42,13 @@ Enigma::ImageTiles::ImageTiles()
 	m_generic =
 		Cairo::ImageSurface::create_from_png("./images/Generic.png");
 
-	m_Wall = 
+	m_wall = 
 		Cairo::ImageSurface::create_from_png("./images/Wall.png");
 
 	m_ceiling =
 		Cairo::ImageSurface::create_from_png("./images/Ceiling.png");
 
-	m_Floor =
+	m_floor =
 		Cairo::ImageSurface::create_from_png("./images/Floor.png");
 
 	m_ladder =
@@ -57,7 +57,7 @@ Enigma::ImageTiles::ImageTiles()
 	m_ladderend =
 		Cairo::ImageSurface::create_from_png("./images/LadderEnd.png");
 
-	m_ladderEnd_horizontal =
+	m_ladderend_horizontal =
 		Cairo::ImageSurface::create_from_png("./images/LadderEndHorizontal.png");
 
 	m_ladderend_ceiling =
@@ -90,7 +90,7 @@ Enigma::ImageTiles::ImageTiles()
 	m_mover =
 		Cairo::ImageSurface::create_from_png("./images/Mover.png");
 
-	m_Mover_Below =
+	m_mover_below =
 		Cairo::ImageSurface::create_from_png("./images/MoverBelow.png");
 
 	m_mover_above =
@@ -142,7 +142,7 @@ Enigma::ImageTiles::ImageTiles()
 		Cairo::ImageSurface::create_from_png("./images/IndoorVertical.png");
 
 	m_indoor_ceiling =
-		Cairo::ImageSurface::create_from_png("./images/IndoorCeiling.png" ;
+		Cairo::ImageSurface::create_from_png("./images/IndoorCeiling.png");
 
 	m_indoor_floor =
 		Cairo::ImageSurface::create_from_png("./images/IndoorFloor.png");
@@ -201,10 +201,10 @@ Enigma::ImageTiles::ImageTiles()
 	m_lightbeam_vertical =
 		Cairo::ImageSurface::create_from_png("./images/LightBeamVertical.png");
 
-	m_Tree =
+	m_tree =
 		Cairo::ImageSurface::create_from_png("./images/Tree.png");
 
-	m_tree_vorizontal =
+	m_tree_horizontal =
 		Cairo::ImageSurface::create_from_png("./images/TreeHorizontal.png");
 
 	m_tree_ceiling =
@@ -216,7 +216,7 @@ Enigma::ImageTiles::ImageTiles()
 	m_treetop =
 		Cairo::ImageSurface::create_from_png("./images/TreeTop.png");
 
-	m_treetop_gorizontal =
+	m_treetop_horizontal =
 		Cairo::ImageSurface::create_from_png("./images/TreeTopHorizontal.png");
 
 	m_treetop_ceiling =
@@ -243,7 +243,7 @@ Enigma::ImageTiles::ImageTiles()
 	m_teleporter_arrival =
 		Cairo::ImageSurface::create_from_png("./images/TeleporterArrival.png"); 
 
-	m_fernfloor =
+	m_fern_floor =
 		Cairo::ImageSurface::create_from_png("./images/FernFloor.png");  
 
 	m_water =
@@ -261,7 +261,7 @@ Enigma::ImageTiles::ImageTiles()
 	m_padbutton_ceiling =
 		Cairo::ImageSurface::create_from_png("./images/PadButtonCeiling.png");
 
-	m_PadButton_floor =
+	m_padbutton_floor =
 		Cairo::ImageSurface::create_from_png("./images/PadButtonFloor.png");
 
 	m_padbutton_vertical =
@@ -332,10 +332,10 @@ void draw_tile(const Cairo::RefPtr<Cairo::Context>& context,
 // row:        Cursor row number.
 //--------------------------------------------------------
 
-void Enigma::Tiles::DrawCursor(const Cairo::RefPtr<Cairo::Context>& context,
-                               Gtk::Allocation allocation,
-                               guint16 column,
-                               guint16 row)
+void Enigma::Tiles::draw_cursor(const Cairo::RefPtr<Cairo::Context>& context,
+                                Gtk::Allocation allocation,
+                                guint16 column,
+                                guint16 row)
 {
 	double x = column * TILESIZE;
 	double y = allocation.get_height() - TILESIZE - (row * TILESIZE);
@@ -382,29 +382,29 @@ void Enigma::Tiles::draw_generic(const Cairo::RefPtr<Cairo::Context>& context,
                                  guint16 column,
                                  guint16 row)
 {
-	double X = column * TILESIZE;
-	double Y = allocation.get_height() - TILESIZE - (row * TILESIZE);
+	double x = column * TILESIZE;
+	double y = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
-	context->set_source(m_Generic, x, y);
+	context->set_source(m_generic, x, y);
 	context->paint();
 }
 
-//*-----------------------------------------------------------------*
-//* This method draws a tile marking a teleporter arrival location. *
-//*-----------------------------------------------------------------*
-//* context:         Cairo context for drawing.                         *
-//* aAllocation: Pixel boundary of view.                            *
-//* aColumn:     Cursor column number.                              *
-//* aRow:        Cursor row number.                                 *
-//*-----------------------------------------------------------------*
+//----------------------------------------------------------------
+// This method draws a tile marking a teleporter arrival location.
+//----------------------------------------------------------------
+// context:     Cairo context for drawing.
+// aAllocation: Pixel boundary of view.
+// aColumn:     Cursor column number.
+// aRow:        Cursor row number.
+//----------------------------------------------------------------
 
 void Enigma::Tiles::draw_arrival(const Cairo::RefPtr<Cairo::Context>& context,
                                  Gtk::Allocation allocation,
                                  guint16 column,
                                  guint16 row)
 {
-	double X = column * TILESIZE;
-	double Y = allocation.get_height() - TILESIZE - (row * TILESIZE);
+	double x = column * TILESIZE;
+	double y = allocation.get_height() - TILESIZE - (row * TILESIZE);
 
 	context->set_source(m_teleporter_arrival, x, y);
 	context->paint();
@@ -637,7 +637,7 @@ bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
 				break;
 		}
 	}
-	else if ((object.m_id == Enigma::Object::ID::EWaterLayer))
+	else if ((object.m_id == Enigma::Object::ID::WATERLAYER))
 	{
 		// Draw WaterLayer image.
 		
@@ -1233,7 +1233,7 @@ bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
 					break;
 			}
 		}
-		else if ( object.m_rotation == Enigma::Object::Direction::SOUTH )
+		else if (object.m_rotation == Enigma::Object::Direction::SOUTH)
 		{
 			// Draw a South rotation LadderTop image.
 
@@ -1273,19 +1273,19 @@ bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
 			switch (object.m_rotation)
 			{
 				case Enigma::Object::Direction::NORTH:
-					draw_tile(context, x, y, 0, m_Tree);
+					draw_tile(context, x, y, 0, m_tree);
 					break;
 
 				case Enigma::Object::Direction::SOUTH:
-					draw_tile(context, x, y, 180, m_Tree);
+					draw_tile(context, x, y, 180, m_tree);
 					break;
 
 				case Enigma::Object::Direction::EAST:
-					draw_tile(context, x, y, 90, m_Tree);
+					draw_tile(context, x, y, 90, m_tree);
 					break;
 
 				case Enigma::Object::Direction::WEST:
-					draw_tile(context, x, y, 270, m_Tree);
+					draw_tile(context, x, y, 270, m_tree);
 					break;
 
 				default:
@@ -1691,36 +1691,36 @@ bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
 		switch (object.m_surface)
 		{
 			case Enigma::Object::Direction::NORTH:
-			draw_tile(context, x, y, 0, m_outdoor_vertical); 
-			break;
+				draw_tile(context, x, y, 0, m_outdoor_vertical); 
+				break;
 
 			case Enigma::Object::Direction::SOUTH:
-			draw_tile(context, x, y, 180, m_outdoor_vertical );
-			break;
+				draw_tile(context, x, y, 180, m_outdoor_vertical );
+				break;
 
 			case Enigma::Object::Direction::EAST:
-			draw_tile(context, x, y, 90, m_outdoor_vertical );
-			break;
+				draw_tile(context, x, y, 90, m_outdoor_vertical );
+				break;
 
 			case Enigma::Object::Direction::WEST:
-			draw_tile(context, x, y, 270, m_outdoor_vertical );
-			break;
+				draw_tile(context, x, y, 270, m_outdoor_vertical );
+				break;
 
 			case Enigma::Object::Direction::ABOVE:
-			draw_tile(context, x, y, 0, m_outdoor_deiling);
-			break;
+				draw_tile(context, x, y, 0, m_outdoor_ceiling);
+				break;
 
 			case Enigma::Object::Direction::BELOW:
-			draw_tile(context, x, y, 0, m_outdoor_floor);
-			break;
+				draw_tile(context, x, y, 0, m_outdoor_floor);
+				break;
 
-			case Enigma::Object::Direction::ECenter:
-			draw_tile(context, x, y, 0, m_outdoor);
-			break;
+			case Enigma::Object::Direction::CENTER:
+				draw_tile(context, x, y, 0, m_outdoor);
+				break;
 
 			default:
-			Drawn = FALSE;
-			break;
+				drawn = false;
+				break;
 		}
 	}
 	else if (object.m_id == Enigma::Object::ID::INDOOR)      
@@ -1753,7 +1753,7 @@ bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
 				draw_tile(context, x, y, 0, m_indoor_floor);
 				break;
 
-			case Enigma::Object::Direction::ECenter:
+			case Enigma::Object::Direction::CENTER:
 				draw_tile(context, x, y, 0, m_indoor);
 				break;
 
@@ -1766,7 +1766,7 @@ bool Enigma::Tiles::draw_object(const Cairo::RefPtr<Cairo::Context>& context,
 	{
 		// Draw a Person image associated with a player.
 		
-		if ( object.iActive )
+		if (object.m_active)
 			draw_tile(context, x, y, 0, m_player_active);
 		else
 			draw_tile(context, x, y, 0, m_player_idle);

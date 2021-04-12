@@ -34,16 +34,9 @@ Enigma::ControllerView::ControllerView()
 
 	// Prepare a scrolled window containing a list of map controllers.
 
-	m_controller_window
-	  = std::unique_ptr<Gtk::ScrolledWindow>( new Gtk::ScrolledWindow );
-
-  m_controller_list = std::unique_ptr<Gtk::TreeView>( new Gtk::TreeView );
-  m_controller_window->add( *m_controller_list );
-
-
-	//m_controller_window = std::make_unique<Gtk::ScrolledWindow>();
-	//m_controller_list   = std::make_unique<Gtk::TreeView>();
-	//m_controller_window->add( *m_controller_list );
+	m_controller_window = std::make_unique<Gtk::ScrolledWindow>();
+  m_controller_list = std::make_unique<Gtk::TreeView>();
+  m_controller_window->add(*m_controller_list);
 
 	m_controller_list->set_headers_visible(false);
 	m_controller_list->set_hexpand(true);
@@ -62,18 +55,18 @@ Enigma::ControllerView::ControllerView()
 
 	m_controller_list->signal_key_press_event()
 		.connect(sigc::mem_fun(*this,
-		                       &Enigma::ControllerView::On_List_Key_Press),
+		                       &Enigma::ControllerView::on_list_key_press),
 	                         false);
 
-	Glib::RefPtr<Gtk::TreeSelection> tree_selection =
+	Glib::RefPtr<Gtk::TreeSelection> selection =
 		m_controller_list->get_selection();
 
-	tree_selection->set_mode(Gtk::SELECTION_BROWSE);
+	selection->set_mode(Gtk::SELECTION_BROWSE);
 
 	// Create the TreeView model, but do not attach it to the TreeView.
 	// This will be done later after the model has been filled.
 
-	m_liststore = Gtk::ListStore::create(m_column_record);	
+	m_liststore = Gtk::ListStore::create(m_columnrecord);	
 
 	// Create TreeView view.  The column cell has a function added
 	// for determining how to display the column data.
@@ -81,9 +74,9 @@ Enigma::ControllerView::ControllerView()
 	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
 	m_controller_list->append_column(*column);
 	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
-	Column->pack_start(*cell, true);
+	column->pack_start(*cell, true);
 	
-	Column->set_cell_data_func(*cell, sigc::mem_fun(*this,
+	column->set_cell_data_func(*cell, sigc::mem_fun(*this,
 		&Enigma::ControllerView::cell_data_function)); 
 
 	// Prepare a scrolled window containing a controller sourcecode editor.
@@ -133,11 +126,11 @@ void Enigma::ControllerView::on_map()
 	update();
 }
 
-//*---------------------------------------------------------------*
-//* This method is called when ListView cells are to be rendered. *
-//* Data is read from the model and converted into an appropriate *
-//* content for display.                                          *
-//*---------------------------------------------------------------*
+//--------------------------------------------------------------
+// This method is called when ListView cells are to be rendered.
+// Data is read from the model and converted into an appropriate
+// content for display.
+//--------------------------------------------------------------
 
 void Enigma::ControllerView::cell_data_function(
   Gtk::CellRenderer* const& cell_renderer,
@@ -206,7 +199,7 @@ bool Enigma::ControllerView::on_list_key_press(GdkEventKey* key_event)
 			// Get the controller to be deleted.
 
 			Gtk::TreeModel::Row row = *iterator;
-			std::list<CMapController>::iterator controller;
+			std::list<Enigma::Controller>::iterator controller;
 			controller = row[m_columnrecord.m_iterator];
 
 			// Display a dialog confirming the deletion.
@@ -260,7 +253,7 @@ bool Enigma::ControllerView::on_list_key_press(GdkEventKey* key_event)
 // RETURN:    TRUE if key press was handled.
 //--------------------------------------------------------
 
-bool Emigma::ControllerView::on_editor_key_press(GdkEventKey* key_event)
+bool Enigma::ControllerView::on_editor_key_press(GdkEventKey* key_event)
 {
 	// Exit immediately if the event is not due to a key press.
 	// The event is allowed to propagate to other handlers.
@@ -273,7 +266,7 @@ bool Emigma::ControllerView::on_editor_key_press(GdkEventKey* key_event)
 
 	if (key_value == GDK_KEY_Escape)
 	{ 
-		Glib::RefPtr<Gtk::TextBuffer> Buffer = m_code_editor->get_buffer();
+		Glib::RefPtr<Gtk::TextBuffer> buffer = m_code_editor->get_buffer();
 		Glib::ustring sourcecode;
 
 		if (buffer->get_modified())
@@ -285,7 +278,7 @@ bool Emigma::ControllerView::on_editor_key_press(GdkEventKey* key_event)
 			(*m_selected).compile(sourcecode);
 
 			sourcecode.clear();
-			(*iSelected).uncompile(sourcecode);
+			(*m_selected).uncompile(sourcecode);
 			buffer->set_text(sourcecode);
 			buffer->set_modified(false);
 			buffer->place_cursor(buffer->begin());
@@ -300,9 +293,9 @@ bool Emigma::ControllerView::on_editor_key_press(GdkEventKey* key_event)
 		}
 	}
 	else
-		Handled = false;
+		handled = false;
 
-	return Handled;
+	return handled;
 }
 
 //--------------------------------------------------------------
@@ -318,11 +311,11 @@ void Enigma::ControllerView::on_list_row_activated(
 
 	if (iterator)
 	{
-		Gtk::TreeModel::Row Row = *iterator;
+		Gtk::TreeModel::Row row = *iterator;
 
 		// Save iterator to selected controller. 
 
-		m_selected = Row[m_columnrecord.m_iterator];
+		m_selected = row[m_columnrecord.m_iterator];
 
 		// Uncompile the controller's bytecode for the editor.
 
@@ -332,7 +325,7 @@ void Enigma::ControllerView::on_list_row_activated(
 		Glib::RefPtr<Gtk::TextBuffer> buffer = m_code_editor->get_buffer();
 		buffer->set_text(sourcecode);
 		buffer->set_modified(true);
-		buffer->place_cursor(vuffer->begin());
+		buffer->place_cursor(buffer->begin());
 
 		// Displayed the sourcecode editor.
 
@@ -340,7 +333,7 @@ void Enigma::ControllerView::on_list_row_activated(
 
 		// Update the controller name in the title bar.
 
-		do_name( (*m_selected).m_name);
+		do_name((*m_selected).m_name);
 	}
 }
 
@@ -360,7 +353,7 @@ void Enigma::ControllerView::update()
 		// Populate the ListStore with iterators to the map controllers.
 
 		Gtk::TreeModel::Row row;	
-		std::list<CMapController>::iterator controller;
+		std::list<Enigma::Controller>::iterator controller;
 
 		for (controller = m_world->m_controllers.begin();
 		     controller != m_world->m_controllers.end();

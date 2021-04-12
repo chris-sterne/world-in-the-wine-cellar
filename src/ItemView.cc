@@ -1,12 +1,21 @@
-/*----------------------------------------------*
- * Program: Enigma in the Wine Cellar Map Maker *
- * Version: 4.0 for Linux OS                    *
- * File:    ItemView.cpp                        *
- * Date:    September 7, 2016                   *
- * Author:  Chris Sterne                        *
- *                                              *
- * This class displays all items in the map.    *
- *----------------------------------------------*/
+// "World in the Wine Cellar" world creator for "Enigma in the Wine Cellar".
+// Copyright (C) 2021 Chris Sterne <chris_sterne@hotmail.com>
+//
+// This file is the ItemView class implementation.  The ItemView class
+// displays and allows editing item objects.
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <glibmm/i18n.h>
 #include "ItemView.h"
@@ -41,9 +50,9 @@ Enigma::ItemView::ItemView()
 	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
 	m_treeview->append_column(*column);
 	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
-	objectColumn->pack_start(cell, true);
+	column->pack_start(*cell, true);
 
-	objectColumn->set_cell_data_func(*cell,
+	column->set_cell_data_func(*cell,
 		sigc::mem_fun(*this, &Enigma::ItemView::object_data_function));
 
 	// Connect a key press event handler to the RoomView, but place it before
@@ -67,7 +76,7 @@ Enigma::ItemView::ItemView()
 // This method is called when the widget is about to be shown.
 //------------------------------------------------------------
 
-void CItemView::on_map()
+void Enigma::ItemView::on_map()
 {
 	// Pass the method to the base class.
 
@@ -85,9 +94,9 @@ void CItemView::on_map()
 // content for display.
 //---------------------------------------------------------------
 
-void CItemView::object_data_function(
+void Enigma::ItemView::object_data_function(
 	Gtk::CellRenderer* const& cell_renderer,
-	const Gtk::TreeIter& tree_terator )
+	const Gtk::TreeIter& tree_iterator)
 {	
 		// Exit if there is no iterator.
 
@@ -99,7 +108,7 @@ void CItemView::object_data_function(
 
 	// Get the text to be rendered from the object.
 
-	std::list<Enigma::object>::iterator object;
+	std::list<Enigma::Object>::iterator object;
 	object = row[m_columnrecord.m_iterator];
 
 	Glib::ustring description;
@@ -149,7 +158,7 @@ bool Enigma::ItemView::on_key_press(GdkEventKey* key_event)
 			// An iterator for a selected item object is available.
 
 			Gtk::TreeModel::Row row = *iterator;
-			std::list<Enigma::object>::iterator object;
+			std::list<Enigma::Object>::iterator object;
 			object = row[m_columnrecord.m_iterator];
 
 			// Erase the selected entry from the ListStore before erasing the object
@@ -184,8 +193,8 @@ void Enigma::ItemView::on_cursor_changed()
 	if (iterator)
 	{
 		Gtk::TreeModel::Row row = *iterator;
-		std::list<CMapobject>::iterator object;
-		object = Row[m_columnrecord.m_iterator];
+		std::list<Enigma::Object>::iterator object;
+		object = row[m_columnrecord.m_iterator];
 
 		// Emit the item's position in a signal.
 		
@@ -215,7 +224,7 @@ void Enigma::ItemView::on_row_activated(const Gtk::TreeModel::Path& path,
 // This method updates the view.
 //------------------------------
 
-void Enigma::itemView::update()
+void Enigma::ItemView::update()
 {
 	// Detach the model from the TreeView and clear all old entries.
 
@@ -235,8 +244,8 @@ void Enigma::itemView::update()
 	{
 		if ((*object).m_category == Enigma::Object::Category::REQUIRED)
 		{
-			Row = *(m_liststore->append());
-			Row[m_columnrecord.m_iterator] = object;
+			row = *(m_liststore->append());
+			row[m_columnrecord.m_iterator] = object;
 		}
 	}
 
@@ -249,7 +258,7 @@ void Enigma::itemView::update()
 		if ((*object).m_category == Enigma::Object::Category::OPTIONAL)
 		{
 			row = *(m_liststore->append());
-			row[m_columnrecord.iIterator] = object;
+			row[m_columnrecord.m_iterator] = object;
 		}
 	}
 
@@ -259,10 +268,10 @@ void Enigma::itemView::update()
 	     object != m_world->m_items.end();
 	     ++ object)
 	{
-		if ((*object).m_category == EnigmaWC::Category::EASTEREGG)
+		if ((*object).m_category == Enigma::Object::Category::EASTEREGG)
 		{
-			Row = *(m_liststore->append());
-			Row[m_columnrecord.iIterator] = object;
+			row = *(m_liststore->append());
+			row[m_columnrecord.m_iterator] = object;
 		}
 	}
 

@@ -93,40 +93,41 @@ void Enigma::Application::on_activate()
 
 	// Add viewer pages to the view notebook.
 
-	m_levelview       = std::make_unique<Enigma::LevelView>();
-	m_levelviewNumber = m_notebook->append_page(*m_levelview);
+	m_levelview        = std::make_unique<Enigma::LevelView>();
+	m_levelview_number = m_viewbook->append_page(*m_levelview);
 
 	m_roomview        = std::make_unique<Enigma::RoomView>();
 	m_roomview_number = m_viewbook->append_page(*m_roomview);
 
 	m_teleporterview        = std::make_unique<Enigma::TeleporterView>();
-	m_teleporterview_number = m_notebook->append_page(*m_teleporterview);
+	m_teleporterview_number = m_viewbook->append_page(*m_teleporterview);
 
 	m_itemview        = std::make_unique<Enigma::ItemView>();
-	m_itemview_number = m_notebook->append_page(*m_itemview );
+	m_itemview_number = m_viewbook->append_page(*m_itemview );
 
 	m_playerview        = std::make_unique<Enigma::PlayerView>();
-	m_playerview_number = m_notebook->append_page(*m_playerview);
+	m_playerview_number = m_viewbook->append_page(*m_playerview);
 
 	m_controllerview        = std::make_unique<Enigma::ControllerView>();
-	m_controllerview_number = m_notebook->append_page(*m_controllerview);
+	m_controllerview_number = m_viewbook->append_page(*m_controllerview);
 
 	m_controlview        = std::make_unique<Enigma::ControlView>();
-	m_controlview_number = m_notebook->append_page(*m_controlview);
+	m_controlview_number = m_viewbook->append_page(*m_controlview);
 
 	m_descriptionview       = std::make_unique<Enigma::DescriptionView>();
-	m_descriptionview_number = m_notebook->append_page(*m_descriptionview);
+	m_descriptionview_number = m_viewbook->append_page(*m_descriptionview);
 
 	m_helpview        = std::make_unique<Enigma::HelpView>();
 	m_helpview_number = m_viewbook->append_page(*m_helpview);
 
-	// Create a game world and provided it to all viewers.
+	// Create a game world and provided it to all viewers that require
+	// access to its data.
 
 	m_world = std::make_shared<Enigma::World>();
 
 	m_levelview->set_world(m_world);
 	m_roomview->set_world(m_world);
-	m_teleporterview->set_world(m_world;  
+	m_teleporterview->set_world(m_world);  
 	m_itemview->set_world(m_world);
 	m_playerview->set_world(m_world);
 	m_controllerview->set_world(m_world);
@@ -136,31 +137,31 @@ void Enigma::Application::on_activate()
 	// Connect the LevelView widget to the MessageBar widget so it will
 	// display the current map location.
 
-	m_levelview->signal_location()
+	m_levelview->signal_position()
 		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the LevelView widget to the RoomView widget to update
 	// its current map location.
 
-	m_levelview->signal_location()
+	m_levelview->signal_position()
 		.connect(sigc::mem_fun(*m_roomview, &Enigma::RoomView::set_position));
 
 	// Connect the TeleporterView widget to the MessageBar widget so it will
 	// display the teleporter's map location.
 
-	m_teleporterview->signal_location()
+	m_teleporterview->signal_position()
 		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the ItemView widget to the MessageBar widget so it will
 	// display the item's map location.
 
-	m_itemview->signal_location()
+	m_itemview->signal_position()
 		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the PlayerView widget to the MessageBar widget so it will
 	// display the player's map location.
 
-	m_playerview->signal_location()
+	m_playerview->signal_position()
 		.connect(sigc::mem_fun(*message, &Enigma::MessageBar::set_position));
 
 	// Connect the ControllerView widget to the MessageBar widget so it will

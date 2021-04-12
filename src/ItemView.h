@@ -22,7 +22,11 @@
 
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treemodel.h>
+#include <gtkmm/treeviewcolumn.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/cellrenderer.h>
 #include <gdkmm/event.h>
+#include "Object.h"
 
 namespace Enigma
 {
