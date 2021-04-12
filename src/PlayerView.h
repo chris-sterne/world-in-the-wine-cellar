@@ -23,10 +23,11 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treemodel.h>
 #include <gdkmm/event.h>
-#include "World.h"
 
 namespace Enigma
 {
+	class World;
+	
 	class PlayerView : public Gtk::ScrolledWindow
 	{
 		public:
@@ -78,7 +79,7 @@ namespace Enigma
 		std::list<Engima::Object> m_buffer;         // List of all player objects.
 		std::unique_ptr<Gtk::TreeView> m_treeview;  // Room object list viewer.
 		Glib::RefPtr<Gtk::ListStore> m_liststore;   // Storage for data entries.
-		type_signal_position m_signal_position;     // Player position signal server.
+		type_signal_position m_signal_position;     // Position signal server.
 	};
 }
 

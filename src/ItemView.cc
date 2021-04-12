@@ -10,298 +10,294 @@
 
 #include <glibmm/i18n.h>
 #include "ItemView.h"
+#include "World.h"
 
-//*----------------------*
-//* Default constructor. *
-//*----------------------*
+//--------------------------------
+// This method is the constructor.
+//--------------------------------
 
-CItemView::CItemView()
+Enigma::ItemView::ItemView()
 {
-  add_events( Gdk::KEY_PRESS_MASK );
-	
-  iTreeView = std::unique_ptr<Gtk::TreeView>( new Gtk::TreeView );
-  add( *iTreeView );
-  iTreeView->set_headers_visible( FALSE );
-  iTreeView->set_hexpand(TRUE);
-  iTreeView->set_vexpand(TRUE);
-  iTreeView->set_can_focus(TRUE);
+	add_events(Gdk::KEY_PRESS_MASK);
 
-  Glib::RefPtr<Gtk::TreeSelection> TreeSelection = iTreeView->get_selection();
-  TreeSelection->set_mode(Gtk::SELECTION_BROWSE);
-	
-  // Create the TreeView model, but do not attach it to the TreeView.
-  // This will be done later after the model has been filled.
-	
-  iListStore = Gtk::ListStore::create( iColumnRecord );	
+	m_treeview = std::make_unique<Gtk::TreeView>();
+	add(*m_treeview);
+	m_treeview->set_headers_visible(false);
+	m_treeview->set_hexpand(true);
+	m_treeview->set_vexpand(true);
+	m_treeview->set_can_focus(true);
 
-  // Create TreeView view.  The column cell has a function added for determining
-  // how to display the column data.
-	
-  Gtk::TreeViewColumn* ObjectColumn = Gtk::manage( new Gtk::TreeViewColumn );
-  iTreeView->append_column( *ObjectColumn );
-  Gtk::CellRendererText* ObjectCell = Gtk::manage( new Gtk::CellRendererText );
-  ObjectColumn->pack_start( *ObjectCell, TRUE );
-  ObjectColumn->set_cell_data_func( *ObjectCell,
-                                    sigc::mem_fun( *this,
-                                    &CItemView::Object_Data_Function )); 
+	Glib::RefPtr<Gtk::TreeSelection> selection = m_treeview->get_selection();
+	selection->set_mode(Gtk::SELECTION_BROWSE);
 
-  // Connect a key press event handler to the RoomView, but place it before
-  // its default handler.  This allows capturing general key press events.
-	
-  signal_key_press_event().connect( sigc::mem_fun( *this,
-                                    &CItemView::On_Key_Press ),
-                                    FALSE );
+	// Create the TreeView model, but do not attach it to the TreeView.
+	// This will be done later after the model has been filled.
 
-  //Connect signal for double-click row activation.
-	
-  iTreeView->signal_row_activated().connect(sigc::mem_fun(*this,
-                                    &CItemView::On_Row_Activated) );
+	m_liststore = Gtk::ListStore::create(m_columnrecord);	
 
-  // Add a signal handler for TreeView cursor changes.
+	// Create TreeView view.  The column cell has a function added for determining
+	// how to display the column data.
 
-  iTreeView->signal_cursor_changed().connect(sigc::mem_fun(*this,
-                                     &CItemView::On_Cursor_Changed ));
+	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
+	m_treeview->append_column(*column);
+	Gtk::CellRendererText* cell = Gtk::manage(new Gtk::CellRendererText);
+	objectColumn->pack_start(cell, true);
 
-  return;
+	objectColumn->set_cell_data_func(*cell,
+		sigc::mem_fun(*this, &Enigma::ItemView::object_data_function));
+
+	// Connect a key press event handler to the RoomView, but place it before
+	// its default handler.  This allows capturing general key press events.
+
+	signal_key_press_event()
+		.connect(sigc::mem_fun(*this, &Enigma::ItemView::on_key_press), false);
+
+	//Connect signal for double-click row activation.
+
+	m_treeview->signal_row_activated()
+		.connect(sigc::mem_fun(*this, &Enigma::ItemView::on_row_activated));
+
+	// Add a signal handler for TreeView cursor changes.
+
+	m_treeview->signal_cursor_changed()
+		.connect(sigc::mem_fun(*this, &Enigma::ItemView::on_cursor_changed ));
 }
 
-//*-------------------------------------------------------------*
-//* This method is called when the widget is about to be shown. *
-//*-------------------------------------------------------------*
+//------------------------------------------------------------
+// This method is called when the widget is about to be shown.
+//------------------------------------------------------------
 
 void CItemView::on_map()
 {
 	// Pass the method to the base class.
 
-  Gtk::ScrolledWindow::on_map();
+	Gtk::ScrolledWindow::on_map();
 
-  // Update the item list before it is displayed.
+	// Update the item list before it is displayed.
 
-  Update();
-  return;
+	update();
+
 }
 
-//*----------------------------------------------------------------*
-//* This method is called when MapObject cells are to be rendered. *
-//* Data is read from the model and converted into an appropriate  *
-//* content for display.                                           *
-//*----------------------------------------------------------------*
+//---------------------------------------------------------------
+// This method is called when Mapobject cells are to be rendered.
+// Data is read from the model and converted into an appropriate 
+// content for display.
+//---------------------------------------------------------------
 
-void CItemView::Object_Data_Function( Gtk::CellRenderer* const& aCellRenderer,
-                         				          const Gtk::TreeIter& aTreeIterator )
+void CItemView::object_data_function(
+	Gtk::CellRenderer* const& cell_renderer,
+	const Gtk::TreeIter& tree_terator )
 {	
-	// Exit if there is no iterator.
+		// Exit if there is no iterator.
 
-	if ( !aTreeIterator )
+	if (!tree_iterator)
 		return;
 	
-	Gtk::TreeModel::Row Row = *aTreeIterator;
-	Gtk::CellRendererText* CellRenderer = (Gtk::CellRendererText*)( aCellRenderer );
+	Gtk::TreeModel::Row row = *tree_iterator;
+	Gtk::CellRendererText* renderer = (Gtk::CellRendererText*)(cell_renderer);
 
-	// Set the text.
+	// Get the text to be rendered from the object.
 
-	std::list<CMapObject>::iterator Object;
-	Object = Row[ iColumnRecord.iIterator ];
+	std::list<Enigma::object>::iterator object;
+	object = row[m_columnrecord.m_iterator];
 
-	Glib::ustring Description;
-	(*Object).GetDescription( Description );
+	Glib::ustring description;
+	(*object).get_description(description);
 
-	CellRenderer->property_text() = Description;
-	return;
+	// Render object description text.
+	
+	renderer->property_text() = description;
 }
 
-//*---------------------------------------------*
-//* This method sets the game map to be viewed. *
-//*---------------------------------------------*
-//* aMap: Game map.                             *
-//*---------------------------------------------*
+//----------------------------------------------
+// This method sets the game world to be viewed.
+//----------------------------------------------
+// world: Game world.
+//----------------------------------------------
 
-void CItemView::SetMap( std::shared_ptr<CMap> aMap )
+void Enigma::ItemView::set_world(std::shared_ptr<Enigma::World> world)
 {
-	iMap = aMap;
-	return;
+	m_world = world;
 }
 
-//*------------------------------------------------------*
-//* Method to handle key press events from the ItemView. *
-//*------------------------------------------------------*
-//* key_event: Pointer to GdkEventKey.                   *
-//* RETURN:    TRUE if key press was handled.            *
-//*------------------------------------------------------*
+//----------------------------------------------------------
+// This method handles key press events from the PlayerView.
+//----------------------------------------------------------
+// key_event: Pointer to GdkEventKey.
+// RETURN:    TRUE if key press was handled.
+//----------------------------------------------------------
 
-gboolean CItemView::On_Key_Press( GdkEventKey* key_event )
+bool Enigma::ItemView::on_key_press(GdkEventKey* key_event)
 {
 	// Exit immediately if the event is not due to a key press.
 	// The event is allowed to propagate to other handlers.
-	
-	if ( key_event->type != GDK_KEY_PRESS )
-		return FALSE;
 
-	gboolean Handled = TRUE;	
-	int KeyValue     = key_event->keyval;
+	if (key_event->type != GDK_KEY_PRESS)
+	return false;
 
-	if ( KeyValue == GDK_KEY_Delete )
+	bool handled  = true;	
+	int key_value = key_event->keyval;
+
+	if (key_value == GDK_KEY_Delete)
 	{		
-		Glib::RefPtr<Gtk::TreeSelection> TreeSelection = iTreeView->get_selection();
-		Gtk::TreeModel::iterator TreeIterator = TreeSelection->get_selected();
+		Glib::RefPtr<Gtk::TreeSelection> selection = m_treeview->get_selection();
+		Gtk::TreeModel::iterator iterator = selection->get_selected();
 
-		if ( TreeIterator )
+		if (iterator)
 		{
 			// An iterator for a selected item object is available.
 
-			Gtk::TreeModel::Row Row = *TreeIterator;
-			std::list<CMapObject>::iterator Object;
-			Object = Row[ iColumnRecord.iIterator ];
+			Gtk::TreeModel::Row row = *iterator;
+			std::list<Enigma::object>::iterator object;
+			object = row[m_columnrecord.m_iterator];
 
-      // Erase the selected entry from the ListStore before erasing the object
-      // from the map.  This ensures the iterator in the ListStore entry remains
-      // valid while the entry is being erased.  Erasing the ListStore entry
-      // will result in an update to the TreeView.
-      
-      iListStore->erase( Row );
+			// Erase the selected entry from the ListStore before erasing the object
+			// from the map.  This ensures the iterator in the ListStore entry
+			// remains valid while the entry is being erased.  Erasing the ListStore
+			// entry will result in an update to the TreeView.
 
-			// Erase the selected item object from the map.
-			
-			iMap->iItems.Erase( Object );
+			m_liststore->erase(row);
+
+			// Erase the selected item from the world.
+
+			m_world->m_items.erase(object);
 		}
 	}
 	else
-		Handled = FALSE;
-		
-	return Handled;
+		handled = false;
+
+	return handled;
 }
 
-//*------------------------------------------------------------*
-//* This signal handler is called when the cursor changes row. *
-//* The item's location is emitted in a signal.                *
-//*------------------------------------------------------------*
+//-----------------------------------------------------------
+// This signal handler is called when the cursor changes row.
+//-----------------------------------------------------------
 
-void CItemView::On_Cursor_Changed()
+void Enigma::ItemView::on_cursor_changed()
 {
 	// Get an iterator to the highlighted (selected) entry.
 
-	Glib::RefPtr< Gtk::TreeSelection > Selection = iTreeView->get_selection(); 
-	Gtk::TreeModel::iterator Iterator = Selection->get_selected();
+	Glib::RefPtr<Gtk::TreeSelection> selection = m_treeview->get_selection(); 
+	Gtk::TreeModel::iterator iterator = selection->get_selected();
 
-	if ( Iterator )
-  {
-		Gtk::TreeModel::Row Row = *Iterator;
-    std::list<CMapObject>::iterator Object;
-    Object = Row[ iColumnRecord.iIterator ];
+	if (iterator)
+	{
+		Gtk::TreeModel::Row row = *iterator;
+		std::list<CMapobject>::iterator object;
+		object = Row[m_columnrecord.m_iterator];
+
+		// Emit the item's position in a signal.
 		
-		Do_Location( (*Object).iLocation );
+		do_position((*object).m_position);
 	}
-	
-	return;
 }
 
-//*-------------------------------------------------------------*
-//* This method is called when a game map list row is activated *
-//* (Double-clicked) to go to the item's location.              *
-//*-------------------------------------------------------------*
+//------------------------------------------------------------
+// This method is called when a game map list row is activated
+// (Double-clicked) to go to the item's location.
+//------------------------------------------------------------
 
-void CItemView::On_Row_Activated( const Gtk::TreeModel::Path& aPath,
-                                  Gtk::TreeViewColumn* aColumn )
+void Enigma::ItemView::on_row_activated(const Gtk::TreeModel::Path& path,
+                                        Gtk::TreeViewColumn* column )
 {
-	Gtk::TreeModel::iterator Iterator = iListStore->get_iter( aPath );	
-	
-  if ( Iterator )
-  {
-		//Gtk::TreeModel::Row Row = *Iterator;
+	// NOTE: Not yet implemented.
+
+	/*Gtk::TreeModel::iterator iterator = m_liststore->get_iter(path);	
+
+	if (iterator)
+	{
+		Gtk::TreeModel::Row row = *iterator;
+	}*/
+}
+
+//------------------------------
+// This method updates the view.
+//------------------------------
+
+void Enigma::itemView::update()
+{
+	// Detach the model from the TreeView and clear all old entries.
+
+	m_treeview->unset_model();
+	m_liststore->clear();
+
+	// Populate the ListStore with iterators to all items in the map.
+
+	Gtk::TreeModel::Row row;	
+	std::list<Enigma::Object>::iterator object;
+
+	// Add all required items.
+
+	for (object = m_world->m_items.begin();
+	     object != m_world->m_items.end();
+	     ++ object )
+	{
+		if ((*object).m_category == Enigma::Object::Category::REQUIRED)
+		{
+			Row = *(m_liststore->append());
+			Row[m_columnrecord.m_iterator] = object;
+		}
 	}
 
-	return;
+	// Add all optional items.
+
+	for (object = m_world->m_items.begin();
+	     object != m_world->m_items.end();
+	     ++ object)
+	{
+		if ((*object).m_category == Enigma::Object::Category::OPTIONAL)
+		{
+			row = *(m_liststore->append());
+			row[m_columnrecord.iIterator] = object;
+		}
+	}
+
+	// Add all Easter Egg items.
+
+	for (object = m_world->m_items.begin();
+	     object != m_world->m_items.end();
+	     ++ object)
+	{
+		if ((*object).m_category == EnigmaWC::Category::EASTEREGG)
+		{
+			Row = *(m_liststore->append());
+			Row[m_columnrecord.iIterator] = object;
+		}
+	}
+
+	// Add all Skull items.
+
+	for (object = m_world->m_items.begin();
+	     object != m_world->m_items.end();
+	     ++ object)
+	{
+		if ((*object).m_category == Enigma::Object::Category::SKULL)
+		{
+			row = *(m_liststore->append());
+			row[ m_columnrecord.m_iterator] = object;
+		}
+	}
+
+	// Attach the filled model to the TreeView.
+
+	m_treeview->set_model(m_liststore);
 }
 
-//*-------------------------------*
-//* This method updates the view. *
-//*-------------------------------*
+//-----------------------------------------------------
+// This method returns the item position signal server.
+//-----------------------------------------------------
 
-void CItemView::Update()
+Enigma::ItemView::type_signal_position Enigma::ItemView::signal_position()
 {
-  // Detach the model from the TreeView and clear all old entries.
-  
-  iTreeView->unset_model();
-  iListStore->clear();
-
-  // Populate the ListStore with iterators to all items in the map.
-	
-  Gtk::TreeModel::Row Row;	
-  std::list<CMapObject>::iterator Object;
-
-  // Add all required items.
-  
-  for ( Object = iMap->iItems.begin();
-        Object != iMap->iItems.end();
-        ++ Object )
-  {
-    if ( (*Object).iCategory == EnigmaWC::Category::ERequired )
-    {
-      Row = *( iListStore->append() );
-      Row[ iColumnRecord.iIterator ] = Object;
-    }
-  }
-  
-  // Add all optional items.
-  
-  for ( Object = iMap->iItems.begin();
-        Object != iMap->iItems.end();
-        ++ Object )
-  {
-    if ( (*Object).iCategory == EnigmaWC::Category::EOptional )
-    {
-      Row = *( iListStore->append() );
-      Row[ iColumnRecord.iIterator ] = Object;
-    }
-  }
-  
-  // Add all Easter Egg items.
-  
-  for ( Object = iMap->iItems.begin();
-        Object != iMap->iItems.end();
-        ++ Object )
-  {
-    if ( (*Object).iCategory == EnigmaWC::Category::EEasterEgg )
-    {
-      Row = *( iListStore->append() );
-      Row[ iColumnRecord.iIterator ] = Object;
-    }
-  }
-  
-  // Add all skull items.
-  
-  for ( Object = iMap->iItems.begin();
-        Object != iMap->iItems.end();
-        ++ Object )
-  {
-    if ( (*Object).iCategory == EnigmaWC::Category::ESkull )
-    {
-      Row = *( iListStore->append() );
-      Row[ iColumnRecord.iIterator ] = Object;
-    }
-  }
-
-  // Attach the filled model to the TreeView.
-
-  iTreeView->set_model( iListStore );
-  return;
+	return m_signal_position;
 }
 
-//*-----------------------------------------------*
-//* This method returns the item location signal. *
-//*-----------------------------------------------*
+//---------------------------------------------------------
+// This method emits a signal containing the item position.
+//---------------------------------------------------------
 
-CItemView::type_signal_location CItemView::signal_location()
-{
-  return m_signal_location;
-}
-
-//*------------------------------------------------------------*
-//* This method emits a signal containing the item's location. *
-//*------------------------------------------------------------*
-
-void CItemView::Do_Location( CMapLocation aLocation)
+void Enigma::ItemView::do_position(Enigma::Position position)
 {	  
-  m_signal_location.emit( aLocation );
-  return;
+	m_signal_position.emit(position);
 }

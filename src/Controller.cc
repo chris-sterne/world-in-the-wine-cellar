@@ -33,7 +33,7 @@ Enigma::Controller::Controller()
 
 Enigma::Controller::Controller(const std::string& name)
 {
-  m_name = name;
+	m_name = name;
 }
 
 //----------------------------------------------------------------
@@ -47,39 +47,39 @@ Enigma::Controller::Controller(const std::string& name)
 
 guint8 index_from_string(const std::string& array, const std::string& string)
 {
-  std::string::size_type position = 0;
-  std::string::size_type terminator;
-  guint8 index = 0;
-  bool found   = false;
+	std::string::size_type position = 0;
+	std::string::size_type terminator;
+	guint8 index = 0;
+	bool found   = false;
 
-  do
-  {
-    terminator = array.find('\n', Position);
-    
-    if (terminator != std::string::npos )
-    {
-      // Compare the provided string to one in the string array.
-    
-      if (array.compare(position, terminator - position, string) != 0)
-      {
-        // The strings do not match.  Move the character position over
-        // the string terminator character, and increase the index.
-    
-        position = terminator + 1;
-        ++ index;
-      }
-      else
-        Found = true;
-    }
-  }
-  while (!found && (terminator != std::string::npos));
+	do
+	{
+		terminator = array.find('\n', Position);
 
-  // Return the results of the search.
+		if (terminator != std::string::npos )
+		{
+			// Compare the provided string to one in the string array.
 
-  if (found)
-    return index;
-  else
-    return 255;
+			if (array.compare(position, terminator - position, string) != 0)
+			{
+				// The strings do not match.  Move the character position over
+				// the string terminator character, and increase the index.
+
+				position = terminator + 1;
+				++ index;
+			}
+			else
+				Found = true;
+		}
+	}
+	while (!found && (terminator != std::string::npos));
+
+	// Return the results of the search.
+
+	if (found)
+		return index;
+	else
+		return 255;
 }
 
 //-------------------------------------------------------------------
@@ -93,37 +93,37 @@ guint8 index_from_string(const std::string& array, const std::string& string)
 
 std::string string_from_index(const std::string& array, guint8 index)
 {
-  std::string string;
+	std::string string;
 
-  // Find the position of the n-th string.
-  
-  std::string::size_type position = 0;
+	// Find the position of the n-th string.
 
-  while (index)
-  {
-    position = array.find('\n', position);
-  
-    if (position != std::string::npos)
-    {
-      -- index;
-      ++ position;
-    }
-    else
-      index = 0;
-  }
+	std::string::size_type position = 0;
 
-  // If the n-th string was found, Position will be at its beginning.
-  // Extract the n-th string.
-  
-  if (position != std::string::npos)
-  { 
-    std::string::size_type terminator = array.find('\n', position);
-    
-    if ( Terminator != std::string::npos )
-      string = array.substr(position, terminator - position);
-  }
+	while (index)
+	{
+		position = array.find('\n', position);
 
-  return string;
+		if (position != std::string::npos)
+		{
+			-- index;
+			++ position;
+		}
+		else
+			index = 0;
+	}
+
+	// If the n-th string was found, Position will be at its beginning.
+	// Extract the n-th string.
+
+	if (position != std::string::npos)
+	{ 
+		std::string::size_type terminator = array.find('\n', position);
+
+		if (terminator != std::string::npos)
+			string = array.substr(position, terminator - position);
+	}
+
+	return string;
 }
 
 //-----------------------------------------------
@@ -134,155 +134,154 @@ std::string string_from_index(const std::string& array, guint8 index)
 
 void Enigma::Controller::compile(const Glib::ustring& sourcecode)
 {
-  // Clear any Restart bytecode, Main bytecode, and signal names.
+	// Clear any Restart bytecode, Main bytecode, and signal names.
 
-  m_restart_code.clear();
-  m_main_code.clear();
-  m_signal_names.clear();
-    
-  std::vector<Glib::ustring> lines;
-  std::vector<Glib::ustring> parts;
-  
-  guint line_index;
-  guint part_index;
-  guint8 signal_index;
- 
-  std::string bytecode;
-  bool restart_code = true;
-  bool update_jump;
-  guint jump_index;
+	m_restart_code.clear();
+	m_main_code.clear();
+	m_signal_names.clear();
 
-  // Split the sourcecode into lines.
-  
-  lines = Glib::Regex::split_simple("\n", sourcecode);
+	std::vector<Glib::ustring> lines;
+	std::vector<Glib::ustring> parts;
 
-  // Compile each sourcecode line into a chunk of bytecode.
-	
-  for (line_index = 0;
-       line_index < lines.size();
-       ++ line_index)
-  {    
-    bytecode.clear();
-    update_jump = true;
-    
-    // Split a sourcecode line into parts separated by one or more white spaces.
-  
-    parts = Glib::Regex::split_simple("\\s+", lines.at(LineIndex));
-    
-    for (part_index = 0;
-         part_index < parts.size();
-         ++ part_index)
-    { 
-      if (parts.at(part_index).compare( "[Restart]" ) == 0 )
-        restart_code = TRUE;
-      else if (parts.at(part_index).compare( "[Main]" ) == 0 )
-        restart_code = FALSE;
-      else if (parts.at(part_index).compare("&") == 0)
-        bytecode.push_back( (char)Enigma::Controller::OpCode::AND);
-      else if (parts.at(part_index).compare("|") == 0)
-        bytecode.push_back( (char)Enigma::Controller::OpCode::OR);
-      else if (parts.at(part_index).compare("!") == 0)
-        bytecode.push_back( (char)Enigma::Controller::OpCode::NOT);
-      else if (parts.at(part_index).compare("^") == 0)
-        bytecode.push_back( (char)Enigma::Controller::OpCode::XOR);
-      else if (parts.at(part_index).compare(">") == 0)
-        bytecode.push_back( (char)Enigma::Controller::OpCode::STORE);
-      else if (parts.at(part_index).compare("F") == 0)
-        bytecode.push_back( (char)Enigma::Controller::OpCode::FALSE);
-      else if (parts.at(part_index).compare("T") == 0 )
-        bytecode.push_back( (char)Enigma::Controller::OpCode::TRUE );
-      else if (parts.at(part_index).compare("#") == 0 )
-        bytecode.push_back( (char)Enigma::Controller::OpCode::RANDOM);    
-      else if (parts.at(part_index).compare("?") == 0)
-      {
-        // Add a conditional block opcode and a preliminary relative jump
-        // instruction (jump occurs over block if conditional is FALSE).      
-        
-        bytecode.push_back( (char)Enigma::Controller::OpCode::EConditional );
-        bytecode.push_back( (char)Enigma::Controller::OpCode::EJump );
-        bytecode.push_back( (char)0 );    
-        
-        // Save an index to the jump offset for updating later.
-        
-        if ( RestartCode )
-          JumpIndex = iRestartCode.size() + bytecode.size() - 1;
-        else
-          JumpIndex = iMainCode.size() + bytecode.size() - 1;
-      }
-      else if (parts.at(part_index).compare( "}" ) == 0 )
-      {
-        // The end of a conditional block is indicated.  After the current
-        // bytecode chunk has been appended to its bytecode section, the proper
-        // jump offset will be written.
+	guint line_index;
+	guint part_index;
+	guint8 signal_index;
 
-        UpdateJump = TRUE;
-      }
-      else if (parts.at(part_index).size() > 0 )
-      {
-        // Any unrecognized part (non-zero length) is considered a signal name
-        // Search for the name in the signal name array to determine the index
-        // for the signal instruction.  
-        
-        SignalIndex = IndexFromString( iSignalNames, Parts.at( PartIndex ) );
-        
-        // Add a new signal name to the array if not already present.
-        
-        if ( SignalIndex == G_MAXUINT8 )
-        {
-          iSignalNames.append(parts.at(part_index) );
-          iSignalNames.push_back( '\n' );
+	std::string bytecode;
+	bool restart_code = true;
+	bool update_jump;
+	guint jump_index;
 
-          SignalIndex = IndexFromString( iSignalNames, Parts.at( PartIndex ) );
-        }  
-          
-        // Add a signal instruction.
-         
-        bytecode.push_back( (char)Enigma::Controller::OpCode::ESignal );
-        bytecode.push_back( (char)SignalIndex );
-      }
-    }
+	// Split the sourcecode into lines.
 
-    // Append the bytecode chunk created from the sourcecode line onto its final
-    // bytecode section.
-      
-    if ( RestartCode )
-    {
-      iRestartCode.append( bytecode );
-    
-      if ( UpdateJump )
-      {
-        iRestartCode.at( JumpIndex ) =
-          (char)( iRestartCode.size() - 1 - JumpIndex );
-      }
-    }
-    else
-    {
-      iMainCode.append( bytecode );
-      
-      if ( UpdateJump )
-      {
-        iMainCode.at( JumpIndex ) =
-          (char)( iMainCode.size() - 1 - JumpIndex );
-      }
-    }
-  }
+	lines = Glib::Regex::split_simple("\n", sourcecode);
 
-  return;
+	// Compile each sourcecode line into a chunk of bytecode.
+
+	for (line_index = 0;
+	     line_index < lines.size();
+	     ++ line_index)
+	{    
+		bytecode.clear();
+		update_jump = true;
+
+		// Split a sourcecode line into parts separated by one or more spaces.
+
+		parts = Glib::Regex::split_simple("\\s+", lines.at(LineIndex));
+
+		for (part_index = 0;
+		     part_index < parts.size();
+		     ++ part_index)
+		{ 
+			if (parts.at(part_index).compare("[Restart]") == 0 )
+			restart_code = true;
+			else if (parts.at(part_index).compare("[Main]") == 0 )
+			restart_code = false;
+			else if (parts.at(part_index).compare("&") == 0)
+			bytecode.push_back((char)Enigma::Controller::OpCode::AND);
+			else if (parts.at(part_index).compare("|") == 0)
+			bytecode.push_back((char)Enigma::Controller::OpCode::OR);
+			else if (parts.at(part_index).compare("!") == 0)
+			bytecode.push_back((char)Enigma::Controller::OpCode::NOT);
+			else if (parts.at(part_index).compare("^") == 0)
+			bytecode.push_back((char)Enigma::Controller::OpCode::XOR);
+			else if (parts.at(part_index).compare(">") == 0)
+			bytecode.push_back((char)Enigma::Controller::OpCode::STORE);
+			else if (parts.at(part_index).compare("F") == 0)
+			bytecode.push_back((char)Enigma::Controller::OpCode::FALSE0);
+			else if (parts.at(part_index).compare("T") == 0 )
+			bytecode.push_back((char)Enigma::Controller::OpCode::TRUE1);
+			else if (parts.at(part_index).compare("#") == 0 )
+			bytecode.push_back((char)Enigma::Controller::OpCode::RANDOM);    
+			else if (parts.at(part_index).compare("?") == 0)
+			{
+				// Add a conditional block opcode and a preliminary relative jump
+				// instruction (jump occurs over block if conditional is FALSE).      
+
+				bytecode.push_back( (char)Enigma::Controller::OpCode::CONDITIONAL);
+				bytecode.push_back( (char)Enigma::Controller::OpCode::JUMP);
+				bytecode.push_back( (char)0 );    
+
+				// Save an index to the jump offset for updating later.
+
+				if ( RestartCode )
+					jump_index = m_restart_code.size() + bytecode.size() - 1;
+				else
+					jump_index = m_main_code.size() + bytecode.size() - 1;
+			}
+			else if (parts.at(part_index).compare("}") == 0 )
+			{
+				// The end of a conditional block is indicated.  After the current
+				// bytecode chunk has been appended to its bytecode section, the
+				// proper jump offset will be written.
+
+				update_jump = true;
+			}
+			else if (parts.at(part_index).size() > 0)
+			{
+				// Any unrecognized part (non-zero length) is considered a signal
+				// name.  Search for the name in the signal name array to determine
+				// the index for the signal instruction.  
+
+				signal_index =
+					index_from_string(m_signal_names, parts.at(part_index));
+
+				// Add a new signal name to the array if not already present.
+
+				if (signal_index == 255)
+				{
+					m_signal_names.append(parts.at(part_index));
+					m_signal_names.push_back('\n');
+
+					signal_index =
+					index_from_string(m_signal_names, parts.at(part_index));
+				}  
+
+				// Add a signal instruction.
+
+				bytecode.push_back((char)Enigma::Controller::OpCode::SIGNAL);
+				bytecode.push_back((char)signal_index);
+			}
+		}
+
+		// Append the bytecode chunk created from the sourcecode line onto
+		// its final bytecode section.
+
+		if (restart_code)
+		{
+			m_restart_code.append(bytecode);
+
+			if (update_jump)
+			{
+				m_restart_code.at(jump_index) =
+				(char)(m_restart_code.size() - 1 - jump_index);
+			}
+		}
+		else
+		{
+			m_main_code.append(bytecode);
+
+			if (update_jump)
+			{
+				m_main_code.at(jump_index) =
+				(char)(m_main_code.size() - 1 - jump_index);
+			}
+		}
+	}
 }
 
-//*-----------------------------------------------------------------------*
-//* This method uncompiles the restart and main bytecode into sourcecode. *
-//*-----------------------------------------------------------------------*
-//* aSourceCode: Destination buffer for sourcecode.                       *
-//*-----------------------------------------------------------------------*
+//----------------------------------------------------------------------
+// This method uncompiles the restart and main bytecode into sourcecode.
+//----------------------------------------------------------------------
+// sourcecode: Destination buffer for sourcecode.
+//----------------------------------------------------------------------
 
-void CMapController::UnCompile( Glib::ustring& aSourceCode )
+void Emigma::Controller::uncompile(Glib::ustring& sourcecode)
 {
-  aSourceCode.append( "[Restart]\n" );
-  UnCompile( iRestartCode, aSourceCode );
-  aSourceCode.append( "\n[Main]\n" );
-  UnCompile( iMainCode, aSourceCode );
-  return;
+	sourcecode.append("[Restart]\n");
+	uncompile(m_restart_code, sourcecode);
+	sourcecode.append("\n[Main]\n");
+	uncompile(m_main_code, sourcecode);
 }
 
 //------------------------------------------------------------
@@ -293,7 +292,8 @@ void CMapController::UnCompile( Glib::ustring& aSourceCode )
 // sourcecode: Destination buffer for sourcecode.
 //------------------------------------------------------------
 
-void Enigma::Controller::uncompile(std::string& bytecode, Glib::ustring& sourcecode)
+void Enigma::Controller::uncompile(std::string& bytecode,
+                                   Glib::ustring& sourcecode)
 {
    // Create sourcecode from the bytecode.
  

@@ -150,19 +150,19 @@ namespace Enigma
 
 			// Public data.
 
-			Enigma::Object::Type m_type;             // Type of object.
-			Enigma::Object::ID m_id;                 // Object ID.
-			Enigma::Position m_position;             // Position in the world.
-			Enigma::Object::Direction m_surface;     // Surface containing object.
-			Enigma::Object::Direction m_rotation;    // Rotation of object on surface.
+			Enigma::Object::Type m_type;           // Type of object.
+			Enigma::Object::ID m_id;               // Object ID.
+			Enigma::Position m_position;           // Position in the world.
+			Enigma::Object::Direction m_surface;   // Surface containing object.
+			Enigma::Object::Direction m_rotation;  // Rotation of object on surface.
 
 			// Player-specific data.
 
-			bool m_active;                           // TRUE if player is active.
+			bool m_active;                         // TRUE if player is active.
 			
 			// Item-specific data. 
 			
-			Enigma::Object::Category m_category;     // Item category.
+			Enigma::Object::Category m_category;   // Item category.
 			
 			// Teleporter-specific data.
 			

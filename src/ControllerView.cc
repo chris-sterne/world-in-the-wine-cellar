@@ -75,8 +75,8 @@ Enigma::ControllerView::ControllerView()
 
 	m_liststore = Gtk::ListStore::create(m_column_record);	
 
-	// Create TreeView view.  The column cell has a function added for determining
-	// how to display the column data.
+	// Create TreeView view.  The column cell has a function added
+	// for determining how to display the column data.
 
 	Gtk::TreeViewColumn* column = Gtk::manage(new Gtk::TreeViewColumn);
 	m_controller_list->append_column(*column);
@@ -92,7 +92,7 @@ Enigma::ControllerView::ControllerView()
 	m_code_editor = std::make_unique<Gtk::TextView>();
 	m_code_window->add(*m_code_editor);
 
-	m_code_editor->set_wrap_mode( Gtk::WRAP_WORD );
+	m_code_editor->set_wrap_mode(Gtk::WRAP_WORD);
 	m_code_editor->set_editable(true);
 	m_code_editor->set_cursor_visible(true);
 	m_code_editor->set_hexpand(true);
@@ -105,10 +105,10 @@ Enigma::ControllerView::ControllerView()
 
 	m_code_editor->signal_key_press_event()
 		.connect(sigc::mem_fun(*this,
-	                         &CControllerView::On_Editor_Key_Press),
+	                         &Enigma::ControllerView::on_editor_key_press),
 	                         false);
 
-// Add pages to the notebook.
+	// Add pages to the viewbook.
 
 	m_controller_page_number = append_page(*m_controller_window);
 	m_code_page_number       = append_page(*m_code_window);
@@ -118,20 +118,19 @@ Enigma::ControllerView::ControllerView()
 	set_current_page(m_controller_page_number);
 }
 
-//*-------------------------------------------------------------*
-//* This method is called when the widget is about to be shown. *
-//*-------------------------------------------------------------*
+//------------------------------------------------------------
+// This method is called when the widget is about to be shown.
+//------------------------------------------------------------
 
-void CControllerView::on_map()
+void Enigma::ControllerView::on_map()
 {
-  // Pass the method to the base class.
-  
-  Gtk::Notebook::on_map();
+	// Pass the method to the base class.
 
-  // Update the current page.
+	Gtk::Notebook::on_map();
 
-  Update();
-  return;
+	// Update the current page.
+
+	update();
 }
 
 //*---------------------------------------------------------------*
@@ -140,280 +139,282 @@ void CControllerView::on_map()
 //* content for display.                                          *
 //*---------------------------------------------------------------*
 
-void CControllerView::cell_data_function(Gtk::CellRenderer* const& aCellRenderer,
-                                         const Gtk::TreeIter& aTreeIterator )
+void Enigma::ControllerView::cell_data_function(
+  Gtk::CellRenderer* const& cell_renderer,
+  const Gtk::TreeIter& tree_iterator)
 {	
-  // Exit if there is no iterator.
+	// Exit if there is no iterator.
 
-  if ( !aTreeIterator )
-    return;
+	if (!tree_iterator)
+		return;
+
+	Gtk::TreeModel::Row row = *tree_iterator;
+	Gtk::CellRendererText* renderer = (Gtk::CellRendererText*)(cell_renderer);
+
+	// Get the controller name to be rendered.
+
+	std::list<Enigma::Controller>::iterator controller;
+	controller = row[m_columnrecord.m_iterator];
 	
-  Gtk::TreeModel::Row Row = *aTreeIterator;
-  Gtk::CellRendererText* CellRenderer = (Gtk::CellRendererText*)( aCellRenderer );
-
-  // Set the text.
-
-  std::list<CMapController>::iterator Controller;
-  Controller = Row[ iColumnRecord.iIterator ];
-
-  CellRenderer->property_text() = (*Controller).iName;
-  return;
+	// Render the controller name.
+	
+	renderer->property_text() = (*controller).m_name;
 }
 
-//*---------------------------------------------*
-//* This method sets the game map to be viewed. *
-//*---------------------------------------------*
-//* aMap: Game map.                             *
-//*---------------------------------------------*
+//----------------------------------------------
+// This method sets the game world to be viewed.
+//----------------------------------------------
+// world: Game world.
+//----------------------------------------------
 
-void CControllerView::SetMap( std::shared_ptr<CMap> aMap )
+void Enigma::ControllerView::set_world(std::shared_ptr<Enigma::World> world)
 {
-  iMap      = aMap;
-  iSelected = iMap->iControllers.end();
-  return;
+	m_world    = world;
+	m_selected = m_world->m_controllers.end();
 }
 
-//*-------------------------------------------------------------*
-//* Method to handle key press events from the controller list. *
-//*-------------------------------------------------------------*
-//* key_event: Pointer to GdkEventKey.                          *
-//* RETURN:    TRUE if key press was handled.                   *
-//*-------------------------------------------------------------*
+//---------------------------------------------------------------
+// This method handles key press events from the controller list.
+//---------------------------------------------------------------
+// key_event: Pointer to GdkEventKey.
+// RETURN:    TRUE if key press was handled.
+//---------------------------------------------------------------
 
-gboolean CControllerView::On_List_Key_Press( GdkEventKey* key_event )
+bool Enigma::ControllerView::on_list_key_press(GdkEventKey* key_event)
 {
-  // Exit immediately if the event is not due to a key press.
-  // The event is allowed to propagate to other handlers.
+	// Exit immediately if the event is not due to a key press.
+	// The event is allowed to propagate to other handlers.
+
+	if (key_event->type != GDK_KEY_PRESS)
+		return false;
+
+	bool handled  = true;	
+	int key_value = key_event->keyval;
+
+	if (key_value == GDK_KEY_Delete)
+	{		
+		// The selected controller is to be deleted.
 		
-  if ( key_event->type != GDK_KEY_PRESS )
-    return FALSE;
+		Glib::RefPtr<Gtk::TreeSelection> selection =
+			m_controller_list->get_selection();
 
-  gboolean Handled = TRUE;	
-  int KeyValue     = key_event->keyval;
+		Gtk::TreeModel::iterator iterator = selection->get_selected();
 
-  if ( KeyValue == GDK_KEY_Delete )
-  {		
-    Glib::RefPtr<Gtk::TreeSelection> TreeSelection
-      = iControllerList->get_selection();
-    
-    Gtk::TreeModel::iterator TreeIterator
-      = TreeSelection->get_selected();
+		if (iterator)
+		{
+			// An iterator for a selected controller is available.
+			// Get the controller to be deleted.
 
-    if ( TreeIterator )
-    {
-      // An iterator for a selected item object is available.
+			Gtk::TreeModel::Row row = *iterator;
+			std::list<CMapController>::iterator controller;
+			controller = row[m_columnrecord.m_iterator];
 
-      Gtk::TreeModel::Row Row = *TreeIterator;
-      std::list<CMapController>::iterator Controller;
-      Controller = Row[ iColumnRecord.iIterator ];
+			// Display a dialog confirming the deletion.
 
-      // Display a dialog confirming the deletion.
+			Gtk::Dialog dialog(_("Controllers"));
 
-      Gtk::Dialog Dialog(_("Controllers") );
-      
-     	Dialog.add_button(_("Cancel"), Gtk::RESPONSE_CANCEL );
-	    Dialog.add_button(_("Ok"), Gtk::RESPONSE_OK );
-      
-      // Add a message to the content label.
-      
-      Gtk::Label* Message = Gtk::manage( new Gtk::Label );
-      Message->set_label(_("Delete map controller?") );
+			dialog.add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
+			dialog.add_button(_("Ok"), Gtk::RESPONSE_OK);
 
-      // Add extra dialog widgets to the content area.
-	
-	    Gtk::Box* Content = Dialog.get_content_area();
-      Content->add( *Message );
-      Content->set_border_width( 5 );
-      Message->show();
+			// Add a confirmation message to the content label.
 
-      if ( Dialog.run() == Gtk::RESPONSE_OK )
-      {
-        // Erase the selected entry from the ListStore before erasing the
-        // controller from the map.  This ensures the iterator in the ListStore
-        // entry remains valid while the entry is being erased.  Erasing the
-        // ListStore entry will result in an update to the TreeView.
-      
-        iListStore->erase( Row );
+			Gtk::Label* message = Gtk::manage(new Gtk::Label);
+			message->set_label(_("Delete map controller?"));
 
-			  // Erase the selected controller from the map.
+			// Add extra dialog widgets to the content area.
+
+			Gtk::Box* content = dialog.get_content_area();
+			content->add(*message);
+			content->set_border_width(5);
 			
-			  iMap->iControllers.erase( Controller );
-      }
-    }
-  }
-  else
-    Handled = FALSE;
-		
-  return Handled;
+			// Show the dialog.
+			
+			message->show();
+
+			if (dialog.run() == Gtk::RESPONSE_OK)
+			{
+				// Erase the selected entry from the ListStore before erasing the
+				// controller from the world.  This ensures the iterator in the
+				// ListStore entry remains valid while the entry is being erased.
+				// Erasing the ListStore entry will result in an update to
+				// the TreeView.
+
+				m_liststore->erase(row);
+
+				// Erase the selected controller from the world.
+
+				m_world->m_controllers.erase(controller);
+			}
+		}
+	}
+	else
+		handled = false;
+
+	return handled;
 }
 
-//*---------------------------------------------------------*
-//* Method to handle key press events from the code editor. *
-//*---------------------------------------------------------*
-//* key_event: Pointer to GdkEventKey.                      *
-//* RETURN:    TRUE if key press was handled.               *
-//*---------------------------------------------------------*
+//--------------------------------------------------------
+// Method to handle key press events from the code editor.
+//--------------------------------------------------------
+// key_event: Pointer to GdkEventKey.
+// RETURN:    TRUE if key press was handled.
+//--------------------------------------------------------
 
-gboolean CControllerView::On_Editor_Key_Press( GdkEventKey* key_event )
+bool Emigma::ControllerView::on_editor_key_press(GdkEventKey* key_event)
 {
-  // Exit immediately if the event is not due to a key press.
-  // The event is allowed to propagate to other handlers.
-		
-  if ( key_event->type != GDK_KEY_PRESS )
-    return FALSE;
+	// Exit immediately if the event is not due to a key press.
+	// The event is allowed to propagate to other handlers.
 
-  gboolean Handled = TRUE;	
-  int KeyValue     = key_event->keyval;
+	if (key_event->type != GDK_KEY_PRESS)
+		return false;
 
-  if ( KeyValue == GDK_KEY_Escape )
-  { 
-    Glib::RefPtr<Gtk::TextBuffer> Buffer = iCodeEditor->get_buffer();
-    Glib::ustring SourceCode;
-    
-    if ( Buffer->get_modified() )
-    {
-      // The sourcecode was modified.  Compile the sourcecode and then
-      // uncompile the bytecode to show the changes.
-    
-      SourceCode = Buffer->get_text();
-      (*iSelected).Compile( SourceCode );
-      
-      SourceCode.clear();
-      (*iSelected).UnCompile( SourceCode );
-      Buffer->set_text( SourceCode );
-      Buffer->set_modified( FALSE );
-      Buffer->place_cursor( Buffer->begin() );
-    }
-    else
-    {
-      // The sourcecode was not modified.  Return to the controller list.
+	bool handled  = true;	
+	int key_value = key_event->keyval;
 
-      set_current_page( iControllerPageNumber );     
-      iSelected = iMap->iControllers.end();   
-      Do_Name( "" );
-    }
-  }
-  else
-    Handled = FALSE;
-		
-  return Handled;
+	if (key_value == GDK_KEY_Escape)
+	{ 
+		Glib::RefPtr<Gtk::TextBuffer> Buffer = m_code_editor->get_buffer();
+		Glib::ustring sourcecode;
+
+		if (buffer->get_modified())
+		{
+			// The sourcecode was modified.  Compile the sourcecode and then
+			// uncompile the bytecode to show the changes.
+
+			sourcecode = buffer->get_text();
+			(*m_selected).compile(sourcecode);
+
+			sourcecode.clear();
+			(*iSelected).uncompile(sourcecode);
+			buffer->set_text(sourcecode);
+			buffer->set_modified(false);
+			buffer->place_cursor(buffer->begin());
+		}
+		else
+		{
+			// The sourcecode was not modified.  Return to the controller list.
+
+			set_current_page(m_controller_page_number);     
+			m_selected = m_world->m_controllers.end();   
+			do_name( "" );
+		}
+	}
+	else
+		Handled = false;
+
+	return Handled;
 }
 
-//*---------------------------------------------------------------*
-//* This method is called when a controller list row is activated *
-//* (Double-clicked) to display the code editor.                  *
-//*---------------------------------------------------------------*
+//--------------------------------------------------------------
+// This method is called when a controller list row is activated
+// (Double-clicked) to display the code editor.
+//--------------------------------------------------------------
 
-void CControllerView::On_List_Row_Activated( const Gtk::TreeModel::Path& aPath,
-                                             Gtk::TreeViewColumn* aColumn )
+void Enigma::ControllerView::on_list_row_activated(
+	const Gtk::TreeModel::Path& path,
+	Gtk::TreeViewColumn* column)
 {
-  Gtk::TreeModel::iterator Iterator = iListStore->get_iter( aPath );	
-	
-  if ( Iterator )
-  {
-    Gtk::TreeModel::Row Row = *Iterator;
-    
-    // Save iterator to selected controller. 
-   
-    iSelected = Row[ iColumnRecord.iIterator ];
+	Gtk::TreeModel::iterator iterator = m_liststore->get_iter(path);	
 
-    // Uncompile the controller's bytecode for the editor.
+	if (iterator)
+	{
+		Gtk::TreeModel::Row Row = *iterator;
 
-    Glib::ustring SourceCode;
-    (*iSelected).UnCompile( SourceCode );
-    
-    Glib::RefPtr<Gtk::TextBuffer> Buffer = iCodeEditor->get_buffer();
-    Buffer->set_text( SourceCode );
-    Buffer->set_modified( FALSE );
-    Buffer->place_cursor( Buffer->begin() );
-    
-    // Displayed the sourcecode editor.
+		// Save iterator to selected controller. 
 
-    set_current_page( iCodePageNumber );
-    
-    // Update the controller name in the title bar.
-    
-    Do_Name( (*iSelected).iName );
-  }
+		m_selected = Row[m_columnrecord.m_iterator];
 
-  return;
+		// Uncompile the controller's bytecode for the editor.
+
+		Glib::ustring sourcecode;
+		(*m_selected).uncompile(sourcecode);
+
+		Glib::RefPtr<Gtk::TextBuffer> buffer = m_code_editor->get_buffer();
+		buffer->set_text(sourcecode);
+		buffer->set_modified(true);
+		buffer->place_cursor(vuffer->begin());
+
+		// Displayed the sourcecode editor.
+
+		set_current_page(m_code_page_number);
+
+		// Update the controller name in the title bar.
+
+		do_name( (*m_selected).m_name);
+	}
 }
 
-//*-------------------------------*
-//* This method updates the view. *
-//*-------------------------------*
+//------------------------------
+// This method updates the view.
+//------------------------------
 
-void CControllerView::Update()
+void Enigma::ControllerView::update()
 {
-  if ( get_current_page() == iControllerPageNumber )
-  {
-    // Detach the model from the TreeView and clear all old entries.
-  
-    iControllerList->unset_model();
-    iListStore->clear();
+	if (get_current_page() == m_controller_page_number)
+	{
+		// Detach the model from the TreeView and clear all old entries.
 
-    // Populate the ListStore with iterators to the map controllers.
-	
-    Gtk::TreeModel::Row Row;	
-    std::list<CMapController>::iterator Controller;
+		m_controller_list->unset_model();
+		m_liststore->clear();
 
-    for ( Controller = iMap->iControllers.begin();
-          Controller != iMap->iControllers.end();
-          ++ Controller )
-    {
-      Row = *( iListStore->append() );
-      Row[ iColumnRecord.iIterator ] = Controller;
-    }
+		// Populate the ListStore with iterators to the map controllers.
 
-    // Attach the filled model to the TreeView.
+		Gtk::TreeModel::Row row;	
+		std::list<CMapController>::iterator controller;
 
-    iControllerList->set_model( iListStore );  
+		for (controller = m_world->m_controllers.begin();
+		     controller != m_world->m_controllers.end();
+		     ++ controller )
+		{
+			row = *(m_liststore->append());
+			row[m_columnrecord.m_iterator] = controller;
+		}
 
-    // Clear selected controller and name in title bar.
+		// Attach the filled model to the TreeView.
 
-    iSelected = iMap->iControllers.end();
-    Do_Name("");
-  }
-  else if ( get_current_page() == iCodePageNumber )
-  {
-    // Update selected controller name in title bar.
-    
-    if ( iSelected != iMap->iControllers.end() )
-      Do_Name( (*iSelected).iName );
-  }
-    
-  return;
+		m_controller_list->set_model(m_liststore);  
+
+		// Clear selected controller and name in title bar.
+
+		m_selected = m_world->m_controllers.end();
+		do_name("");
+	}
+	else if (get_current_page() == m_code_page_number)
+	{
+		// Update selected controller name in title bar.
+
+		if (m_selected != m_world->m_controllers.end())
+		do_name((*m_selected).m_name);
+	}
 }
 
-//*-----------------------------------------------------*
-//* This method resets the view to the controller list. *
-//*-----------------------------------------------------*
+//----------------------------------------------------
+// This method resets the view to the controller list.
+//----------------------------------------------------
 
-void CControllerView::Reset()
+void Enigma::ControllerView::reset()
 {
-  // Displayed the controller list.
+	// Displayed the controller list.
 
-  set_current_page( iControllerPageNumber );
-  return;
+	set_current_page(m_controller_page_number);
 }
 
-//*----------------------------------------------------------------------*
-//* This method emits a signal with the name of the selected controller. *
-//*----------------------------------------------------------------------*
+//---------------------------------------------------------------------
+// This method emits a signal with the name of the selected controller.
+//---------------------------------------------------------------------
 
-void CControllerView::Do_Name( const std::string& aString )
+void Enigma::ControllerView::do_name(const std::string& string)
 {
-  // Send controller name as a string in a signal.
+	// Send controller name as a string in a signal.
 
-  m_signal_name.emit( aString );
-  return;
+	m_signal_name.emit(string);
 }
 
-//*--------------------------------------------------------*
-//* This method returns the controller name signal server. *
-//*--------------------------------------------------------*
+//-------------------------------------------------------
+// This method returns the controller name signal server.
+//-------------------------------------------------------
 
-CControllerView::type_signal_name CControllerView::signal_name()
+Enigma::ControllerView::type_signal_name Enigma::ControllerView::signal_name()
 {
-  return m_signal_name;
+	return m_signal_name;
 }

@@ -64,7 +64,8 @@ namespace Enigma
 			class Column : public Gtk::TreeModel::ColumnRecord
 			{
 				public:
-					Gtk::TreeModelColumn<std::list<Enigma::Controller>::iterator> m_iterator;
+					Gtk::TreeModelColumn<std::list<Enigma::Controller>::iterator>
+						m_iterator;
 
 					Column()
 					{ 

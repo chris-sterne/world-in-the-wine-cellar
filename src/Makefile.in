@@ -101,9 +101,10 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_world_in_the_wine_cellar_OBJECTS = main.$(OBJEXT) \
 	Application.$(OBJEXT) MainWindow.$(OBJEXT) \
-	CommandEntry.$(OBJEXT) MessageBar.$(OBJEXT) RoomView.$(OBJEXT) \
+	CommandEntry.$(OBJEXT) MessageBar.$(OBJEXT) \
+	DescriptionView.$(OBJEXT) RoomView.$(OBJEXT) \
 	LevelView.$(OBJEXT) HelpView.$(OBJEXT) World.$(OBJEXT) \
-	ObjectList.$(OBJEXT) Object.$(OBJEXT)
+	Tiles.$(OBJEXT) ObjectList.$(OBJEXT) Object.$(OBJEXT)
 world_in_the_wine_cellar_OBJECTS =  \
 	$(am_world_in_the_wine_cellar_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -126,10 +127,11 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/Application.Po \
-	./$(DEPDIR)/CommandEntry.Po ./$(DEPDIR)/HelpView.Po \
-	./$(DEPDIR)/LevelView.Po ./$(DEPDIR)/MainWindow.Po \
-	./$(DEPDIR)/MessageBar.Po ./$(DEPDIR)/Object.Po \
-	./$(DEPDIR)/ObjectList.Po ./$(DEPDIR)/RoomView.Po \
+	./$(DEPDIR)/CommandEntry.Po ./$(DEPDIR)/DescriptionView.Po \
+	./$(DEPDIR)/HelpView.Po ./$(DEPDIR)/LevelView.Po \
+	./$(DEPDIR)/MainWindow.Po ./$(DEPDIR)/MessageBar.Po \
+	./$(DEPDIR)/Object.Po ./$(DEPDIR)/ObjectList.Po \
+	./$(DEPDIR)/RoomView.Po ./$(DEPDIR)/Tiles.Po \
 	./$(DEPDIR)/World.Po ./$(DEPDIR)/main.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -280,10 +282,12 @@ world_in_the_wine_cellar_SOURCES = \
 	MainWindow.cc \
 	CommandEntry.cc \
 	MessageBar.cc \
+	DescriptionView.cc \
 	RoomView.cc \
 	LevelView.cc \
 	HelpView.cc \
 	World.cc \
+	Tiles.cc \
 	ObjectList.cc \
 	Object.cc
 
@@ -375,6 +379,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Application.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CommandEntry.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DescriptionView.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HelpView.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LevelView.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MainWindow.Po@am__quote@ # am--include-marker
@@ -382,6 +387,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObjectList.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RoomView.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Tiles.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/World.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
 
@@ -534,6 +540,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/Application.Po
 	-rm -f ./$(DEPDIR)/CommandEntry.Po
+	-rm -f ./$(DEPDIR)/DescriptionView.Po
 	-rm -f ./$(DEPDIR)/HelpView.Po
 	-rm -f ./$(DEPDIR)/LevelView.Po
 	-rm -f ./$(DEPDIR)/MainWindow.Po
@@ -541,6 +548,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/Object.Po
 	-rm -f ./$(DEPDIR)/ObjectList.Po
 	-rm -f ./$(DEPDIR)/RoomView.Po
+	-rm -f ./$(DEPDIR)/Tiles.Po
 	-rm -f ./$(DEPDIR)/World.Po
 	-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
@@ -590,6 +598,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/Application.Po
 	-rm -f ./$(DEPDIR)/CommandEntry.Po
+	-rm -f ./$(DEPDIR)/DescriptionView.Po
 	-rm -f ./$(DEPDIR)/HelpView.Po
 	-rm -f ./$(DEPDIR)/LevelView.Po
 	-rm -f ./$(DEPDIR)/MainWindow.Po
@@ -597,6 +606,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/Object.Po
 	-rm -f ./$(DEPDIR)/ObjectList.Po
 	-rm -f ./$(DEPDIR)/RoomView.Po
+	-rm -f ./$(DEPDIR)/Tiles.Po
 	-rm -f ./$(DEPDIR)/World.Po
 	-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile

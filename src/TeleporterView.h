@@ -23,7 +23,6 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treemodel.h>
 #include <gdkmm/event.h>
-//#include "World.h"
 
 namespace Enigma
 {

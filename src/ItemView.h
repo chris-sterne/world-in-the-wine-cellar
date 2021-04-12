@@ -23,12 +23,13 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treemodel.h>
 #include <gdkmm/event.h>
-#include "World.h"
 
 namespace Enigma
 {
-	class CItemView : public Gtk::ScrolledWindow
-	{
+	class World;
+
+	class ItemView : public Gtk::ScrolledWindow
+	{	
 		public:
 			// Public methods.
 
@@ -77,10 +78,11 @@ namespace Enigma
 
 			// Private data.
 
-			std::shared_ptr<Enigma::World> m_world;      // Game world.
-			std::unique_ptr<Gtk::TreeView> m_treeview;   // Room object list viewer.
-			Glib::RefPtr<Gtk::ListStore> m_liststore;    // Storage for data entries.
-			type_signal_position m_signal_position;      // Item position signal server.
-};
+			std::shared_ptr<Enigma::World> m_world;     // Game world.
+			std::unique_ptr<Gtk::TreeView> m_treeview;  // Room object list viewer.
+			Glib::RefPtr<Gtk::ListStore> m_liststore;   // Storage for data entries.
+			type_signal_position m_signal_position;     // Position signal server.
+	};
+}
 
 #endif // __ITEMVIEW_H__

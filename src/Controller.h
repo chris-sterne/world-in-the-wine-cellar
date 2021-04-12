@@ -58,8 +58,8 @@ namespace Enigma
 
 			std::string m_name;            // Controller name.
 			std::string m_signal_names;    // Packed array of signal names.
-			std::string m_restartcode;     // Compiled restart bytecode.
-			std::string m_maincode;        // Compiled main bytecode.
+			std::string m_restart_code;    // Compiled restart bytecode.
+			std::string m_main_code;       // Compiled main bytecode.
 
 		private:
 			// Private methods.

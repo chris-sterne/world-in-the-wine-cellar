@@ -22,12 +22,12 @@
 #include "MainWindow.h"
 #include "LevelView.h"
 #include "RoomView.h"
-/*#include "ControllerView.h"
+#include "ControllerView.h"
 #include "ControlView.h"
 #include "TeleporterView.h"
 #include "ItemView.h"
 #include "PlayerView.h"
-#include "DescriptionView.h"*/
+#include "DescriptionView.h"
 #include "HelpView.h"
 #include "CommandEntry.h"
 #include "Application.h"
@@ -42,9 +42,9 @@ Enigma::Application::Application() : Gtk::Application(G_APPLICATION_ID)
 	// The application ID defined in MakeFile.am is set.
 }
 
-//---------------------------------------------
-// Method called when application is activated.
-//---------------------------------------------
+//---------------------------------------------------------
+// This method is called when the application is activated.
+//---------------------------------------------------------
 
 void Enigma::Application::on_activate()
 {	
@@ -226,13 +226,13 @@ void Enigma::Application::on_command(const Glib::ustring& command)
 			{
 				parts      = Glib::Regex::split_simple("=", arguments.at(index));
 				part_total = parts.size();
-        
-        if (part_total == 2)
-        {
-          // The command argument has two parts separated by an "=" sign.
 
-          if (parts.at(0).compare(_("id")) == 0)
-          {
+				if (part_total == 2)
+				{
+					// The command argument has two parts separated by an "=" sign.
+
+					if (parts.at(0).compare(_("id")) == 0)
+					{
 						// Choose object ID.
 
 						if (parts.at(1).compare(_("cellar")) == 0)
@@ -879,12 +879,12 @@ void Enigma::Application::on_command(const Glib::ustring& command)
   }
 }
 
-//-------------------------------------------------------
-// Method to handle key press events from the MainWindow.
-//-------------------------------------------------------
+//----------------------------------------------------------
+// This method handles key press events from the MainWindow.
+//----------------------------------------------------------
 // key_event: Pointer to GdkEventKey.
 // RETURN:    TRUE if key press was handled.
-//-------------------------------------------------------
+//----------------------------------------------------------
 
 bool Enigma::Application::on_key_press(GdkEventKey* key_event)
 {
@@ -1007,9 +1007,9 @@ bool Enigma::Application::on_key_press(GdkEventKey* key_event)
 	return handled;
 }
 
-//-------------------------------------------------
-// Method called when application is shutting down.
-//-------------------------------------------------
+//---------------------------------------------------------
+// This method is called when application is shutting down.
+//---------------------------------------------------------
 
 void Enigma::Application::do_shutdown()
 {
