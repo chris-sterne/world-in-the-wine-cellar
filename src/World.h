@@ -67,6 +67,13 @@ namespace Enigma
 				TOTAL
 			};
 			
+			enum class Language   // Description key language values.
+			{
+				NONE = 0,
+				ENGLISH,
+				TOTAL
+			};
+			
 			// Public methods.
 
 			World();

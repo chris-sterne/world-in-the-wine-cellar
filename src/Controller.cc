@@ -302,7 +302,7 @@ void Enigma::Controller::uncompile(std::string& bytecode,
 	// Create sourcecode from the bytecode.
 
 	bool pre_newline = false;
-	bool newline    =  pre_newline;
+	bool newline     = pre_newline;
 
 	guint index;
 	guint block_end = 0;
@@ -372,9 +372,8 @@ void Enigma::Controller::uncompile(std::string& bytecode,
 
 				if (index < bytecode.size())
 				{
-					sourcecode.append(
-						string_from_index(m_signal_names,
-						(guint8)bytecode.at(index)));
+					sourcecode.append(string_from_index(m_signal_names,
+						                (guint8)bytecode.at(index)));
 				}
 
 				newline = pre_newline;

@@ -25,6 +25,11 @@ namespace Enigma
 	class Position
 	{
 		public:
+			// Public declarations.
+			
+			static const unsigned short MAXIMUM = 65535;  // Maximum position value.
+			static const unsigned short MINIMUM = 0;      // Minimum position value.
+			
 			// Public data.
 
 			unsigned short m_above;

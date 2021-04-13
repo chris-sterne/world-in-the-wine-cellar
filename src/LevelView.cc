@@ -122,7 +122,7 @@ void align_range(unsigned short number,
 			// The range length is too short to be centered around number.
 			// Set the lower limit to its minimum value (zero).
 
-			lower = 0;
+			lower = Enigma::Position::MINIMUM;
 			upper = difference;
 		}
 	}
@@ -134,7 +134,7 @@ void align_range(unsigned short number,
 		unsigned short difference      = upper - lower;
 		unsigned short half_difference = difference / 2;
 
-		if ((65535 - number) >= half_difference)
+		if ((Enigma::Position::MAXIMUM - number) >= half_difference)
 		{
 			// The upper limit can be increased to center the number within the range,
 			// and also not exceed the maximum range value.
@@ -147,7 +147,7 @@ void align_range(unsigned short number,
 			// The range is too wide to center the number within the range.
 			// Set the upper range limit to its maximum value.
 
-			upper = 65535;
+			upper = Enigma::Position::MAXIMUM;
 			lower = upper - difference;
 		}
 	}
@@ -171,9 +171,9 @@ void Enigma::LevelView::on_size_allocate(Gtk::Allocation& allocation)
 
 	// Set initial view row and column ranges with correct lengths.
 
-	m_view.m_WSB.m_east  = 0;
+	m_view.m_WSB.m_east  = Enigma::Position::MINIMUM;
 	m_view.m_ENA.m_east  = width;	
-	m_view.m_WSB.m_north = 0;
+	m_view.m_WSB.m_north = Enigma::Position::MINIMUM;
 	m_view.m_ENA.m_north = height;
 
 	// Align the view row and column ranges around the cursor.
@@ -352,13 +352,13 @@ bool Enigma::LevelView::on_draw(const Cairo::RefPtr<Cairo::Context>& context)
 		// If an arrival location is set to its maximum value, the arrival
 		// location is the player's (and teleporter's) current location.
 
-		if (east_arrival == 65535)
+		if (east_arrival == Enigma::Position::MAXIMUM)
 			east_arrival = (*teleporter).m_position.m_east;
 
-		if (north_arrival == 65535)
+		if (north_arrival == Enigma::Position::MAXIMUM)
 			north_arrival = (*teleporter).m_position.m_north;
 
-		if (above_arrival == 65535)
+		if (above_arrival == Enigma::Position::MAXIMUM)
 			above_arrival = (*teleporter).m_position.m_above;
 
 		if  ((east_arrival >= m_view.m_WSB.m_east)
@@ -430,7 +430,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 			switch (key_value)
 			{
 				case GDK_KEY_Up:
-					if (m_cursor.m_north < 65535)
+					if (m_cursor.m_north < Enigma::Position::MAXIMUM)
 					{
 						++ m_cursor.m_north;
 						do_position();
@@ -456,7 +456,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					break;
 
 				case GDK_KEY_Down:
-					if ( m_cursor.m_north > 0 )
+					if (m_cursor.m_north > Enigma::Position::MINIMUM)
 					{           
 						-- m_cursor.m_north;
 						do_position();
@@ -482,7 +482,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					break;
 
 				case GDK_KEY_Left:  
-					if (m_cursor.m_east > 0)
+					if (m_cursor.m_east > Enigma::Position::MINIMUM)
 					{
 						m_cursor.m_east --;
 						do_position();
@@ -508,7 +508,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					break;
 
 				case GDK_KEY_Right:
-					if (m_cursor.m_east < 65535)
+					if (m_cursor.m_east < Enigma::Position::MAXIMUM)
 					{           
 						m_cursor.m_east ++;
 						do_position();
@@ -534,7 +534,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					break;
 
 				case GDK_KEY_Page_Down:
-					if (m_cursor.m_above > 0)
+					if (m_cursor.m_above > Enigma::Position::MINIMUM)
 					{          
 						m_cursor.m_above --;
 						do_position();
@@ -559,7 +559,7 @@ bool Enigma::LevelView::on_key_press_event(GdkEventKey* key_event)
 					break;
 
 				case GDK_KEY_Page_Up:
-					if (m_cursor.m_above < 65535)
+					if (m_cursor.m_above < Enigma::Position::MAXIMUM)
 					{          
 						m_cursor.m_above ++;
 						do_position();
@@ -708,12 +708,12 @@ void Enigma::LevelView::home()
 						m_cursor = (*object).m_position;
 					else
 					{
-						// There are no objects in the map.  Set the cursor to a location
-						// of zero.
+						// There are no objects in the map.  Set the cursor to a position
+						// of zero (0, 0, 0).
 
-						m_cursor.m_above = 0;
-						m_cursor.m_north = 0;
-						m_cursor.m_east  = 0;
+						m_cursor.m_above = Enigma::Position::MINIMUM;
+						m_cursor.m_north = Enigma::Position::MINIMUM;
+						m_cursor.m_east  = Enigma::Position::MINIMUM;
 					}
 				}
 			}
@@ -989,11 +989,14 @@ void Enigma::LevelView::paste()
 		new_object = (*object);
 
 		// Prevent a wrap-around of the map position if pasting near
-		// a map boundary.  Objects outside the boundary will be lost.
+		// position limits.  Objects outside the limit will be lost.
 
-		if  ((new_object.m_position.m_above <= (65535 - m_cursor.m_above))
-		  && (new_object.m_position.m_north <= (65535 - m_cursor.m_north)) 
-		  && (new_object.m_position.m_east <= (65535 - m_cursor.m_east)))
+		if  ((new_object.m_position.m_above <=
+			     (Enigma::Position::MAXIMUM - m_cursor.m_above))
+		  && (new_object.m_position.m_north <=
+		       (Enigma::Position::MAXIMUM - m_cursor.m_north)) 
+		  && (new_object.m_position.m_east <=
+		       (Enigma::Position::MAXIMUM - m_cursor.m_east)))
 		{ 
 			new_object.m_position.m_above += m_cursor.m_above;
 			new_object.m_position.m_north += m_cursor.m_north;

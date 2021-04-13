@@ -57,9 +57,9 @@ void Enigma::World::clear()
 // value:  16-bit value.
 //------------------------------------------------------------
 
-void write_keyvalue_16bit(std::string& buffer,
-                          Enigma::World::Key key,
-                          guint16 value)
+void write_key_value_16bit(std::string& buffer,
+                           Enigma::World::Key key,
+                           guint16 value)
 {
   buffer.push_back((guchar)key);
   buffer.push_back((guchar)value);
@@ -82,9 +82,9 @@ void write_keyvalue_16bit(std::string& buffer,
 // value:  8-bit value.
 //------------------------------------------------------------
 
-void write_keyvalue_8bit(std::string& buffer,
-                         Enigma::World::Key key,
-                         guint8 value)
+void write_key_value_8bit(std::string& buffer,
+                          Enigma::World::Key key,
+                          guint8 value)
 {
 	buffer.push_back((guchar)key);
 	buffer.push_back((guchar)value);
@@ -99,9 +99,9 @@ void write_keyvalue_8bit(std::string& buffer,
 // value:  boolean value.
 //-------------------------------------------------------------
 
-void write_keyvalue_boolean(std::string& buffer,
-                            Enigma::World::Key key,
-                            gboolean value)
+void write_key_value_boolean(std::string& buffer,
+                             Enigma::World::Key key,
+                             gboolean value)
 {
 	buffer.push_back((guchar)key);
 
@@ -120,9 +120,9 @@ void write_keyvalue_boolean(std::string& buffer,
 // string: Reference to string to be written.
 //------------------------------------------------------------
 
-void write_keyvalue_string(std::string& buffer,
-                           Enigma::World::Key key,
-                           std::string& string)
+void write_key_value_string(std::string& buffer,
+                            Enigma::World::Key key,
+                            std::string& string)
 {
 	// Write KeyValue if the string is not empty.
 
@@ -168,439 +168,433 @@ guint find_line(std::string& source, guint offset)
 //---------------------------------------------------------
 // This private function extracts an object from file data.
 //---------------------------------------------------------
-// afiledata: Keyvalue stream.
-// aIndex:    KeyValue index.
-// aObject:   Reference to MapObject.
-// aMap:      Reference to save map Savable state.
-// RETURN:    MapObject filled with keyvalue information.
+// filedata: Keyvalue stream.
+// index:    KeyValue index.
+// object:   Reference to Mapobject.
+// savable:  Reference to save Savable state.
+// RETURN:   MapObject filled with keyvalue information.
 //---------------------------------------------------------
-/*
-void ExtractNewObject( const std::string& afiledata,
-                       guint& aIndex,
-                       CMapObject& aObject,
-                       gboolean& aSavable )
+
+void extract_object(const std::string& filedata,
+                    guint& index,
+                    Enigma::Object& object,
+                    bool& savable)
 {
-  // Clear all Object connections, but leave intact the remaining
-  // information from a previous Object.  This allows minimizing
-  // the number of keyvalue pairs uses for describing all Objects.
-  
-  aObject.iSense.resize(0);
-  aObject.iState.resize(0);
-  aObject.iVisibility.resize(0);
-  aObject.iPresence.resize(0);
+	// Clear all Object connections, but leave intact the remaining
+	// information from a previous object.  This allows minimizing
+	// the number of keyvalue pairs uses for describing all Objects.
 
-  // Clear the Teleporter arrival orientation so it uses the player's
-  // current orientation in the game.  The presence of Teleporter arrival
-  // keysvalues will change this default orientation.
-  
-  aObject.iSurfaceArrival  = EnigmaWC::Direction::ENone;
-  aObject.iRotationArrival = EnigmaWC::Direction::ENone;
+	object.m_sense.resize(0);
+	object.m_state.resize(0);
+	object.m_visibility.resize(0);
+	object.m_presence.resize(0);
 
-  aObject.iLocationArrival.iEast  = G_MAXUINT16;  
-  aObject.iLocationArrival.iNorth = G_MAXUINT16;
-  aObject.iLocationArrival.iAbove = G_MAXUINT16;
-  
-  // Record information from the header keyvalue, then skip over the header.
-  // The calling function ensures the presence of a complete header.
+	// Clear the Teleporter arrival orientation so it uses the player's
+	// current orientation in the game.  The presence of Teleporter arrival
+	// keysvalues will change this default orientation.
 
-  switch((Enigma::World::Key)afiledata.at( aIndex ) )
-  {
-    case Enigma::World::Key::EItem:
-      aObject.iType = CMapObject::Type::EItem;
-      break;
-      
-    case Enigma::World::Key::EPlayer:
-      aObject.iType = CMapObject::Type::EPlayer;
-      break;
-  
-    case Enigma::World::Key::ETeleporter:
-      aObject.iType = CMapObject::Type::ETeleporter;
-      break;
-  
-    default:
-      aObject.iType = CMapObject::Type::EObject;
-      break;
-  }
+	object.m_surface_arrival  = Enigma::Object::Direction::NONE;
+	object.m_rotation_arrival = Enigma::Object::Direction::NONE;
 
-  ++ aIndex;
-  aObject.iID = (EnigmaWC::ID)afiledata.at( aIndex );
-  ++ aIndex;
-  
-  // Record Object information from the keyvalue stream until an element
-  // header or keyvalue sequence terminator is encountered.
- 
-  Enigma::World::Key GroupState  = Enigma::World::Key::ENone;
-  Enigma::World::Key MemberState = Enigma::World::Key::ENone;
-  Enigma::World::Key Key;
-  guint8 Value;
-  guint16 HighValue;
-  gboolean Done = FALSE;
-  
-  while ((( afiledata.size() - aIndex ) >= 2 ) && !Done )
-  {
-    Key = (Enigma::World::Key)afiledata.at( aIndex );
-    aIndex ++;
+	object.m_position_arrival.m_east  = Enigma::Position::MAXIMUM;  
+	object.m_position_arrival.m_north = Enigma::Position::MAXIMUM;
+	object.m_position_arrival.m_above = Enigma::Position::MAXIMUM;
 
-    Value = afiledata.at( aIndex );
-    aIndex ++;
+	// Record information from the header keyvalue, then skip over the header.
+	// The calling function ensures the presence of a complete header.
 
-    switch( key)
-    {
-      case Enigma::World::Key::ESurface:      
-        // A group of Surface keyvalues are arriving.
-        
-        aObject.iSurface = (EnigmaWC::Direction)Value;
-        GroupState  = Key;
-        MemberState = Key;
-        break;
-      
-      case Enigma::World::Key::ERotation:
-        // A group of Rotation keyvalues are arriving.
-        
-        aObject.iRotation = (EnigmaWC::Direction)Value;
-        GroupState  = Key;
-        MemberState = Key;
-        break;
+	switch ((Enigma::World::Key)filedata.at(index))
+	{
+		case Enigma::World::Key::ITEM:
+			object.m_type = Enigma::Object::Type::ITEM;
+			break;
 
-      case Enigma::World::Key::EEast:
-        // A group of East location keyvalues are arriving.
-                
-        aObject.iLocation.iEast = (guint16)Value;
-        GroupState  = Key;
-        MemberState = Key;
-        break;
+		case Enigma::World::Key::PLAYER:
+			object.m_type = Enigma::Object::Type::PLAYER;
+			break;
 
-      case Enigma::World::Key::ENorth:
-        // A group of North location keyvalues are arriving.
-      
-        aObject.iLocation.iNorth = (guint16)Value;
-        GroupState  = Key;
-        MemberState = Key;
-        break;
-      
-      case Enigma::World::Key::EAbove:
-        // A group of Above location keyvalues are arriving.
+		case Enigma::World::Key::TELEPORTER:
+			object.m_type = Enigma::Object::Type::TELEPORTER;
+			break;
 
-        aObject.iLocation.iAbove = (guint16)Value;
-        GroupState  = Key;
-        MemberState = Key;
-        break;
-      
-      case Enigma::World::Key::EActive:
-        // This keyvalue is used by Item and Player objects.
-        
-        aObject.iActive = (gboolean)Value;
-        break;
-        
-      case Enigma::World::Key::ECategory:
-        // This keyvalue is used by Item objects.
-                
-        aObject.iCategory = (EnigmaWC::Category)Value;
-        break;
+		default:
+			object.m_type = Enigma::Object::Type::OBJECT;
+			break;
+	}
 
-      case Enigma::World::Key::EBank:
-        // The value of a previous keyvalue is to have a high byte added.
-        // Adding only one extra bank is supported, extending the value
-        // to a maximum of 16 bits.
-                
-        HighValue = (guint16)( Value << 8 );
+	++ index;
+	object.m_id = (Enigma::Object::ID)filedata.at(index);
+	++ index;
 
-        if ( GroupState == Enigma::World::Key::EEast )
-        {
-          if ( MemberState == Enigma::World::Key::EEast )
-            aObject.iLocation.iEast |= HighValue;
-          else if ( MemberState == Enigma::World::Key::EArrival )
-            aObject.iLocationArrival.iEast |= HighValue;
-        }
-        else if ( GroupState == Enigma::World::Key::ENorth )
-        {
-          if ( MemberState == Enigma::World::Key::ENorth )
-            aObject.iLocation.iNorth |= HighValue;
-          else if ( MemberState == Enigma::World::Key::EArrival )
-            aObject.iLocationArrival.iNorth |= HighValue;
-        }
-        else if ( GroupState == Enigma::World::Key::EAbove )
-        {
-          if ( MemberState == Enigma::World::Key::EAbove )
-            aObject.iLocation.iAbove |= HighValue;
-          else if ( MemberState == Enigma::World::Key::EArrival )
-            aObject.iLocationArrival.iAbove |= HighValue;
-        }
-                   
-        break;
+	// Record Object information from the keyvalue stream until an element
+	// header or keyvalue sequence terminator is encountered.
 
-      case Enigma::World::Key::EArrival:
-        // This is the teleport arrival value member for a group of values.
-        // Select the appropriate destination.
-        
-        if ( GroupState == Enigma::World::Key::ESurface )
-          aObject.iSurfaceArrival = (EnigmaWC::Direction)Value;
-        else if ( GroupState == Enigma::World::Key::ERotation )
-          aObject.iRotationArrival = (EnigmaWC::Direction)Value;
-        else if ( GroupState == Enigma::World::Key::EEast )
-          aObject.iLocationArrival.iEast = (guint16)Value;
-        else if ( GroupState == Enigma::World::Key::ENorth )
-          aObject.iLocationArrival.iNorth = (guint16)Value;
-        else if ( GroupState == Enigma::World::Key::EAbove )
-          aObject.iLocationArrival.iAbove = (guint16)Value;
-  
-        MemberState = Key;
-        break;
+	Enigma::World::Key group_state  = Enigma::World::Key::NONE;
+	Enigma::World::Key member_state = Enigma::World::Key::NONE;
+	Enigma::World::Key key;
+	guint8 value;
+	guint16 high_value;
+	bool done = false;
 
-      case Enigma::World::Key::ESense:
-        // An object state signal name follows this keyvalue pair.  Copy
-        // the name to a string buffer.  Value is the name's length.
+	while (((filedata.size() - index) >= 2) && !done)
+	{
+		key = (Enigma::World::Key)filedata.at(index);
+		index ++;
 
-        aObject.iSense.assign( afiledata, aIndex, value);
-        aIndex += Value;
-        break;
-        
-      case Enigma::World::Key::EState:
-        // An object state signal name follows this keyvalue pair.  Copy
-        // the name to a string buffer.  Value is the name's length.
+		value = filedata.at(index);
+		index ++;
 
-        aObject.iState.assign( afiledata, aIndex, value);
-        aIndex += Value;
-        break;
-        
-      case Enigma::World::Key::EVisibility:
-        // An object state signal name follows this keyvalue pair.  Copy
-        // the name to a string buffer.  Value is the name's length.
+		switch(key)
+		{
+			case Enigma::World::Key::SURFACE:      
+				// A group of Surface keyvalues are arriving.
 
-        aObject.iVisibility.assign( afiledata, aIndex, value);
-        aIndex += Value;
-        break;
-        
-      case Enigma::World::Key::EPresence:
-        // An object state signal name follows this keyvalue pair.  Copy
-        // the name to a string buffer.  Value is the name's length.
+				object.m_surface = (Enigma::Object::Direction)value;
+				group_state  = key;
+				member_state = key;
+				break;
 
-        aObject.iPresence.assign( afiledata, aIndex, value);
-        aIndex += Value;
-        break;
-      
-      case Enigma::World::Key::ESaved:
-        // The presence of a Saved key means the game map can be saved
-        // while being played.
-        
-        aSavable = TRUE;
-        break;
-      
-      case Enigma::World::Key::EObject:
-      case Enigma::World::Key::ETeleporter:
-      case Enigma::World::Key::EPlayer:
-      case Enigma::World::Key::EItem:
-      case Enigma::World::Key::EDescription:
-      case Enigma::World::Key::EController:
-      case Enigma::World::Key::EEnd:
-        // An element keyvalue or array end keyvalue has been encountered.
-        // Move the array index back to this keyvalue before exiting.
-			
-        aIndex -= 2;
-        Done = TRUE;
-      break;
-       
-      default:
-        break;
-    }
-  }
-  
-  return;
+			case Enigma::World::Key::ROTATION:
+				// A group of Rotation keyvalues are arriving.
+
+				object.m_rotation = (Enigma::Object::Direction)value;
+				group_state  = key;
+				member_state = key;
+				break;
+
+			case Enigma::World::Key::EAST:
+				// A group of East location keyvalues are arriving.
+
+				object.m_position.m_east = (guint16)value;
+				group_state  = key;
+				member_state = key;
+				break;
+
+			case Enigma::World::Key::NORTH:
+				// A group of North location keyvalues are arriving.
+
+				object.m_position.m_north = (guint16)value;
+				group_state  = key;
+				member_state = key;
+				break;
+
+			case Enigma::World::Key::ABOVE:
+				// A group of Above location keyvalues are arriving.
+
+				object.m_position.m_above = (guint16)value;
+				group_state  = key;
+				member_state = key;
+				break;
+
+			case Enigma::World::Key::ACTIVE:
+				// This keyvalue is used by Item and Player objects.
+
+				object.m_active = (bool)value;
+				break;
+
+			case Enigma::World::Key::CATEGORY:
+				// This keyvalue is used by Item objects.
+
+				object.m_category = (Enigma::Object::Category)value;
+				break;
+
+			case Enigma::World::Key::BANK:
+				// The value of a previous keyvalue is to have a high byte added.
+				// Adding only one extra bank is supported, extending the value
+				// to a maximum of 16 bits.
+
+				high_value = (guint16)(value << 8);
+
+				if (group_state == Enigma::World::Key::EAST)
+				{
+					if (member_state == Enigma::World::Key::EAST)
+						object.m_position.m_east |= high_value;
+					else if ( member_state == Enigma::World::Key::ARRIVAL)
+						object.m_position_arrival.m_east |= high_value;
+				}
+				else if (group_state == Enigma::World::Key::NORTH)
+				{
+					if (member_state == Enigma::World::Key::NORTH)
+						object.m_position.m_north |= high_value;
+					else if (member_state == Enigma::World::Key::ARRIVAL)
+						object.m_position_arrival.m_north |= high_value;
+				}
+				else if (group_state == Enigma::World::Key::ABOVE)
+				{
+					if (member_state == Enigma::World::Key::ABOVE)
+						object.m_position.m_above |= high_value;
+					else if (member_state == Enigma::World::Key::ARRIVAL)
+						object.m_position_arrival.m_above |= high_value;
+				}
+
+				break;
+
+			case Enigma::World::Key::ARRIVAL:
+				// This is the teleport arrival value member for a group of values.
+				// Select the appropriate destination.
+
+				if (group_state == Enigma::World::Key::SURFACE)
+					object.m_surface_arrival = (Enigma::Object::Direction)value;
+				else if (group_state == Enigma::World::Key::ROTATION)
+					object.m_rotation_arrival = (Enigma::Object::Direction)value;
+				else if (group_state == Enigma::World::Key::EAST)
+					object.m_position_arrival.m_east = (guint16)value;
+				else if (group_state == Enigma::World::Key::NORTH)
+					object.m_position_arrival.m_north = (guint16)value;
+				else if (group_state == Enigma::World::Key::ABOVE)
+					object.m_position_arrival.m_above = (guint16)value;
+
+				member_state = key;
+				break;
+
+			case Enigma::World::Key::SENSE:
+				// An object state signal name follows this keyvalue pair.  Copy
+				// the name to a string buffer.  Value is the name's length.
+
+				object.m_sense.assign(filedata, index, value);
+				index += value;
+				break;
+
+			case Enigma::World::Key::STATE:
+				// An object state signal name follows this keyvalue pair.  Copy
+				// the name to a string buffer.  Value is the name's length.
+
+				object.m_state.assign(filedata, index, value);
+				index += value;
+				break;
+
+			case Enigma::World::Key::VISIBILITY:
+				// An object state signal name follows this keyvalue pair.  Copy
+				// the name to a string buffer.  Value is the name's length.
+
+				object.m_visibility.assign(filedata, index, value);
+				index += value;
+				break;
+
+			case Enigma::World::Key::PRESENCE:
+				// An object state signal name follows this keyvalue pair.  Copy
+				// the name to a string buffer.  Value is the name's length.
+
+				object.m_presence.assign(filedata, index, value);
+				index += value;
+				break;
+
+			case Enigma::World::Key::SAVED:
+				// The presence of a Saved key means the game map can be saved
+				// while being played.
+
+				savable = true;
+				break;
+
+			case Enigma::World::Key::OBJECT:
+			case Enigma::World::Key::TELEPORTER:
+			case Enigma::World::Key::PLAYER:
+			case Enigma::World::Key::ITEM:
+			case Enigma::World::Key::DESCRIPTION:
+			case Enigma::World::Key::CONTROLLER:
+			case Enigma::World::Key::END:
+				// An element keyvalue or array end keyvalue has been encountered.
+				// Move the array index back to this keyvalue before exiting.
+
+				index -= 2;
+				done = true;
+				break;
+
+			default:
+				break;
+		}
+	}
 }
 
-//---------------------------------------------------------------*
-// This private function extracts a Description from new version *
-// game map data.                                                *
-//---------------------------------------------------------------*
-// afiledata: Keyvalue stream.                                   *
-// aIndex:    KeyValue index.                                    *
-// aObject:   Reference to text buffer.                          *
-// RETURN:    Text buffer filled with description text.          *
-//---------------------------------------------------------------*
+//-------------------------------------------------------------
+// This private function extracts a Description from file data.
+//-------------------------------------------------------------
+// filedata: Keyvalue stream.
+// index:    KeyValue index.
+// object:   Reference to text buffer.
+// RETURN:   Text buffer filled with description text.
+//-------------------------------------------------------------
 
-void ExtractNewDescription( const std::string& afiledata,
-                            guint& aIndex,
-                            Glib::ustring& aDescription )
+void extract_description(const std::string& filedata,
+                         guint& index,
+                         Glib::ustring& description)
 {
-  // Skip over the header keyvalue.  At present, the language value
-  // is ignored.
-  
-  aIndex += 2;
-  
-  // Record Description information from the keyvalue array until
-  // an element header or keyvalue array terminator is encountered.
- 
-  Enigma::World::Key BankState = Enigma::World::Key::ENone;
-  Enigma::World::Key Key;
-  guint8 Value;
-  guint16 Length = 0;
-  gboolean Done  = FALSE;
-  
-  while ((( afiledata.size() - aIndex ) >= 2 ) && !Done )
-  {
-    Key = (Enigma::World::Key)afiledata.at( aIndex );
-    aIndex ++;
+	// Skip over the header keyvalue.  At present, the language value
+	// is ignored.
 
-    Value = afiledata.at( aIndex );
-    aIndex ++;
+	index += 2;
 
-    switch( key)
-    {
-      case Enigma::World::Key::ELength:      
-        Length = (guint16)Value;
-        BankState = Key;
-        break;
-    
-      case Enigma::World::Key::EData:
-        // The keyvalue is followed by a block of description data.
-        
-        aDescription = afiledata.substr( aIndex, Length );
-        aIndex += Length;
-        break;
-        
-      case Enigma::World::Key::EBank:
-        // The value of a previous keyvalue is to have a high byte added.
-        // Adding only one extra bank is supported, extending the value
-        // to a maximum of 16 bits.
+	// Record Description information from the keyvalue array until
+	// an element header or keyvalue array terminator is encountered.
 
-        if ( BankState == Enigma::World::Key::ELength )
-          Length |= (guint16)( Value << 8 );
-                    
-        break;
-        
-      case Enigma::World::Key::EObject:
-      case Enigma::World::Key::ETeleporter:
-      case Enigma::World::Key::EPlayer:
-      case Enigma::World::Key::EItem:
-      case Enigma::World::Key::EDescription:
-      case Enigma::World::Key::EController:
-      case Enigma::World::Key::EEnd:
-        // An element keyvalue or array end keyvalue has been encountered.
-        // Move the array index back to this keyvalue before exiting.
-			
-        aIndex -= 2;
-        Done = TRUE;
-        break;
-        
-      default:
-        break;
-    }
-  }
-  
-  return;
+	Enigma::World::Key bank_state = Enigma::World::Key::NONE;
+	Enigma::World::Key key;
+	guint8 value;
+	guint16 length = 0;
+	bool done      = false;
+
+	while (((filedata.size() - index) >= 2) && !done)
+	{
+		key = (Enigma::World::Key)filedata.at(index);
+		index ++;
+
+		value = filedata.at(index);
+		index ++;
+
+		switch( key)
+		{
+			case Enigma::World::Key::LENGTH:      
+				length = (guint16)value;
+				bank_state = key;
+				break;
+
+			case Enigma::World::Key::DATA:
+				// The keyvalue is followed by a block of description data.
+
+				description = filedata.substr(index, length);
+				index += length;
+				break;
+
+			case Enigma::World::Key::BANK:
+				// The value of a previous keyvalue is to have a high byte added.
+				// Adding only one extra bank is supported, extending the value
+				// to a maximum of 16 bits.
+
+				if (bank_state == Enigma::World::Key::LENGTH)
+				length |= (guint16)(value << 8);
+
+				break;
+
+			case Enigma::World::Key::OBJECT:
+			case Enigma::World::Key::TELEPORTER:
+			case Enigma::World::Key::PLAYER:
+			case Enigma::World::Key::ITEM:
+			case Enigma::World::Key::DESCRIPTION:
+			case Enigma::World::Key::CONTROLLER:
+			case Enigma::World::Key::END:
+				// An element keyvalue or array end keyvalue has been encountered.
+				// Move the array index back to this keyvalue before exiting.
+
+				index -= 2;
+				done = true;
+				break;
+
+			default:
+				break;
+		}
+	}
 }
 
-//--------------------------------------------------------------*
-// This private function extracts a Controller from new version *
-// game map data.                                               *
-//--------------------------------------------------------------*
-// afiledata: Keyvalue stream.                                  *
-// aIndex:    KeyValue index.                                   *
-// aObject:   Reference to MapController.                       *
-// RETURN:    MapController filled with keyvalue information.   *
-//--------------------------------------------------------------*
+//------------------------------------------------------------
+// This private function extracts a Controller from file data.
+//------------------------------------------------------------
+// filedata: Keyvalue stream.
+// index:    KeyValue index.
+// object:   Reference to Controller.
+// RETURN:   Controller filled with keyvalue information.
+//------------------------------------------------------------
 
-void ExtractNewController( const std::string& afiledata,
-                           guint& aIndex,
-                           CMapController& aController )
+void extract_controller(const std::string& filedata,
+                        guint& index,
+                        Enigma::Controller& controller)
 {
-  // A controller name follows the new element keyvalue pair.
-  // Prepare the controller to receive new information.
- 
-  ++ aIndex;
-  guint8 Value = afiledata.at( aIndex );
-  ++ aIndex;
-  
-  aController.iName = afiledata.substr( aIndex, value);
-  aController.iSignalNames.resize(0);
-  aController.iRestartCode.resize(0);
-  aController.iMainCode.resize(0);
-  
-  aIndex += Value;
-  
-  // Record Controller information from the keyvalue array until
-  // an element header or keyvalue array terminator is encountered.
- 
-  Enigma::World::Key BankState = Enigma::World::Key::ENone;
-  Enigma::World::Key DataState = Enigma::World::Key::ENone;
-  Enigma::World::Key Key;
-  guint16 Length = 0;
-  gboolean Done  = FALSE;
-  
-  while ((( afiledata.size() - aIndex ) >= 2 ) && !Done )
-  {
-    Key = (Enigma::World::Key)afiledata.at( aIndex );
-    aIndex ++;
+	// A controller name follows the new element keyvalue pair.
+	// Prepare the controller to receive new information.
 
-    Value = afiledata.at( aIndex );
-    aIndex ++;
+	++ index;
+	guint8 value = filedata.at(index);
+	++ index;
 
-    switch( key)
-    {
-      case Enigma::World::Key::ECode:
-      case Enigma::World::Key::ECurrent:
-      case Enigma::World::Key::ESaved:      
-      case Enigma::World::Key::ERestart:
-      case Enigma::World::Key::ESignal:
-        // These keys indicates a controller bytecode block or signal
-        // name block.  Some of these blocks not be loaded, but the
-        // DataState key must still be updated for use by the EData
-        // keyvalue later.
-      
-        DataState = Key;
-        break;
-    
-      case Enigma::World::Key::ELength:      
-        Length = (guint16)Value;
-        BankState = Key;
-        break;
-        
-      case Enigma::World::Key::EBank:
-        // The value of a previous keyvalue is to have a high byte added.
-        // Adding only one extra bank is supported, extending the value
-        // to a maximum of 16 bits.
+	controller.m_name = filedata.substr( index, value);
+	controller.m_signal_names.resize(0);
+	controller.m_restart_code.resize(0);
+	controller.m_main_code.resize(0);
 
-        if ( BankState == Enigma::World::Key::ELength )
-          Length |= (guint16)( Value << 8 );
-                    
-        break;
-    
-      case Enigma::World::Key::EData:
-        // The keyvalue is followed by a block of data.  Only current Code,
-        // restart Code, and Signal names are loaded.
+	index += value;
 
-        if ( DataState == Enigma::World::Key::ECode )
-          aController.iMainCode.assign( afiledata, aIndex, Length );
-        else if ( DataState == Enigma::World::Key::ERestart )
-          aController.iRestartCode.assign( afiledata, aIndex, Length );
-        else if ( DataState == Enigma::World::Key::ESignal )
-          aController.iSignalNames.assign( afiledata, aIndex, Length );
-        
-        // Move the array index over the data block.
-        
-        aIndex += Length;
-        break;
-    
-      case Enigma::World::Key::EObject:
-      case Enigma::World::Key::ETeleporter:
-      case Enigma::World::Key::EPlayer:
-      case Enigma::World::Key::EItem:
-      case Enigma::World::Key::EDescription:
-      case Enigma::World::Key::EController:
-      case Enigma::World::Key::EEnd:
-        // An element keyvalue or array end keyvalue has been encountered.
-        // Move the array index back to this keyvalue before exiting.
-			
-        aIndex -= 2;
-        Done = TRUE;
-        break;
-        
-      default:
-        break;
-    }
-  }
+	// Record Controller information from the keyvalue array until
+	// an element header or keyvalue array terminator is encountered.
+
+	Enigma::World::Key bank_state = Enigma::World::Key::NONE;
+	Enigma::World::Key data_state = Enigma::World::Key::NONE;
+	Enigma::World::Key key;
+	guint16 length = 0;
+	bool done = false;
+
+	while (((filedata.size() - index) >= 2) && !done)
+	{
+		key = (Enigma::World::Key)filedata.at(index);
+		index ++;
+
+		value = filedata.at(index);
+		index ++;
+
+		switch(key)
+		{
+			case Enigma::World::Key::CODE:
+			case Enigma::World::Key::CURRENT:
+			case Enigma::World::Key::SAVED:      
+			case Enigma::World::Key::RESTART:
+			case Enigma::World::Key::SIGNAL:
+				// These keys indicates a controller bytecode block or signal
+				// name block.  Some of these blocks may not be loaded, but
+				// the data_state key must still be updated for use by the
+				// DATA keyvalue later.
+
+				data_state = key;
+				break;
+
+			case Enigma::World::Key::LENGTH:      
+				length = (guint16)value;
+				bank_state = key;
+				break;
+
+			case Enigma::World::Key::BANK:
+				// The value of a previous keyvalue is to have a high byte added.
+				// Adding only one extra bank is supported, extending the value
+				// to a maximum of 16 bits.
+
+				if (bank_state == Enigma::World::Key::LENGTH)
+					length |= (guint16)(value << 8);
+
+				break;
+
+			case Enigma::World::Key::DATA:
+				// The keyvalue is followed by a block of data.  Only current Code,
+				// restart Code, and Signal names are loaded.
+
+				if (data_state == Enigma::World::Key::CODE)
+					controller.m_main_code.assign(filedata, index, length);
+				else if (data_state == Enigma::World::Key::RESTART)
+					controller.m_restart_code.assign(filedata, index, length);
+				else if (data_state == Enigma::World::Key::SIGNAL)
+					controller.m_signal_names.assign(filedata, index, length);
+
+				// Move the array index over the data block.
+
+				index += length;
+				break;
+
+			case Enigma::World::Key::OBJECT:
+			case Enigma::World::Key::TELEPORTER:
+			case Enigma::World::Key::PLAYER:
+			case Enigma::World::Key::ITEM:
+			case Enigma::World::Key::DESCRIPTION:
+			case Enigma::World::Key::CONTROLLER:
+			case Enigma::World::Key::END:
+				// An element keyvalue or array end keyvalue has been encountered.
+				// Move the array index back to this keyvalue before exiting.
+
+				index -= 2;
+				done = true;
+				break;
+
+			default:
+				break;
+		}
+	}
 }
-*/
+
 //-------------------------------------------------------------
 // This method loads a game world from a file (.ewc extension).
 //-------------------------------------------------------------
@@ -609,189 +603,165 @@ void Enigma::World::load()
 {	
 	// Clear old data in map, but retain the filename. 
 
-	//Clear();
+	clear();
 
-	// Load game map file.  Return if unsuccessful.
+	// Load game world file.  Return if unsuccessful.
 
-	/*std::string filedata;
+	std::string filedata;
 
 	try
 	{
-	filedata = Glib::file_get_contents(m_filename);
+		filedata = Glib::file_get_contents(m_filename);
 	}
 	catch(Glib::Error error)
 	{
-	return;
+		return;
 	}
 
-	ExtractWorld( filedata );
+	// Confirm that the first line of the game map file has the proper
+	// indentification code.
 
-	// Choose the appropriate extraction method.
+	if (!filedata.compare("ewc\n"))
+		return;
 
-	if ( iFileName.find( ".ewc" ) != Glib::ustring::npos )
-	ExtractNewMap( filedata );
-	else if ( iFileName.find( ".pdb" ) != Glib::ustring::npos )
-	ExtractOldMap( filedata );*/
+	// Confirm that the file header has the correct ending.
+
+	bool end_header = false;
+	guint index = 0;
+	guint size  = 0;
+
+	do
+	{
+	size = find_line(filedata, index);
+
+	if (filedata.compare( index, size, "end_header\n") == 0)
+	{
+		end_header = true;
+		break;
+	}
+	else
+		index += size;
+	}
+	while (size != 0);
+
+	// Exit if the end of the header was not found.
+
+	if (!end_header)
+		return;
+
+	// Skip over the header to the start of the map elements.
+
+	index += size;
+
+	// Initialize an Object to receive keyvalue array information.
+
+	Enigma::Object object;
+
+	object.m_type     = Enigma::Object::Type::OBJECT;
+	object.m_id       = Enigma::Object::ID::NONE;
+	object.m_surface  = Enigma::Object::Direction::NONE;
+	object.m_rotation = Enigma::Object::Direction::NONE;
+
+	object.m_position.m_east  = Enigma::Position::MINIMUM;  
+	object.m_position.m_north = Enigma::Position::MINIMUM;
+	object.m_position.m_above = Enigma::Position::MINIMUM;
+
+	// Read information from the keyvalue array.
+
+	bool valid_data = true;
+	bool done       = false;
+	Enigma::World::Key key;
+	guint8 value;
+
+	while (((filedata.size() - index) >= 2) && !done)
+	{
+		// A complete keyvalue pair is available.  Read the keyvalue,
+		// but keep the keyvalue array index on the element header. 
+
+		key   = (Enigma::World::Key)filedata.at(index);
+		value = (guint8)filedata.at( index + 1);
+
+		switch(key)
+		{
+			case Enigma::World::Key::OBJECT:
+			case Enigma::World::Key::TELEPORTER:
+			case Enigma::World::Key::ITEM:
+			case Enigma::World::Key::PLAYER:
+				// An Object, Teleporter, Item or Player element header has been
+				// encountered.
+
+				extract_object(filedata, index, object, m_savable);
+
+				if  (((int)object.m_id < (int)Enigma::Object::ID::TOTAL)
+					&& ((int)object.m_surface < (int)Enigma::Object::Direction::TOTAL)
+					&& ((int)object.m_rotation < (int)Enigma::Object::Direction::TOTAL))
+				{            
+					// The MapObject has been filled with valid data.  Add a new
+					// object to the appropriate list.
+
+					if (key == Enigma::World::Key::ITEM)
+						m_items.push_back(object);
+					else if (key == Enigma::World::Key::PLAYER)
+						m_players.push_back(object);
+					else if (key == Enigma::World::Key::TELEPORTER)
+						m_teleporters.push_back(object);
+					else
+						m_objects.push_back(object);
+				}
+				else
+				{
+					// The MapObject has some invalid data.  Force an exit with an
+					// invalid data error.
+
+					valid_data = false;
+					done       = true;
+				}
+
+				break;
+
+			case Enigma::World::Key::DESCRIPTION:
+				// A Description element header has been encountered.
+
+				extract_description(filedata, index, m_description);
+				break;
+
+			case Enigma::World::Key::CONTROLLER:
+				// A Controller element header has been encountered.
+
+				m_controllers.emplace_back();
+				extract_controller(filedata, index, m_controllers.back());
+				break;
+
+			case Enigma::World::Key::END:
+				// The end of the keyvalue array has been found.  Ensure it has
+				// the correct value, and is last in the keyvalue array.
+
+				if ((value != 0) || ((filedata.size() - index) != 2))
+				valid_data = false;
+
+				done = true;
+				break;
+
+			default:
+				// An unrecognized element header has been encountered.  Force
+				// an exit with an invalid data error.
+
+				valid_data = false;
+				done       = true;
+				break;
+		}
+	}
+
+	// If there was a data error, clear all saved data.  The game world file
+	// may be faulty.
+
+	if (!valid_data)    
+		clear();
 }
-/*
-//------------------------------------------------------------------------*
-// This method extracts information from new format game maps.  A loaded  *
-// group of Saved, Current, and Restart values will have only the Restart *
-// values recorded, so all group values will be the same as the Restart   *
-// value when saved to a game map file.                                   *
-//------------------------------------------------------------------------*
-// afiledata: Raw game map file data.                                     *
-//------------------------------------------------------------------------*
 
-void CMap::ExtractNewMap( std::string& afiledata )
-{ 
-  // Confirm that the first line of the game map file has the proper
-  // indentification code.
-
-  if ( !afiledata.compare( "ewc\n" ) )
-    return;
-
-  // Confirm that the file header has the correct ending.
-	
-  gboolean EndHeader = FALSE;
-  guint Index = 0;
-  guint Size  = 0;
-  
-  do
-  {
-    Size = find_line( afiledata, Index );
-    
-    if ( afiledata.compare( Index, Size, "end_header\n" ) == 0 )
-    {
-      EndHeader = TRUE;
-      break;
-    }
-    else
-      Index += Size;
-  }
-  while ( Size != 0 );
-
-  // Exit if the end of the header was not found.
-
-  if ( !EndHeader )
-    return;
-
-  // Skip over the header to the start of the map elements.
-  
-  Index += Size;
-
-  // Initialize a MapObject to receive keyvalue array information.
-
-  CMapObject Object;
-  
-  Object.iType     = CMapObject::Type::EObject;
-  Object.iID       = EnigmaWC::ID::ENone;
-  Object.iSurface  = EnigmaWC::Direction::ENone;
-  Object.iRotation = EnigmaWC::Direction::ENone;
-
-  Object.iLocation.iEast  = 0;  
-  Object.iLocation.iNorth = 0;
-  Object.iLocation.iAbove = 0;
-
-  // Read information from the keyvalue array.
-  
-  gboolean ValidData = TRUE;
-  gboolean Done      = FALSE;
-  Enigma::World::Key Key;
-  guint8 Value;
-  
-  while ((( afiledata.size() - Index ) >= 2 ) && !Done )
-  {
-    // A complete keyvalue pair is available.  Read the keyvalue,
-    // but keep the keyvalue array index on the element header. 
-  
-    Key   = (Enigma::World::Key)afiledata.at( Index );
-    Value = (guint8)afiledata.at( Index + 1 );
-    
-    switch( key)
-    {
-      case Enigma::World::Key::EObject:
-      case Enigma::World::Key::ETeleporter:
-      case Enigma::World::Key::EItem:
-      case Enigma::World::Key::EPlayer:
-
-        // An Object, Teleporter, Item or Player element header has been
-        // encountered.
-        
-        ExtractNewObject( afiledata, Index, Object, iSavable );
-        
-        if  (((int)Object.iID < (int)EnigmaWC::ID::TOTAL )
-          && ((int)Object.iSurface < (int)EnigmaWC::Direction::TOTAL )
-          && ((int)Object.iRotation < (int)EnigmaWC::Direction::TOTAL ))
-        {            
-          // The MapObject has been filled with valid data.  Add a new
-          // object to the appropriate list.
-          
-          if ( Key == Enigma::World::Key::EItem )
-            iItems.push_back( Object );
-          else if ( Key == Enigma::World::Key::EPlayer )
-            iPlayers.push_back( Object );
-          else if ( Key == Enigma::World::Key::ETeleporter )
-            iTeleporters.push_back( Object );
-          else
-            iObjects.push_back( Object );
-        }
-        else
-        {
-          // The MapObject has some invalid data.  Force an exit with an
-          // invalid data error.
-        
-          ValidData = FALSE;
-          Done      = TRUE;
-        }
-          
-        break;
-			
-			case Enigma::World::Key::EDescription:
-        // A Description element header has been encountered.
-        
-        ExtractNewDescription( afiledata, Index, iDescription );
-        break;
-        
-      case Enigma::World::Key::EController:
-        // A Controller element header has been encountered.
-        
-        iControllers.emplace_back();
-        ExtractNewController( afiledata, Index, iControllers.back() );
-        break;
-			
-			case Enigma::World::Key::EEnd:
-			  // The end of the keyvalue array has been found.  Ensure it has
-			  // the correct value, and is last in the keyvalue array.
-            
-        if (( Value != 0 ) || (( afiledata.size() - Index ) != 2 ))
-          ValidData = FALSE;
-			  
-			  Done = TRUE;
-			  break;
-			
-      default:
-        // An unrecognized element header has been encountered.  Force
-        // an exit with an invalid data error.
-        
-        ValidData = FALSE;
-        Done      = TRUE;
-        break;
-    }
-  }
-
-  // If there was a data error, clear all saved data.  The game map file
-  // may be faulty.
-
-  if ( !ValidData )    
-    Clear();
-
-  return;
-}
-*/
-//------------------------------------------
-// This method saves the game map to a file.
-//------------------------------------------
+//--------------------------------------------
+// This method saves the game world to a file.
+//--------------------------------------------
 
 void Enigma::World::save()
 {	
@@ -800,7 +770,7 @@ void Enigma::World::save()
 	//-------------------------
 
 	std::string filedata =
-"ewc\n\
+	"ewc\n\
 format binary_byte 1.0\n\
 comment Enigma in the Wine Cellar 1.0 game world\n\
 comment Created by World in the Wine Cellar 1.0\n";
@@ -829,560 +799,558 @@ comment Created by World in the Wine Cellar 1.0\n";
 	filedata.push_back('\n');
 
 	filedata.append("end_header\n");
-/*
-  //------------------------------------------*
-  // Write KeyValues for all map controllers. *
-  //------------------------------------------*
-  
-  std::list<CMapController>::iterator Controller;
-  
-  for ( Controller = iControllers.begin();
-        Controller != iControllers.end();
-        ++ Controller )
+
+	//-------------------------------------
+	// Write KeyValues for all Controllers.
+	//-------------------------------------
+
+	std::list<Enigma::Controller>::iterator controller;
+
+	for (controller = m_controllers.begin();
+	     controller != m_controllers.end();
+	     ++ controller)
 	{
 		// Add header for a map controller.
-		
-		write_key_value_string( filedata,
-                          Enigma::World::Key::EController,
-                          (*Controller).iName );
-     
-    // Write Main bytecode block.
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ECode,
-                        0 );
-    
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ELength,
-                         (*Controller).iMainCode.size() );
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::EData,
-                        0 );
-                        
-    filedata.append((*Controller).iMainCode );
-    
-    // Write Current bytecode block (same as Restart bytecode for
-    // new game maps).
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ECurrent,
-                        0 );
-    
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ELength,
-                         (*Controller).iRestartCode.size() );
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::EData,
-                        0 );
-                        
-    filedata.append((*Controller).iRestartCode );
-        
-    // Write Saved bytecode block (same as Restart bytecode for
-    // new game maps).
-    
-    if ( iSavable )
-    {
-      write_key_value_8bit( filedata,
-                          Enigma::World::Key::ESaved,
-                          0 );
-    
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::ELength,
-                           (*Controller).iRestartCode.size() );
-    
-      write_key_value_8bit( filedata,
-                          Enigma::World::Key::EData,
-                          0 );
-                        
-      filedata.append((*Controller).iRestartCode );
-    }
-    
-    // Write Restart bytecode block.
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERestart,
-                        0 );
-    
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ELength,
-                         (*Controller).iRestartCode.size() );
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::EData,
-                        0 );
-                        
-    filedata.append((*Controller).iRestartCode );
 
-    // Add header for a packed array of controller signal names.
+		write_key_value_string(filedata,
+			                     Enigma::World::Key::CONTROLLER,
+			                     (*controller).m_name);
 
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ESignal,
-                        0 );
+		// Write Main bytecode block.
 
-    // Add Length keyvalue.
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::CODE,
+			                   0);
 
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ELength,
-                         (guint16)(*Controller).iSignalNames.size() );
+		write_key_value_16bit(filedata,
+			                    Enigma::World::Key::LENGTH,
+			                    (*controller).m_main_code.size());
 
-    // Write Data keyvalue, followed by the packed array of signal names.
-  
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::EData,
-                        0 );
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::DATA,
+			                   0);
 
-    filedata.append((*Controller).iSignalNames );
-  }
+		filedata.append((*controller).m_main_code);
 
-  //---------------------------------------------*
-  // Write KeyValues for all structural objects. *
-  //---------------------------------------------*
+		// Write Current bytecode block (same as Restart bytecode for
+		// new game maps).
 
-	// Set the initial East, North, and Above locations to their maximum,
-	// forcing an addition of location keyvalues for the first structural
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::CURRENT,
+			                   0);
+
+		write_key_value_16bit(filedata,
+			                    Enigma::World::Key::LENGTH,
+			                    (*controller).m_restart_code.size());
+
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::DATA,
+			                   0);
+
+		filedata.append((*controller).m_restart_code);
+
+		// Write Saved bytecode block (same as Restart bytecode for
+		// new game maps).
+
+		if (m_savable)
+		{
+			write_key_value_8bit(filedata,
+				                   Enigma::World::Key::SAVED,
+				                   0);
+
+			write_key_value_16bit(filedata,
+				                    Enigma::World::Key::LENGTH,
+				                   (*controller).m_restart_code.size());
+
+			write_key_value_8bit(filedata,
+				                   Enigma::World::Key::DATA,
+				                   0);
+
+			filedata.append((*controller).m_restart_code);
+		}
+
+		// Write Restart bytecode block.
+
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::RESTART,
+		                     0);
+
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::LENGTH,
+		                      (*controller).m_restart_code.size());
+
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::DATA,
+		                     0);
+
+		filedata.append((*controller).m_restart_code);
+
+		// Add header for a packed array of controller signal names.
+
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::SIGNAL,
+			                   0);
+
+		// Add Length keyvalue.
+
+		write_key_value_16bit(filedata,
+			                    Enigma::World::Key::LENGTH,
+			                    (guint16)(*controller).m_signal_names.size());
+
+		// Write Data keyvalue, followed by the packed array of signal names.
+
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::DATA,
+			                   0);
+
+		filedata.append((*controller).m_signal_names);
+	}
+
+	//--------------------------------------------
+	// Write KeyValues for all structural objects.
+	//--------------------------------------------
+
+	// Set the initial East, North, and Above positions to their maximum,
+	// forcing an addition of position keyvalues for the first structural
 	// object (the first structural object cannot use the maximum value). 
 
-  guint16 East  = G_MAXUINT16;
-  guint16 North = G_MAXUINT16;  	
-  guint16 Above = G_MAXUINT16; 
+	guint16 east  = Enigma::Position::MAXIMUM;
+	guint16 north = Enigma::Position::MAXIMUM;  	
+	guint16 above = Enigma::Position::MAXIMUM; 
 
-  std::list<CMapObject>::iterator Object;
+	std::list<Enigma::Object>::iterator object;
 
-  for ( Object = iObjects.begin();
-        Object != iObjects.end();
-        ++ Object )
-  {
-    // Add the header for a simple object.
-	
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::EObject,
-                        (guint8)(*Object).iID );
+	for (object = m_objects.begin();
+	     object != m_objects.end();
+	     ++ object)
+	{
+		// Add the header for a simple object.
 
-    // Add a new East keyvalue if an object with a different location
-    // has been encountered.
-		
-    if ((*Object).iLocation.iEast != East )
-    {			
-      East = (*Object).iLocation.iEast;
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::OBJECT,
+		                     (guint8)(*object).m_id);
 
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::EEast,
-                           East );
-    }
+		// Add a new East keyvalue if an object with a different position
+		// has been encountered.
 
-    // Add a new North keyvalue if an object with a different location
-    // has been encountered.
-		
-    if ((*Object).iLocation.iNorth != North )
-    {
-      North = (*Object).iLocation.iNorth;
-      
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::ENorth,
-                           North );
-    }
+		if ((*object).m_position.m_east != east)
+		{			
+			east = (*object).m_position.m_east;
 
-    // Add a new Above keyvalue if an object with a different location
-    // has been encountered.
-		
-    if ((*Object).iLocation.iAbove != Above )
-    {
-      Above = (*Object).iLocation.iAbove;
+			write_key_value_16bit(filedata,
+			                      Enigma::World::Key::EAST,
+			                      east);
+		}
 
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::EAbove,
-                           Above );
-    }
+		// Add a new North keyvalue if an object with a different position
+		// has been encountered.
 
-    // Add a surface keyvalue.
+		if ((*object).m_position.m_north != north)
+		{
+			north = (*object).m_position.m_north;
 
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ESurface,
-                        (guint8)(*Object).iSurface );
+			write_key_value_16bit(filedata,
+			                      Enigma::World::Key::NORTH,
+			                      north);
+		}
 
-    // Add a rotation keyvalue.
+		// Add a new Above keyvalue if an object with a different position
+		// has been encountered.
 
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERotation,
-                        (guint8)(*Object).iRotation );
-                        
-    // Add object state or signal keyvalues.
-        
-    write_key_value_string( filedata,
-                          Enigma::World::Key::ESense,
-                          (*Object).iSense );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EState,
-                          (*Object).iState );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EVisibility,
-                          (*Object).iVisibility );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EPresence,
-                          (*Object).iPresence );
-  }
+		if ((*object).m_position.m_above != above)
+		{
+			above = (*object).m_position.m_above;
 
-  //---------------------------------------------*
-  // Write KeyValues for all teleporter objects. *
-  //---------------------------------------------*
+			write_key_value_16bit(filedata,
+			                      Enigma::World::Key::ABOVE,
+			                      above);
+		}
 
-  for ( Object = iTeleporters.begin();
-        Object != iTeleporters.end();
-        ++ Object )
+		// Add a surface keyvalue.
+
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::SURFACE,
+		                     (guint8)(*object).m_surface);
+
+		// Add a rotation keyvalue.
+
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::ROTATION,
+		                     (guint8)(*object).m_rotation);
+
+		// Add object state or signal keyvalues.
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::SENSE,
+		                       (*object).m_sense);
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::STATE,
+		                       (*object).m_state);
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::VISIBILITY,
+		                       (*object).m_visibility);
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::PRESENCE,
+		                       (*object).m_presence);
+	}
+
+	//---------------------------------------------*
+	// Write KeyValues for all teleporter objects. *
+	//---------------------------------------------*
+
+	for (object = m_teleporters.begin();
+	     object != m_teleporters.end();
+	     ++ object)
 	{
 		// Add header for a teleporter object.
-		
-		write_key_value_8bit( filedata,
-                        Enigma::World::Key::ETeleporter,
-                        (guint8)(*Object).iID );
-  
-    // Write departure surface keyvalue, and add arrival surface
-    // if it is not to be the player's current surface.
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ESurface,
-                        (guint8)(*Object).iSurface );
-  
-    if ((*Object).iSurfaceArrival != EnigmaWC::Direction::ENone )
-    {
-      write_key_value_8bit( filedata,
-                          Enigma::World::Key::EArrival,
-                          (guint8)(*Object).iSurfaceArrival );
-    }
-    
-    // Write departure rotation keyvalue, and add arrival rotation
-    // if it is not to be the player's current rotation.
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERotation,
-                        (guint8)(*Object).iRotation );
-  
-    if ((*Object).iRotationArrival != EnigmaWC::Direction::ENone )
-    {
-      write_key_value_8bit( filedata,
-                          Enigma::World::Key::EArrival,
-                          (guint8)(*Object).iRotationArrival );
-    }
-    
-    // Write departure East location keyvalue, and add arrival East location
-    // if it is not to be the player's current East location.
-  
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::EEast,
-                         (*Object).iLocation.iEast );
-                         
-    if ((*Object).iLocationArrival.iEast != G_MAXUINT16 )
-    {
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::EArrival,
-                           (*Object).iLocationArrival.iEast );
-    }
-    
-    // Write departure North location keyvalue, and add arrival North location
-    // if it is not to be the player's current North location.
-  
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ENorth,
-                         (*Object).iLocation.iNorth );
-                         
-    if ((*Object).iLocationArrival.iNorth != G_MAXUINT16 )
-    {
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::EArrival,
-                           (*Object).iLocationArrival.iNorth );
-    }
-    
-    // Write departure Above location keyvalue, adding arrival Above location
-    // if it is not to be the player's current Above location.
-  
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::EAbove,
-                         (*Object).iLocation.iAbove );
 
-    if ((*Object).iLocationArrival.iAbove != G_MAXUINT16 )
-    {           
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::EArrival,
-                           (*Object).iLocationArrival.iAbove );
-    }
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::TELEPORTER,
+			                   (guint8)(*object).m_id);
 
-      // Add object state or signal keyvalues.
-        
-    write_key_value_string( filedata,
-                          Enigma::World::Key::ESense,
-                          (*Object).iSense );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EState,
-                          (*Object).iState );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EVisibility,
-                          (*Object).iVisibility );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EPresence,
-                          (*Object).iPresence );
-  }
-  
-  //-----------------------------------------*
-  // Write KeyValues for all player objects. *
-  //-----------------------------------------*
-  
-  for ( Object = iPlayers.begin();
-        Object != iPlayers.end();
-        ++ Object )
+		// Write departure surface keyvalue, and add arrival surface
+		// if it is not to be the player's current surface.
+
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::SURFACE,
+			                   (guint8)(*object).m_surface);
+
+		if ((*object).m_surface_arrival != Enigma::Object::Direction::NONE)
+		{
+			write_key_value_8bit(filedata,
+				                   Enigma::World::Key::ARRIVAL,
+				                   (guint8)(*object).m_surface_arrival);
+		}
+
+		// Write departure rotation keyvalue, and add arrival rotation
+		// if it is not to be the player's current rotation.
+
+		write_key_value_8bit(filedata,
+			                   Enigma::World::Key::ROTATION,
+			                   (guint8)(*object).m_rotation);
+
+		if ((*object).m_rotation_arrival != Enigma::Object::Direction::NONE)
+		{
+			write_key_value_8bit(filedata,
+				                   Enigma::World::Key::ARRIVAL,
+				                   (guint8)(*object).m_rotation_arrival);
+		}
+
+		// Write departure East location keyvalue, and add arrival East location
+		// if it is not to be the player's current East location.
+
+		write_key_value_16bit(filedata,
+			                    Enigma::World::Key::EAST,
+			                    (*object).m_position.m_east);
+
+		if ((*object).m_position_arrival.m_east != Enigma::Position::MAXIMUM)
+		{
+			write_key_value_16bit(filedata,
+				                    Enigma::World::Key::ARRIVAL,
+				                    (*object).m_position_arrival.m_east);
+		}
+
+		// Write departure North location keyvalue, and add arrival North location
+		// if it is not to be the player's current North location.
+
+		write_key_value_16bit(filedata,
+			                    Enigma::World::Key::NORTH,
+			                    (*object).m_position.m_north);
+
+		if ((*object).m_position_arrival.m_north != Enigma::Position::MAXIMUM)
+		{
+			write_key_value_16bit(filedata,
+					                  Enigma::World::Key::ARRIVAL,
+					                  (*object).m_position_arrival.m_north);
+		}
+
+		// Write departure Above location keyvalue, adding arrival Above location
+		// if it is not to be the player's current Above location.
+
+		write_key_value_16bit(filedata,
+			                    Enigma::World::Key::ABOVE,
+			                    (*object).m_position.m_above);
+
+		if ((*object).m_position_arrival.m_above != Enigma::Position::MAXIMUM)
+		{           
+			write_key_value_16bit(filedata,
+				                    Enigma::World::Key::ARRIVAL,
+				                    (*object).m_position_arrival.m_above);
+		}
+
+			// Add object state or signal keyvalues.
+
+			write_key_value_string(filedata,
+				                     Enigma::World::Key::SENSE,
+				                     (*object).m_sense);
+
+			write_key_value_string(filedata,
+				                     Enigma::World::Key::STATE,
+				                     (*object).m_state);
+
+			write_key_value_string(filedata,
+				                     Enigma::World::Key::VISIBILITY,
+				                     (*object).m_visibility);
+
+			write_key_value_string(filedata,
+				                     Enigma::World::Key::PRESENCE,
+				                     (*object).m_presence);
+	}
+
+	//-----------------------------------------*
+	// Write KeyValues for all player objects. *
+	//-----------------------------------------*
+
+	for (object = m_players.begin();
+	     object != m_players.end();
+	     ++ object)
 	{
 		// Add header for a player object.
-		
-		write_key_value_8bit( filedata,
-                        Enigma::World::Key::EPlayer,
-                        (guint8)(*Object).iID );
-		
+
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::PLAYER,
+		                     (guint8)(*object).m_id);
+
 		// Write current, saved, and restart surface keyvalues.
 		// All have the same value.
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ESurface,
-                        (guint8)(*Object).iSurface );
 
-    if ( iSavable )
-    {
-      write_key_value_8bit( filedata,
-                          Enigma::World::Key::ESaved,
-                          (guint8)(*Object).iSurface );
-    }
-                        
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERestart,
-                        (guint8)(*Object).iSurface );
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::SURFACE,
+		                     (guint8)(*object).m_surface);
 
-    // Write current, saved, and restart rotation keyvalues.
-    // All have the same value.
-    
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERotation,
-                        (guint8)(*Object).iRotation );
+		if (m_savable)
+		{
+			write_key_value_8bit(filedata,
+			                     Enigma::World::Key::SAVED,
+			                     (guint8)(*object).m_surface);
+		}
 
-    if ( iSavable )
-    {
-      write_key_value_8bit( filedata,
-                          Enigma::World::Key::ESaved,
-                          (guint8)(*Object).iRotation );
-    }
-                        
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERestart,
-                        (guint8)(*Object).iRotation );
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::RESTART,
+		                     (guint8)(*object).m_surface);
 
-    // Write current, saved, and restart East location keyvalues.
-    // All have the same value.
+		// Write current, saved, and restart rotation keyvalues.
+		// All have the same value.
 
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::EEast,
-                         (*Object).iLocation.iEast );
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::ROTATION,
+		                     (guint8)(*object).m_rotation);
 
-    if ( iSavable )
-    {
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::ESaved,
-                           (*Object).iLocation.iEast );
-    } 
-                         
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ERestart,
-                         (*Object).iLocation.iEast );
+		if (m_savable)
+		{
+			write_key_value_8bit(filedata,
+			                     Enigma::World::Key::SAVED,
+			                     (guint8)(*object).m_rotation);
+		}
 
-    // Write current, saved, and restart North location keyvalues.
-    // All have the same value.
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::RESTART,
+		                     (guint8)(*object).m_rotation);
 
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ENorth,
-                         (*Object).iLocation.iNorth );
+		// Write current, saved, and restart East location keyvalues.
+		// All have the same value.
 
-    if ( iSavable )
-    {
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::ESaved,
-                           (*Object).iLocation.iNorth );
-    }
-                         
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ERestart,
-                         (*Object).iLocation.iNorth );
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::EAST,
+		                      (*object).m_position.m_east);
 
+		if (m_savable)
+		{
+			write_key_value_16bit(filedata,
+			                      Enigma::World::Key::SAVED,
+			                      (*object).m_position.m_east);
+		} 
+
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::RESTART,
+		                      (*object).m_position.m_east);
+
+		// Write current, saved, and restart North location keyvalues.
+		// All have the same value.
+
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::NORTH,
+		                      (*object).m_position.m_north);
+
+		if (m_savable)
+		{
+			write_key_value_16bit(filedata,
+			                      Enigma::World::Key::SAVED,
+			                      (*object).m_position.m_north);
+		}
+
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::RESTART,
+		                      (*object).m_position.m_north);
 
 		// Write current, saved, and restart Above location keyvalues.
 		// All have the same value.
-		
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::EAbove,
-                         (*Object).iLocation.iAbove );
 
-    if ( iSavable )
-    {
-      write_key_value_16bit( filedata,
-                           Enigma::World::Key::ESaved,
-                           (*Object).iLocation.iAbove );
-    }
-                         
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ERestart,
-                         (*Object).iLocation.iAbove );
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::ABOVE,
+		                      (*object).m_position.m_above);
+
+		if (m_savable)
+		{
+			write_key_value_16bit(filedata,
+			                      Enigma::World::Key::SAVED,
+			                      (*object).m_position.m_above);
+		}
+
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::RESTART,
+		                      (*object).m_position.m_above);
 
 		// Add current, saved, and restart Active state keyvalues.
-    // All have the same value.
-        
-    write_key_value_boolean( filedata,
-                           Enigma::World::Key::EActive,
-                           (*Object).iActive );
-                           
-    if ( iSavable )
-    {
-      write_key_value_boolean( filedata,
-                             Enigma::World::Key::ESaved,
-                             (*Object).iActive );
-    }
-                           
-    write_key_value_boolean( filedata,
-                           Enigma::World::Key::ERestart,
-                           (*Object).iActive );
+		// All have the same value.
 
-    // Add object state or signal keyvalues.  Player objects
-    // do not have a Sense state or signal.
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EState,
-                          (*Object).iState );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EVisibility,
-                          (*Object).iVisibility );
-                              
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EPresence,
-                          (*Object).iPresence );
+		write_key_value_boolean(filedata,
+			                      Enigma::World::Key::ACTIVE,
+			                      (*object).m_active);
+
+		if (m_savable)
+		{
+			write_key_value_boolean(filedata,
+				                      Enigma::World::Key::SAVED,
+				                      (*object).m_active);
+		}
+
+		write_key_value_boolean(filedata,
+		                        Enigma::World::Key::RESTART,
+		                        (*object).m_active);
+
+		// Add object state or signal keyvalues.  Player objects
+		// do not have a Sense state or signal.
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::STATE,
+		                       (*object).m_state);
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::VISIBILITY,
+		                       (*object).m_visibility);
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::PRESENCE,
+		                       (*object).m_presence);
 	}
 
-  //---------------------------------------*
-  // Write KeyValues for all item objects. *
-  //---------------------------------------*
+	//---------------------------------------*
+	// Write KeyValues for all item objects. *
+	//---------------------------------------*
 
-  for ( Object = iItems.begin();
-        Object != iItems.end();
-        ++ Object )
-  {
-    // Add header for an item object.
+	for (object = m_items.begin();
+	     object != m_items.end();
+	     ++ object)
+	{
+		// Add header for an item object.
 
-		write_key_value_8bit( filedata,
-                        Enigma::World::Key::EItem,
-                        (guint8)(*Object).iID );
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::ITEM,
+		                     (guint8)(*object).m_id);
 
-   // Write surface.
+		// Write surface.
 
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ESurface,
-                        (guint8)(*Object).iSurface );
-    
-    // Write rotation.
+		write_key_value_8bit(filedata,
+		                      Enigma::World::Key::SURFACE,
+		                      (guint8)(*object).m_surface);
 
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ERotation,
-                        (guint8)(*Object).iRotation );
+		// Write rotation.
 
-    // Write location.
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::ROTATION,
+		                     (guint8)(*object).m_rotation);
 
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::EEast,
-                         (*Object).iLocation.iEast );
+		// Write location.
 
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::ENorth,
-                         (*Object).iLocation.iNorth );
-		
-    write_key_value_16bit( filedata,
-                         Enigma::World::Key::EAbove,
-                         (*Object).iLocation.iAbove );
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::EAST,
+		                      (*object).m_position.m_east);
 
-    // Write category.
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::NORTH,
+		                      (*object).m_position.m_north);
 
-    write_key_value_8bit( filedata,
-                        Enigma::World::Key::ECategory,
-                        (guint8)(*Object).iCategory );
-                        
-    // Add current, saved, and restart active state keyvalues.
-    // All items begin as active (not yet found).
+		write_key_value_16bit(filedata,
+		                      Enigma::World::Key::ABOVE,
+		                      (*object).m_position.m_above);
 
-    write_key_value_boolean( filedata,
-                           Enigma::World::Key::EActive,
-                           TRUE );
-                           
-    if ( iSavable )
-    {
-      write_key_value_boolean( filedata,
-                             Enigma::World::Key::ESaved,
-                             TRUE );
-    }
-                           
-    write_key_value_boolean( filedata,
-                           Enigma::World::Key::ERestart,
-                           TRUE );
-                           
-    // Add object state or signal keyvalues.  Item objects
-    // do not have a Sense state or signal.
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EState,
-                          (*Object).iState );
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EVisibility,
-                          (*Object).iVisibility );
+		// Write category.
 
-    
-    write_key_value_string( filedata,
-                          Enigma::World::Key::EPresence,
-                          (*Object).iPresence );
-  }
+		write_key_value_8bit(filedata,
+		                     Enigma::World::Key::CATEGORY,
+		                     (guint8)(*object).m_category);
 
-  //------------------------------------------*
-  // Write KeyValues for the map description. *
-  //------------------------------------------*
-		
-  // Add header for a description.
+		// Add current, saved, and restart active state keyvalues.
+		// All items begin as active (not yet found).
 
-  write_key_value_8bit( filedata,
-                      Enigma::World::Key::EDescription,
-                      (guint8)EnigmaWC::Language::EEnglish );
+		write_key_value_boolean(filedata,
+		                        Enigma::World::Key::ACTIVE,
+		                        true);
 
-  // Add description length keyvalue.
+		if (m_savable)
+		{
+			write_key_value_boolean(filedata,
+			                        Enigma::World::Key::SAVED,
+			                        true);
+		}
 
-  write_key_value_16bit( filedata,
-                       Enigma::World::Key::ELength,
-                       (guint16)iDescription.bytes() );
+		write_key_value_boolean(filedata,
+		                        Enigma::World::Key::RESTART,
+		                        true);
 
-  // Write data keyvalue, followed by description in UTF-8 format.
-  
-  write_key_value_8bit( filedata,
-                      Enigma::World::Key::EData,
-                      0 );
+		// Add object state or signal keyvalues.  Item objects
+		// do not have a Sense state or signal.
 
-  filedata.append( iDescription );
-  
-  //----------------------------------*
-  // Write KeyValue array terminator. *
-  //----------------------------------*
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::STATE,
+		                       (*object).m_state);
 
-  write_key_value_8bit( filedata,
-                      Enigma::World::Key::EEnd,
-                      0 );
-*/
-  // Write the file data to the file.
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::VISIBILITY,
+		                       (*object).m_visibility);
+
+		write_key_value_string(filedata,
+		                       Enigma::World::Key::PRESENCE,
+		                       (*object).m_presence);
+	}
+
+	//-----------------------------------------
+	// Write KeyValues for the map description.
+	//-----------------------------------------
+
+	// Add header for a description.
+
+	write_key_value_8bit(filedata,
+	                     Enigma::World::Key::DESCRIPTION,
+	                     (guint8)Enigma::World::Language::ENGLISH);
+
+	// Add description length keyvalue.
+
+	write_key_value_16bit(filedata,
+	                      Enigma::World::Key::LENGTH,
+	                      (guint16)m_description.bytes());
+
+	// Write data keyvalue, followed by description in UTF-8 format.
+
+	write_key_value_8bit(filedata,
+	                     Enigma::World::Key::DATA,
+	                     0);
+
+	filedata.append(m_description);
+
+	//---------------------------------
+	// Write KeyValue array terminator.
+	//---------------------------------
+
+	write_key_value_8bit(filedata,
+	                     Enigma::World::Key::END,
+	                     0);
+
+	// Write the file data to the file.
 
 	try
 	{

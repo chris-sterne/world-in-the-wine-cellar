@@ -40,8 +40,8 @@ namespace Enigma
 				STORE,             // Store signal value.
 				CONDITIONAL,       // Conditional block.
 				JUMP,              // Relative jump.
-				FALSE0,            // False (0) value.
-				TRUE1,             // True (1) value.
+				FALSE0,             // False (0) value.
+				TRUE1,              // True (1) value.
 				RANDOM,            // Random (True/False) value.
 				TOTAL
 			};

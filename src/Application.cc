@@ -212,9 +212,9 @@ void Enigma::Application::on_command(const Glib::ustring& command)
       object.m_active   = false;
       object.m_category = Enigma::Object::Category::OPTIONAL;
       
-      object.m_position_arrival.m_east  = 65535;
-      object.m_position_arrival.m_above = 65535;
-      object.m_position_arrival.m_north = 65535;
+      object.m_position_arrival.m_east  = Enigma::Position::MAXIMUM;
+      object.m_position_arrival.m_above = Enigma::Position::MAXIMUM;
+      object.m_position_arrival.m_north = Enigma::Position::MAXIMUM;
       
       object.m_surface_arrival  = Enigma::Object::Direction::NONE;
       object.m_rotation_arrival = Enigma::Object::Direction::NONE;
